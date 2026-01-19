@@ -1,8 +1,17 @@
 /* ===== SIDEBAR THEME SATARETAN ===== */
 
 .modern-sidebar {
-  background: linear-gradient(180deg, #000, #0f0f0f);
+  background: linear-gradient(180deg, #0f0f0f, #080808);
   border-right: 1px solid #7f1d1d;
+  box-shadow: 8px 0 40px rgba(0, 0, 0, .7);
+  width: 240px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1040;
+  overflow-y: auto;
+  transition: transform .3s ease;
 }
 
 /* Brand */
@@ -28,13 +37,13 @@
 .sidebar-brand-text {
   font-weight: 800;
   letter-spacing: 1px;
-  color: #facc15;
-  font-size: 14px;
+  color: #fff;
+  font-size: 15px;
 }
 
 /* Divider */
 .sidebar-divider {
-  border-color: rgba(255,255,255,.08);
+  border-color: rgba(255, 255, 255, .08);
 }
 
 /* Nav item */
@@ -52,27 +61,33 @@
 .sidebar .nav-link i {
   margin-right: 10px;
   font-size: 14px;
-  color: #facc15;
+  color: #fff;
 }
 
 /* Hover */
 .sidebar .nav-link:hover {
-  background: rgba(250,204,21,.08);
+  background: rgba(250, 204, 21, .08);
   color: #fff;
 }
 
-/* Active parent */
-.sidebar .nav-item.active > .nav-link {
-  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+/* ACTIVE */
+.sidebar .nav-item.active>.nav-link,
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, #dc2626, #7f1d1d);
   color: #fff;
-  box-shadow: 0 8px 20px rgba(127,29,29,.5);
+  font-weight: 700;
+}
+
+.sidebar .nav-item.active>.nav-link i,
+.sidebar .nav-link.active i {
+  color: #fff;
 }
 
 /* Collapse */
 .collapse-inner {
   margin: 6px 0 6px 18px;
   padding-left: 8px;
-  border-left: 2px solid rgba(250,204,21,.3);
+  border-left: 2px solid linear-gradient(135deg, #dc2626, #7f1d1d);
 }
 
 .collapse-item {
@@ -85,13 +100,32 @@
 }
 
 .collapse-item:hover {
-  background: rgba(250,204,21,.08);
+  background: rgba(250, 204, 21, .08);
   color: #fff;
 }
 
 /* Active submenu */
 .collapse-item.active {
-  background: rgba(250,204,21,.15);
-  color: #facc15;
+  background: linear-gradient(135deg, #dc2626, #7f1d1d);
+  color: #fff;
   font-weight: 600;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .modern-sidebar {
+    transform: translateX(-100%);
+  }
+
+  body.sidebar-open .modern-sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .sidebar-overlay {
+    display: block;
+  }
+
+  body.sidebar-open {
+    overflow: hidden;
+  }
 }

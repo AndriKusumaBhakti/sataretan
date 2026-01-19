@@ -99,7 +99,7 @@
     }
 
     .logo-circle img {
-        width: 48px;
+        width: 80px;
     }
 
     label {

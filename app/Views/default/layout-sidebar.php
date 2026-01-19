@@ -92,21 +92,6 @@ $subsegment = $uri->getTotalSegments() >= 2 ? $uri->getSegment(2) : '';
 
 <!-- ===== STYLE SIDEBAR ===== -->
 <style>
-    /* CONTAINER */
-    .modern-sidebar {
-        background: #0f0f0f;
-        border-right: 1px solid #7f1d1d;
-        box-shadow: 8px 0 40px rgba(0, 0, 0, .7);
-        width: 240px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        z-index: 1040;
-        overflow-y: auto;
-        transition: transform .3s ease;
-    }
-
     /* BRAND */
     .sidebar-brand {
         height: 90px;
@@ -117,21 +102,14 @@ $subsegment = $uri->getTotalSegments() >= 2 ? $uri->getSegment(2) : '';
         width: 52px;
         height: 52px;
         border-radius: 50%;
-        background: radial-gradient(circle, #facc15, #b45309);
+        background: radial-gradient(circle, #dc2626, #7f1d1d);
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
     .sidebar-logo {
-        width: 34px;
-    }
-
-    .sidebar-brand-text {
-        font-weight: 800;
-        letter-spacing: 1px;
-        color: #facc15;
-        font-size: 15px;
+        width: 50px;
     }
 
     /* DIVIDER */
@@ -152,36 +130,10 @@ $subsegment = $uri->getTotalSegments() >= 2 ? $uri->getSegment(2) : '';
         transition: all .25s ease;
     }
 
-    .sidebar .nav-link i {
-        color: #facc15;
-        margin-right: 10px;
-    }
-
     /* HOVER */
     .sidebar .nav-link:hover {
         background: #1a1a1a;
         color: #fff;
-    }
-
-    /* ACTIVE */
-    .sidebar .nav-item.active>.nav-link,
-    .sidebar .nav-link.active {
-        background: linear-gradient(135deg, #facc15, #ca8a04);
-        color: #000;
-        font-weight: 700;
-    }
-
-    .sidebar .nav-item.active>.nav-link i,
-    .sidebar .nav-link.active i {
-        color: #000;
-    }
-
-    /* SUBMENU */
-    .collapse-inner {
-        background: #111;
-        border-radius: 12px;
-        margin: 6px 0;
-        padding: 6px;
     }
 
     .collapse-item {
@@ -197,12 +149,6 @@ $subsegment = $uri->getTotalSegments() >= 2 ? $uri->getSegment(2) : '';
         color: #fff;
     }
 
-    .collapse-item.active {
-        background: #facc15;
-        color: #000;
-        font-weight: 600;
-    }
-
     /* OVERLAY */
     .sidebar-overlay {
         position: fixed;
@@ -210,25 +156,6 @@ $subsegment = $uri->getTotalSegments() >= 2 ? $uri->getSegment(2) : '';
         background: rgba(0, 0, 0, .45);
         z-index: 1035;
         display: none;
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-        .modern-sidebar {
-            transform: translateX(-100%);
-        }
-
-        body.sidebar-open .modern-sidebar {
-            transform: translateX(0);
-        }
-
-        body.sidebar-open .sidebar-overlay {
-            display: block;
-        }
-
-        body.sidebar-open {
-            overflow: hidden;
-        }
     }
 </style>
 
