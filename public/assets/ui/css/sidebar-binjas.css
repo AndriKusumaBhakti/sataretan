@@ -17,6 +17,18 @@
 /* Brand */
 .sidebar-brand {
   padding: 1.5rem 1rem;
+  height: 90px;
+  text-decoration: none;
+}
+
+.logo-circle-sidebar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #dc2626, #7f1d1d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-brand-icon {
@@ -43,7 +55,7 @@
 
 /* Divider */
 .sidebar-divider {
-  border-color: rgba(255, 255, 255, .08);
+  border-top: 1px solid #262626;
 }
 
 /* Nav item */
@@ -52,9 +64,9 @@
 }
 
 .sidebar .nav-link {
+  color: #cfcfcf;
   border-radius: 12px;
-  padding: 10px 14px;
-  color: #cbd5e1;
+  padding: 12px 14px;
   transition: all .25s ease;
 }
 
@@ -66,7 +78,7 @@
 
 /* Hover */
 .sidebar .nav-link:hover {
-  background: rgba(250, 204, 21, .08);
+  background: #1a1a1a;
   color: #fff;
 }
 
@@ -95,12 +107,13 @@
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 13px;
-  color: #cbd5e1;
   transition: all .2s ease;
+  color: #ccc;
+  margin-bottom: 4px;
 }
 
 .collapse-item:hover {
-  background: rgba(250, 204, 21, .08);
+  background: #1f1f1f;
   color: #fff;
 }
 
@@ -109,6 +122,21 @@
   background: linear-gradient(135deg, #dc2626, #7f1d1d);
   color: #fff;
   font-weight: 600;
+}
+
+
+/* OVERLAY */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  z-index: 1035;
+  display: none;
+}
+
+
+.sidebar-logo {
+  width: 50px;
 }
 
 /* MOBILE */
