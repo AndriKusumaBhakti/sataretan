@@ -1,0 +1,68 @@
+/* === TOPBAR BINJAS === */
+.topbar-binjas {
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+/* SEARCH */
+.search-binjas .form-control {
+    border-radius: 20px;
+    border: none;
+    background: #f1f3f5;
+    padding: 10px 16px;
+    font-size: .9rem;
+}
+
+.search-binjas .form-control:focus {
+    box-shadow: none;
+    background: #e9f7ef;
+}
+
+.btn-search {
+    background: #27ae60;
+    color: #fff;
+    border-radius: 20px;
+    padding: 0 14px;
+}
+
+.btn-search:hover {
+    background: #219150;
+    color: #fff;
+}
+
+/* USER */
+.user-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.img-profile {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid #27ae60;
+}
+
+/* DROPDOWN */
+.dropdown-menu {
+    border-radius: 12px;
+}
+
+.dropdown-item {
+    font-size: .9rem;
+}
+
+.dropdown-item i {
+    color: #7f8c8d;
+}
+
+.dropdown-item:hover {
+    background: #e9f7ef;
+}
+
+/* DIVIDER */
+.topbar-divider {
+    border-left: 1px solid #e0e0e0;
+    height: 32px;
+    margin: 0 14px;
+}

@@ -1,0 +1,97 @@
+/* ===== SIDEBAR THEME SATARETAN ===== */
+
+.modern-sidebar {
+  background: linear-gradient(180deg, #000, #0f0f0f);
+  border-right: 1px solid #7f1d1d;
+}
+
+/* Brand */
+.sidebar-brand {
+  padding: 1.5rem 1rem;
+}
+
+.sidebar-brand-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #facc15, #b45309);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-brand-icon i {
+  color: #000;
+  font-size: 22px;
+}
+
+.sidebar-brand-text {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #facc15;
+  font-size: 14px;
+}
+
+/* Divider */
+.sidebar-divider {
+  border-color: rgba(255,255,255,.08);
+}
+
+/* Nav item */
+.sidebar .nav-item {
+  margin: 4px 10px;
+}
+
+.sidebar .nav-link {
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #cbd5e1;
+  transition: all .25s ease;
+}
+
+.sidebar .nav-link i {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #facc15;
+}
+
+/* Hover */
+.sidebar .nav-link:hover {
+  background: rgba(250,204,21,.08);
+  color: #fff;
+}
+
+/* Active parent */
+.sidebar .nav-item.active > .nav-link {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(127,29,29,.5);
+}
+
+/* Collapse */
+.collapse-inner {
+  margin: 6px 0 6px 18px;
+  padding-left: 8px;
+  border-left: 2px solid rgba(250,204,21,.3);
+}
+
+.collapse-item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #cbd5e1;
+  transition: all .2s ease;
+}
+
+.collapse-item:hover {
+  background: rgba(250,204,21,.08);
+  color: #fff;
+}
+
+/* Active submenu */
+.collapse-item.active {
+  background: rgba(250,204,21,.15);
+  color: #facc15;
+  font-weight: 600;
+}
