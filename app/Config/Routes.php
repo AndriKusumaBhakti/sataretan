@@ -108,5 +108,10 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('(:segment)/delete/(:num)', 'User::delete/$1/$2');
     });
 
+    $routes->group('kalkulator', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+        $routes->post('bmi', 'Kalkulator::hitungBmi');
+        $routes->post('hitung', 'Kalkulator::hitung');
+    });
+
     $routes->get('uu/kepolisian', 'Materi::uu', ['filter' => 'role:super_admin,guru,siswa']);
 });
