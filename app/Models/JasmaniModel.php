@@ -14,20 +14,28 @@ class JasmaniModel extends Model
         'kategori',
         'jenis_kelamin',
         'usia',
-        'tinggi',
-        'berat',
-        'bmi',
-        'kategori_bmi',
+        'tinggi_cm',
+        'berat_kg',
+        'bmi_index',
+        'bmi_kategori',
         'lari_12',
-        'nilai_lari',
+        'nilai_lari_12',
         'pull_up',
+        'nilai_pull_up',
         'sit_up',
+        'nilai_sit_up',
         'lunges',
+        'nilai_lunges',
         'push_up',
+        'nilai_push_up',
         'shuttle_run',
+        'nilai_shuttle_run',
         'renang',
+        'nilai_renang',
         'nilai_garjas_b',
-        'nilai_total'
+        'nilai_total',
+        'created_at',
+        'updated_at'
     ];
 
     protected $useTimestamps = true;
@@ -44,7 +52,7 @@ class JasmaniModel extends Model
             ->orderBy('jasmani.created_at', 'DESC');
 
         // ✅ FILTER USER JIKA ADA
-        if (user_id()) {
+        if (!isGuruOrAdmin()) {
             $builder->where('jasmani.user_id', user_id());
         }
 

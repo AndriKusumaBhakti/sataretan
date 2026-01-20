@@ -56,18 +56,28 @@ class Jasmani extends BaseController
     public function store($kategori)
     {
         $rules = [
-            'kategori' => 'required|in_list[tni,polri]',
-            'jenis_kelamin' => 'required|in_list[Pria,Wanita]',
-            'lari_12' => 'required|numeric',
+            'kategori'      => 'required|in_list[tni,polri]',
+            'jenis_kelamin' => 'required|in_list[pria,wanita]',
 
-            // Garjas B (boleh 0 tapi tetap numeric)
-            'pull_up' => 'permit_empty|numeric',
-            'sit_up' => 'permit_empty|numeric',
-            'lunges' => 'permit_empty|numeric',
-            'push_up' => 'permit_empty|numeric',
+            'lari_12'       => 'required|numeric',
+            'pull_up'     => 'permit_empty|numeric',
+            'sit_up'      => 'permit_empty|numeric',
+            'push_up'     => 'permit_empty|numeric',
             'shuttle_run' => 'permit_empty|numeric',
-            'renang' => 'permit_empty|numeric',
         ];
+
+        // KHUSUS TNI
+        if ($kategori === 'tni') {
+            $rules['lunges']   = 'required|numeric';
+            $rules['usia']   = 'required|numeric';
+            $rules['tinggi'] = 'required|numeric';
+            $rules['berat']  = 'required|numeric';
+        }
+
+        // KHUSUS POLRI
+        if ($kategori === 'polri') {
+            $rules['renang'] = 'required|numeric';
+        }
 
         if (isGuruOrAdmin()) {
             $rules['user_id'] = 'required|is_not_unique[users.id]';
@@ -81,22 +91,48 @@ class Jasmani extends BaseController
         $userId = isGuruOrAdmin()
             ? $this->request->getPost('user_id')
             : user_id(); // helper user login
-        $this->jasmani->insert([
-            'user_id'        => $userId,
-            'kategori'       => $this->request->getPost('kategori'),
-            'jenis_kelamin'  => $this->request->getPost('jenis_kelamin'),
-            'usia'           => $this->request->getPost('usia'),
-            'tinggi'         => $this->request->getPost('tinggi'),
-            'berat'          => $this->request->getPost('berat'),
-            'lari_12'        => $this->request->getPost('lari_12'),
-            'pull_up'        => $this->request->getPost('pull_up'),
-            'sit_up'         => $this->request->getPost('sit_up'),
-            'lunges'         => $this->request->getPost('lunges'),
-            'push_up'        => $this->request->getPost('push_up'),
-            'shuttle_run'    => $this->request->getPost('shuttle_run'),
-            'renang'         => $this->request->getPost('renang'),
-            'created_at'     => date('Y-m-d H:i:s'),
-        ]);
+
+        $data = [
+            'user_id'       => $userId,
+            'kategori'      => $kategori,
+            'jenis_kelamin' => $this->request->getPost('jenis_kelamin'),
+
+            // TNI
+            'usia'          => $this->request->getPost('usia'),
+            'tinggi_cm'     => $this->request->getPost('tinggi'),
+            'berat_kg'      => $this->request->getPost('berat'),
+            'bmi_index'     => $this->request->getPost('nilai_bmi'),
+            'bmi_kategori'  => $this->request->getPost('kategori_bmi'),
+
+            // GARJAS
+            'lari_12'       => $this->request->getPost('lari_12'),
+            'nilai_lari_12' => $this->request->getPost('nilai_lari_12'),
+
+            'pull_up'       => $this->request->getPost('pull_up'),
+            'nilai_pull_up' => $this->request->getPost('nilai_pull_up'),
+
+            'sit_up'        => $this->request->getPost('sit_up'),
+            'nilai_sit_up'  => $this->request->getPost('nilai_sit_up'),
+
+            'lunges'        => $this->request->getPost('lunges'),
+            'nilai_lunges'  => $this->request->getPost('nilai_lunges'),
+
+            'push_up'       => $this->request->getPost('push_up'),
+            'nilai_push_up' => $this->request->getPost('nilai_push_up'),
+
+            'shuttle_run'        => $this->request->getPost('shuttle_run'),
+            'nilai_shuttle_run' => $this->request->getPost('nilai_shuttle_run'),
+
+            'renang'       => $this->request->getPost('renang'),
+            'nilai_renang' => $this->request->getPost('nilai_renang'),
+        ];
+
+        // HITUNG NILAI
+
+        $data['nilai_garjas_b'] = $this->hitungGarjasB($data);
+        $data['nilai_total']    = $this->hitungTotal($data);
+
+        $this->jasmani->insert($data);
 
         return redirect()->to(site_url('tryout/' . $kategori))->with('success', 'Data jasmani berhasil disimpan');
     }
@@ -122,5 +158,38 @@ class Jasmani extends BaseController
     {
         $this->jasmani->delete($id);
         return redirect()->to(site_url('tryout/' . $kategori))->with('success', 'Data jasmani berhasil dihapus');
+    }
+
+    private function hitungGarjasB(array $data)
+    {
+        $nilai = [
+            $data['nilai_pull_up'],
+            $data['nilai_sit_up'],
+            $data['nilai_lunges'],
+            $data['nilai_push_up'],
+            $data['nilai_shuttle_run'],
+        ];
+
+        if (!empty($data['nilai_renang'])) {
+            $nilai[] = $data['nilai_renang'];
+        }
+
+        $nilai = array_filter($nilai, 'is_numeric');
+
+        return count($nilai)
+            ? round(array_sum($nilai) / count($nilai), 2)
+            : null;
+    }
+
+    private function hitungTotal(array $data)
+    {
+        $nilai = array_filter([
+            $data['nilai_lari_12'],
+            $data['nilai_garjas_b'],
+        ], 'is_numeric');
+
+        return count($nilai)
+            ? round(array_sum($nilai) / count($nilai), 2)
+            : null;
     }
 }
