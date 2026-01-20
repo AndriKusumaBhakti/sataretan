@@ -55,8 +55,9 @@
       <div class="relative aspect-[16/9] rounded-2xl overflow-hidden border border-red-800 bg-black">
         <?php
         $slides = [
-          'file/banner/banner_alumni.jpg',
+          'file/poster/sumenep.png',
           'file/banner/sumenep.png',
+          'file/banner/banner_alumni.jpg',
           'file/brosur/su_depan.png',
           'file/brosur/treng_depan.png'
         ];

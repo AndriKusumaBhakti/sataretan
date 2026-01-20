@@ -59,6 +59,7 @@ class Kalkulator extends BaseController
         $type     = $this->request->getPost('type');
         $nilai    = (float) $this->request->getPost('nilai');
         $kategori = $this->request->getPost('kategori');
+        $gender = $this->request->getPost('gender');
 
         $hasil = 0;
 
@@ -112,21 +113,52 @@ class Kalkulator extends BaseController
                 }
                 break;
             case 'sit_up':
+                $x = (int) $nilai;
                 if ($kategori === 'tni') {
-                    $hasil = min($nilai * 2, 100);
+                    if ($x < 12) {
+                        $hasil = 0;
+                    } else if ($gender == "wanita") {
+                        if ($x >= 34) {
+                            $hasil = 100;
+                        } elseif ($x >= 27) {
+                            $hasil = 65 + (($x - 27) * 5);
+                        } elseif ($x >= 13) {
+                            $hasil = 9 + (($x - 13) * 4);
+                        }
+                    } else if ($gender == "pria") {
+                        if ($x >= 39) {
+                            $hasil = 100;
+                        } elseif ($x >= 32) {
+                            $hasil = 65 + (($x - 32) * 5);
+                        } elseif ($x >= 13) {
+                            $hasil = 8 + (($x - 13) * 3);
+                        }
+                    }
                 } else {
-                    $x = (int) $nilai;
-
-                    if ($x < 6) {
-                        $hasil = 1;
-                    } elseif ($x >= 7 && $x <= 23) {
-                        $hasil = 2 * ($x - 7) + 2;
-                    } elseif ($x >= 24 && $x <= 26) {
-                        $hasil = 3 * ($x - 24) + 38;
-                    } elseif ($x >= 27 && $x < 40) {
-                        $hasil = 4 * ($x - 27) + 48;
-                    } else {
-                        $hasil = 100;
+                    if ($gender == "wanita") {
+                        if ($x < 18) {
+                            $hasil = 1;
+                        } elseif ($x >= 18 && $x <= 19) {
+                            $hasil = 3 * ($x - 18) + 3;
+                        } elseif ($x >= 20 && $x <= 26) {
+                            $hasil = 4 * ($x - 20) + 10;
+                        } elseif ($x >= 27 && $x < 40) {
+                            $hasil = 4 * ($x - 27) + 48;
+                        } else {
+                            $hasil = 100;
+                        }
+                    } else if ($gender == "pria") {
+                        if ($x < 7) {
+                            $hasil = 1;
+                        } elseif ($x >= 7 && $x <= 23) {
+                            $hasil = 2 * ($x - 7) + 2;
+                        } elseif ($x >= 24 && $x <= 26) {
+                            $hasil = 3 * ($x - 24) + 38;
+                        } elseif ($x >= 27 && $x < 40) {
+                            $hasil = 4 * ($x - 27) + 48;
+                        } else {
+                            $hasil = 100;
+                        }
                     }
                 }
                 break;

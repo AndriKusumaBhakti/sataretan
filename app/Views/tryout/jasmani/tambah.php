@@ -44,9 +44,9 @@
                 <!-- JENIS KELAMIN -->
                 <div class="form-group">
                     <label>Jenis Kelamin</label>
-                    <select name="jenis_kelamin" class="form-control select-users">
-                        <option value="Pria">Pria</option>
-                        <option value="Wanita">Wanita</option>
+                    <select id="jenis_kelamin" name="jenis_kelamin" class="form-control select-users">
+                        <option value="pria">Pria</option>
+                        <option value="wanita">Wanita</option>
                     </select>
                 </div>
 
@@ -160,9 +160,9 @@
                 </div>
 
                 <!-- SUBMIT -->
-                <!-- <button class="btn btn-warning btn-block font-weight-bold mt-3">
+                <button class="btn btn-warning btn-block font-weight-bold mt-3">
                     Hitung
-                </button> -->
+                </button>
 
             </form>
 
@@ -227,6 +227,7 @@
 
 <script>
     const kategori = document.getElementById('kategori');
+    const jenisKelamin = document.getElementById('jenis_kelamin');
     const fieldTni = document.getElementById('field-tni');
     const fieldPolri = document.getElementById('field-polri');
 
@@ -273,6 +274,7 @@
                 body: new URLSearchParams({
                     tinggi: tinggi,
                     berat: berat,
+                    gender: jenisKelamin.value,
                     [csrfName]: csrfHash
                 })
             })
@@ -323,6 +325,7 @@
                     nilai: nilai,
                     type: type,
                     kategori: kategori.value,
+                    gender: jenisKelamin.value,
                     [csrfName]: csrfHash
                 })
             })
