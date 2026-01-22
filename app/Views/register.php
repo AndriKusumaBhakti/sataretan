@@ -62,6 +62,15 @@
         </div>
 
         <div class="form-group">
+            <label>Kategori</label>
+            <select id="kategori" name="kategori" class="form-control select-paket">
+                <option value="tni">TNI</option>
+                <option value="polri">POLRI</option>
+                <option value="kedinasan">Kedinasan</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label>Paket Belajar</label>
             <select name="paket_id" class="form-control select-paket" required>
                 <option value="">Pilih Paket</option>

@@ -79,7 +79,7 @@ class Auth extends BaseController
             // Ambil paket aktif user
             $paket = $this->userPaketModel->getActivePaketUser($user['id']);
             if (!$paket) {
-                return redirect()->back()->with('errors', ['Status user tidak aktif']);
+                return redirect()->back()->with('errors', ['Menunggu verifikasi admin']);
             }
         }
 
@@ -119,6 +119,7 @@ class Auth extends BaseController
             'name' => 'required|min_length[3]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'phone' => 'required|min_length[10]',
+            'kategori' => 'required',
             'paket_id' => 'required',
             'password' => 'required|min_length[6]',
             'password_confirm' => 'required|matches[password]'

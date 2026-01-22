@@ -65,132 +65,104 @@ class Kalkulator extends BaseController
 
         switch ($type) {
             case 'lari_12':
-                if ($kategori === 'tni') {
-
-                    $min = 1531;
-                    $max = 3412;
-                    $kelipatan = 19;
-
-                    if ($nilai < $min) {
-                        $hasil = 0;
-                    } else {
-                        $hasil = floor(($nilai - $min) / $kelipatan) + 1;
-                        $maksNilai = floor(($max - $min) / $kelipatan) + 1;
-                        $hasil = min($hasil, $maksNilai);
-                    }
+                $value = 0;
+                if ($gender == "wanita") {
+                    $value = 3100;
                 } else {
-                    if ($nilai < 1380) {
-                        $hasil = 1;
-                    } elseif ($nilai > 3444) {
+                    $value = 3600;
+                }
+                if ($nilai >= $value) {
+                    $hasil = 100;
+                } else {
+                    $hasil = floor(($nilai / $value) * 100);
+                    if ($hasil > 100) {
                         $hasil = 100;
-                    } else {
-                        $hasil = min(
-                            100,
-                            max(1, floor(($nilai - 1380) / 21) + 2)
-                        );
                     }
                 }
                 break;
             case 'pull_up':
-                if ($kategori === 'tni') {
-                    if ($nilai < 1) {
-                        $hasil = 0;
-                    } else {
-                        $hasil = 15 + (5 * $nilai);
-                        if ($nilai > 17 || $hasil > 100) {
-                            $hasil = 100;
-                        }
-                    }
+                if ($nilai >= 17) {
+                    $hasil = 100;
                 } else {
-                    if ($nilai < 1) {
-                        $hasil = 0;
-                    } else {
-                        $hasil = 15 + (5 * $nilai);
-                        if ($nilai > 17 || $hasil > 100) {
-                            $hasil = 100;
-                        }
+                    $hasil = floor(($nilai / 17) * 100);
+                    if ($hasil > 100) {
+                        $hasil = 100;
+                    }
+                }
+                break;
+            case 'chinning':
+                if ($nilai >= 72) {
+                    $hasil = 100;
+                } else {
+                    $hasil = floor(($nilai / 72) * 100);
+                    if ($hasil > 100) {
+                        $hasil = 100;
                     }
                 }
                 break;
             case 'sit_up':
-                $x = (int) $nilai;
-                if ($kategori === 'tni') {
-                    if ($x < 12) {
-                        $hasil = 0;
-                    } else if ($gender == "wanita") {
-                        if ($x >= 34) {
-                            $hasil = 100;
-                        } elseif ($x >= 27) {
-                            $hasil = 65 + (($x - 27) * 5);
-                        } elseif ($x >= 13) {
-                            $hasil = 9 + (($x - 13) * 4);
-                        }
-                    } else if ($gender == "pria") {
-                        if ($x >= 39) {
-                            $hasil = 100;
-                        } elseif ($x >= 32) {
-                            $hasil = 65 + (($x - 32) * 5);
-                        } elseif ($x >= 13) {
-                            $hasil = 8 + (($x - 13) * 3);
-                        }
-                    }
+                $value = 0;
+                if ($gender == "wanita") {
+                    $value = 50;
                 } else {
-                    if ($gender == "wanita") {
-                        if ($x < 18) {
-                            $hasil = 1;
-                        } elseif ($x >= 18 && $x <= 19) {
-                            $hasil = 3 * ($x - 18) + 3;
-                        } elseif ($x >= 20 && $x <= 26) {
-                            $hasil = 4 * ($x - 20) + 10;
-                        } elseif ($x >= 27 && $x < 40) {
-                            $hasil = 4 * ($x - 27) + 48;
-                        } else {
-                            $hasil = 100;
-                        }
-                    } else if ($gender == "pria") {
-                        if ($x < 7) {
-                            $hasil = 1;
-                        } elseif ($x >= 7 && $x <= 23) {
-                            $hasil = 2 * ($x - 7) + 2;
-                        } elseif ($x >= 24 && $x <= 26) {
-                            $hasil = 3 * ($x - 24) + 38;
-                        } elseif ($x >= 27 && $x < 40) {
-                            $hasil = 4 * ($x - 27) + 48;
-                        } else {
-                            $hasil = 100;
-                        }
+                    $value = 40;
+                }
+                if ($nilai >= $value) {
+                    $hasil = 100;
+                } else {
+                    $hasil = floor(($nilai / $value) * 100);
+                    if ($hasil > 100) {
+                        $hasil = 100;
                     }
                 }
-                break;
-            case 'lunges':
-                $hasil = min($nilai * 2, 100);
                 break;
             case 'push_up':
-                $hasil = min($nilai * 2, 100);
-                break;
-            case 'shuttle_run':
-                if ($kategori === 'tni') {
-                    $x = (int) $nilai;
-
-                    if ($x <= 4) {
-                        $hasil = 100;
-                    } elseif ($x == 5) {
-                        $hasil = 85;
-                    } elseif ($x == 6) {
-                        $hasil = 57;
-                    } elseif ($x == 7) {
-                        $hasil = 32;
-                    } elseif ($x == 8) {
-                        $hasil = 7;
-                    } else {
-                        $hasil = 0;
-                    }
+                $value = 0;
+                if ($gender == "wanita") {
+                    $value = 40;
                 } else {
-                    $hasil = max(0, 100 - ($nilai * 2));
+                    $value = 42;
+                }
+                if ($nilai >= $value) {
+                    $hasil = 100;
+                } else {
+                    $hasil = floor(($nilai / $value) * 100);
+                    if ($hasil > 100) {
+                        $hasil = 100;
+                    }
                 }
                 break;
+            case 'shuttle_run':
+                $value = 0;
+                if ($gender == "wanita") {
+                    $value = 17;
+                } else {
+                    $value = 15;
+                }
+                // if ($nilai >= $value) {
+                //     $hasil = 100;
+                // } else {
+                    $hasil = floor(($value / $nilai) * 100);
+                    // if ($hasil > 100) {
+                    //     $hasil = 100;
+                    // }
+                // }
+                break;
             case 'renang':
-                $hasil = min($nilai * 2, 100);
+                $value = 0;
+                if ($gender == "wanita") {
+                    $value = 20;
+                } else {
+                    $value = 14;
+                }
+                // if ($nilai >= $value) {
+                //     $hasil = 100;
+                // } else {
+                    $hasil = floor(($value / $nilai) * 100);
+                    // if ($hasil > 100) {
+                    //     $hasil = 100;
+                    // }
+                // }
                 break;
 
             default:

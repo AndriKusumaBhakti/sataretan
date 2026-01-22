@@ -98,11 +98,11 @@
 
                     <?php
                     $itemsUmum = [
-                        'pull_up'     => 'Pull Up (1 menit)',
+                        'pull_up'     => 'Pull Up (1 menit)', //chinning jika perempuan
                         'sit_up'      => 'Sit Up (1 menit)',
-                        'lunges'      => 'Lunges',
                         'push_up'     => 'Push Up (1 menit)',
                         'shuttle_run' => 'Shuttle Run',
+                        'renang'      => 'Renang',
                     ];
                     foreach ($itemsUmum as $name => $label): ?>
                         <div class="form-row align-items-center">
@@ -131,18 +131,16 @@
                     </div>
                 </div>
 
-
-
                 <!-- KHUSUS POLRI -->
                 <div id="field-polri">
                     <?php
                     $itemsUmum = [
                         'lari_12'     => 'Jarak Lari 12 Menit (meter)',
-                        'pull_up'     => 'Pull Up (1 menit)',
+                        'pull_up'     => 'Pull Up (1 menit)', //chinning jika perempuan
                         'sit_up'      => 'Sit Up (1 menit)',
                         'push_up'     => 'Push Up (1 menit)',
                         'shuttle_run' => 'Shuttle Run',
-                        'renang' => 'Renang (Polri)',
+                        'renang'      => 'Renang',
                     ];
 
                     foreach ($itemsUmum as $name => $label): ?>
@@ -241,7 +239,7 @@
 
     let csrfName = '<?= csrf_token() ?>';
     let csrfHash = '<?= csrf_hash() ?>';
-    // lari_12, pull_up, sit_up, lunges, push_up, shuttle_run, renang
+    
     const tinggiInput = document.getElementById('tinggi');
     const beratInput = document.getElementById('berat');
     const bmiInput = document.getElementById('nilai_bmi');
