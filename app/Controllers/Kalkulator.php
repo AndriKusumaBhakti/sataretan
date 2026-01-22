@@ -123,13 +123,9 @@ class Kalkulator extends BaseController
                 } else {
                     $value = 42;
                 }
-                if ($nilai >= $value) {
+                $hasil = floor(($nilai / $value) * 100);
+                if ($hasil > 100) {
                     $hasil = 100;
-                } else {
-                    $hasil = floor(($nilai / $value) * 100);
-                    if ($hasil > 100) {
-                        $hasil = 100;
-                    }
                 }
                 break;
             case 'shuttle_run':
@@ -139,14 +135,10 @@ class Kalkulator extends BaseController
                 } else {
                     $value = 15;
                 }
-                // if ($nilai >= $value) {
-                //     $hasil = 100;
-                // } else {
-                    $hasil = floor(($value / $nilai) * 100);
-                    // if ($hasil > 100) {
-                    //     $hasil = 100;
-                    // }
-                // }
+                $hasil = floor(($value / $nilai) * 100);
+                if ($hasil > 100) {
+                    $hasil = 100;
+                }
                 break;
             case 'renang':
                 $value = 0;
@@ -155,14 +147,14 @@ class Kalkulator extends BaseController
                 } else {
                     $value = 14;
                 }
-                // if ($nilai >= $value) {
-                //     $hasil = 100;
-                // } else {
+                if ($nilai >= $value) {
+                    $hasil = 100;
+                } else {
                     $hasil = floor(($value / $nilai) * 100);
-                    // if ($hasil > 100) {
-                    //     $hasil = 100;
-                    // }
-                // }
+                    if ($hasil > 100) {
+                        $hasil = 100;
+                    }
+                }
                 break;
 
             default:

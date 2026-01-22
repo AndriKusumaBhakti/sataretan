@@ -51,7 +51,7 @@
                 </div>
 
                 <!-- KHUSUS TNI -->
-                <div id="field-tni">
+                <div id="field-tni-pria" style="display: none;">
                     <div class="form-row">
                         <div class="form-group col-6">
                             <label>Usia</label>
@@ -119,20 +119,89 @@
 
                     <!-- NILAI GARJAS B -->
                     <div class="form-row align-items-center">
-                        <div class="form-group col-8">
+                        <div class="form-group col-12">
                             <label>Nilai Garjas B</label>
-                            <input type="text" class="form-control bg-light" readonly>
+                            <input type="text" data-nilai="garjas_b" class="form-control bg-light" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tni-wanita" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>Usia</label>
+                            <input type="number" name="usia" class="form-control">
+                        </div>
+                        <div class="form-group col-6">
+                            <label>Tinggi (cm)</label>
+                            <input type="number" id="tinggi" name="tinggi" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Berat (kg)</label>
+                        <input type="number" id="berat" name="berat" class="form-control">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>Kategori BMI</label>
+                            <input type="text" id="kategori_bmi" class="form-control bg-light" readonly>
+                        </div>
+                        <div class="form-group col-6">
+                            <label>Index BMI</label>
+                            <input type="text" id="nilai_bmi" class="form-control bg-light" readonly>
+                        </div>
+                    </div>
+
+                    <!-- GARJAS A -->
+                    <div class="divider">GARJAS A</div>
+
+                    <div class="form-row align-items-center">
+                        <div class="form-group col-8">
+                            <label>Jarak Lari 12 Menit (meter)</label>
+                            <input type="number" data-type="lari_12" name="lari_12" class="form-control">
                         </div>
                         <div class="form-group col-4">
-                            <button type="button" class="btn btn-warning btn-block mt-4">
-                                Hitung Garjas B
-                            </button>
+                            <label>Nilai</label>
+                            <input type="text" data-nilai="lari_12" class="form-control bg-light" readonly>
+                        </div>
+                    </div>
+
+                    <!-- GARJAS B -->
+                    <div class="divider">GARJAS B</div>
+
+                    <?php
+                    $itemsUmum = [
+                        'chinning'     => 'Chinning', //chinning jika perempuan
+                        'sit_up'      => 'Sit Up (1 menit)',
+                        'push_up'     => 'Push Up (1 menit)',
+                        'shuttle_run' => 'Shuttle Run',
+                        'renang'      => 'Renang',
+                    ];
+                    foreach ($itemsUmum as $name => $label): ?>
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-8">
+                                <label><?= $label ?></label>
+                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Nilai</label>
+                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <!-- NILAI GARJAS B -->
+                    <div class="form-row align-items-center">
+                        <div class="form-group col-12">
+                            <label>Nilai Garjas B</label>
+                            <input type="text" data-nilai="garjas_b" class="form-control bg-light" readonly>
                         </div>
                     </div>
                 </div>
 
                 <!-- KHUSUS POLRI -->
-                <div id="field-polri">
+                <div id="field-polri-pria" style="display: none;">
                     <?php
                     $itemsUmum = [
                         'lari_12'     => 'Jarak Lari 12 Menit (meter)',
@@ -156,9 +225,33 @@
                         </div>
                     <?php endforeach; ?>
                 </div>
+                <div id="field-polri-wanita" style="display: none;">
+                    <?php
+                    $itemsUmum = [
+                        'lari_12'     => 'Jarak Lari 12 Menit (meter)',
+                        'chinning'     => 'Chinning', //chinning jika perempuan
+                        'sit_up'      => 'Sit Up (1 menit)',
+                        'push_up'     => 'Push Up (1 menit)',
+                        'shuttle_run' => 'Shuttle Run',
+                        'renang'      => 'Renang',
+                    ];
+
+                    foreach ($itemsUmum as $name => $label): ?>
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-8">
+                                <label><?= $label ?></label>
+                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
+                            </div>
+                            <div class="form-group col-4">
+                                <label>Nilai</label>
+                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
 
                 <!-- SUBMIT -->
-                <button class="btn btn-warning btn-block font-weight-bold mt-3">
+                <button class="btn btn-success btn-block font-weight-bold mt-3">
                     Hitung
                 </button>
 
@@ -226,20 +319,49 @@
 <script>
     const kategori = document.getElementById('kategori');
     const jenisKelamin = document.getElementById('jenis_kelamin');
-    const fieldTni = document.getElementById('field-tni');
-    const fieldPolri = document.getElementById('field-polri');
+    const fieldTniPria = document.getElementById('field-tni-pria');
+    const fieldPolriPria = document.getElementById('field-polri-pria');
+    const fieldTniWanita = document.getElementById('field-tni-wanita');
+    const fieldPolriWanita = document.getElementById('field-polri-wanita');
 
     function toggleKategori() {
-        fieldTni.style.display = kategori.value === 'tni' ? 'block' : 'none';
-        fieldPolri.style.display = kategori.value === 'polri' ? 'block' : 'none';
+        if (kategori.value == "" || jenisKelamin.value == "") {
+            fieldTniPria.style.display = 'none';
+            fieldPolriPria.style.display = 'none';
+            fieldTniWanita.style.display = 'none';
+            fieldPolriWanita.style.display = 'none';
+            return;
+        }
+        if (jenisKelamin.value === 'pria' && kategori.value === 'tni') {
+            fieldTniPria.style.display = 'block';
+            fieldPolriPria.style.display = 'none';
+            fieldTniWanita.style.display = 'none';
+            fieldPolriWanita.style.display = 'none';
+        } else if (jenisKelamin.value === 'pria' && kategori.value === 'polri') {
+            fieldTniPria.style.display = 'none';
+            fieldPolriPria.style.display = 'block';
+            fieldTniWanita.style.display = 'none';
+            fieldPolriWanita.style.display = 'none';
+        } else if (jenisKelamin.value === 'wanita' && kategori.value === 'tni') {
+            fieldTniPria.style.display = 'none';
+            fieldPolriPria.style.display = 'none';
+            fieldTniWanita.style.display = 'block';
+            fieldPolriWanita.style.display = 'none';
+        } else if (jenisKelamin.value === 'wanita' && kategori.value === 'polri') {
+            fieldTniPria.style.display = 'none';
+            fieldPolriPria.style.display = 'none';
+            fieldTniWanita.style.display = 'none';
+            fieldPolriWanita.style.display = 'block';
+        }
     }
 
     kategori.addEventListener('change', toggleKategori);
+    jenisKelamin.addEventListener('change', toggleKategori);
     toggleKategori();
 
     let csrfName = '<?= csrf_token() ?>';
     let csrfHash = '<?= csrf_hash() ?>';
-    
+
     const tinggiInput = document.getElementById('tinggi');
     const beratInput = document.getElementById('berat');
     const bmiInput = document.getElementById('nilai_bmi');
@@ -296,6 +418,28 @@
         };
     }
 
+    function getActiveContainer() {
+        return document.querySelector(
+            '#field-tni-pria[style*="block"], \
+         #field-tni-wanita[style*="block"], \
+         #field-polri-pria[style*="block"], \
+         #field-polri-wanita[style*="block"]'
+        );
+    }
+
+    function getAllNilaiGarjas() {
+        const container = getActiveContainer();
+        const data = {};
+
+        if (!container) return data;
+
+        container.querySelectorAll('[data-nilai]').forEach(el => {
+            data[el.dataset.nilai] = el.value ?? '';
+        });
+
+        return data;
+    }
+
     /* ===============================
        FUNGSI HITUNG GARJAS
     =============================== */
@@ -308,10 +452,14 @@
             .closest('.form-row')
             .querySelector(`[data-nilai="${type}"]`);
 
+        if (!nilaiInput) return;
+
         if (!nilai) {
             nilaiInput.value = '';
             return;
         }
+
+        const allNilai = getAllNilaiGarjas();
 
         fetch(`<?= site_url('kalkulator/hitung') ?>`, {
                 method: "POST",
@@ -324,6 +472,7 @@
                     type: type,
                     kategori: kategori.value,
                     gender: jenisKelamin.value,
+                    ...allNilai,
                     [csrfName]: csrfHash
                 })
             })
@@ -331,6 +480,11 @@
             .then(res => {
                 console.log(res);
                 nilaiInput.value = res.nilai ?? '-';
+                if (jenisKelamin.value === 'pria' && kategori.value === 'tni') {
+                    nilaiInputgarjas_b.value = res.garjas_b ?? '-';
+                } else if (jenisKelamin.value === 'wanita' && kategori.value === 'tni') {
+                    nilaiInputgarjas_b.value = res.garjas_b ?? '-';
+                }
                 if (res.csrfHash) csrfHash = res.csrfHash;
             });
     }
@@ -346,8 +500,8 @@
     const garjasTypes = [
         'lari_12',
         'pull_up',
+        'chinning',
         'sit_up',
-        'lunges',
         'push_up',
         'shuttle_run',
         'renang'

@@ -14,28 +14,29 @@ class JasmaniModel extends Model
         'kategori',
         'jenis_kelamin',
         'usia',
-        'tinggi_cm',
-        'berat_kg',
-        'bmi_index',
-        'bmi_kategori',
+        'tinggi',
+        'berat',
+        'bmi',
+        'kategori_bmi',
+
         'lari_12',
         'nilai_lari_12',
+
         'pull_up',
-        'nilai_pull_up',
+        'chinning',
         'sit_up',
-        'nilai_sit_up',
-        'lunges',
-        'nilai_lunges',
         'push_up',
-        'nilai_push_up',
         'shuttle_run',
-        'nilai_shuttle_run',
         'renang',
+
+        'nilai_pull_up',
+        'nilai_chinning',
+        'nilai_sit_up',
+        'nilai_push_up',
+        'nilai_shuttle_run',
         'nilai_renang',
-        'nilai_garjas_b',
-        'nilai_total',
-        'created_at',
-        'updated_at'
+
+        'nilai_garjas_b'
     ];
 
     protected $useTimestamps = true;
