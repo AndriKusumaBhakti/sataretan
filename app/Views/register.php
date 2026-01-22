@@ -42,18 +42,21 @@
                 value="<?= old('phone') ?>" placeholder="628xxxxxxxxxx" required>
         </div>
 
+        <!-- PROGRAM -->
         <div class="form-group mb-3">
-            <label>Kategori</label>
-            <select name="kategori" class="form-control select-paket">
+            <label>Program Tujuan</label>
+            <select name="program" id="program" class="form-control select-paket" required>
+                <option value="">Pilih Program</option>
                 <option value="tni">TNI</option>
                 <option value="polri">POLRI</option>
                 <option value="kedinasan">Kedinasan</option>
             </select>
         </div>
 
-        <div class="form-group mb-3">
+        <!-- PAKET (HIDDEN AWAL) -->
+        <div class="form-group mb-3" id="paket-wrapper" style="display:none;">
             <label>Paket Belajar</label>
-            <select name="paket_id" class="form-control select-paket" required>
+            <select name="paket_id" id="paket" class="form-control select-paket" required>
                 <option value="">Pilih Paket</option>
                 <?php foreach ($paket as $pkg): ?>
                     <option value="<?= $pkg['id'] ?>">
@@ -87,6 +90,7 @@
 
 </div>
 
+<!-- STYLE -->
 <style>
     .login-card {
         width: 100%;
@@ -171,13 +175,32 @@
     }
 </style>
 
+<!-- SCRIPT -->
 <script>
+    // Auto close alert
     setTimeout(() => {
         document.querySelectorAll('.auto-close').forEach(el => {
             el.style.opacity = 0;
             setTimeout(() => el.remove(), 500);
         });
     }, 4000);
+
+    // Program -> Paket logic
+    const programSelect = document.getElementById('program');
+    const paketWrapper = document.getElementById('paket-wrapper');
+    const paketSelect = document.getElementById('paket');
+
+    programSelect.addEventListener('change', function() {
+        const program = this.value;
+
+        if (!program) {
+            paketWrapper.style.display = 'none';
+            paketSelect.value = '';
+            return;
+        }
+
+        paketWrapper.style.display = 'block';
+    });
 </script>
 
 <?= $this->endSection(); ?>

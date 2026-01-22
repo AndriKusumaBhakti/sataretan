@@ -119,7 +119,7 @@ class Auth extends BaseController
             'name' => 'required|min_length[3]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'phone' => 'required|min_length[10]',
-            'kategori' => 'required',
+            'program' => 'required',
             'paket_id' => 'required',
             'password' => 'required|min_length[6]',
             'password_confirm' => 'required|matches[password]'
@@ -138,7 +138,6 @@ class Auth extends BaseController
                 'name'   => $this->request->getPost('name'),
                 'email'      => $this->request->getPost('email'),
                 'phone'      => $this->request->getPost('phone'),
-                'kategori'      => $this->request->getPost('kategori'),
                 'password'   => md5(
                     $this->request->getPost('password')
                 ),
@@ -153,6 +152,7 @@ class Auth extends BaseController
             // INSERT USER_PAKET
             $this->userPaketModel->insert([
                 'user_id'  => $userId,
+                'program' => $this->request->getPost('program'),
                 'paket_id' => $this->request->getPost('paket_id'),
                 'status'   => 'P',
             ]);

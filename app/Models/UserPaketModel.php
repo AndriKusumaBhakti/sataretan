@@ -9,6 +9,7 @@ class UserPaketModel extends Model
     protected $table = 'user_paket';
     protected $allowedFields = [
         'user_id',
+        'program',
         'paket_id',
         'expired_at',
         'status'
