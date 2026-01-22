@@ -8,7 +8,7 @@ class UserModel extends Model
 {
     protected $table = 'users';
     protected $allowedFields = [
-        'name','email','phone','password','role_id', 'photo', 'created_at', 'updated_at'
+        'name','email','phone','password','role_id', 'photo', 'kategori', 'created_at', 'updated_at'
     ];
 
     public function withRole()

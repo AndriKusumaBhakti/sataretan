@@ -138,6 +138,7 @@ class Auth extends BaseController
                 'name'   => $this->request->getPost('name'),
                 'email'      => $this->request->getPost('email'),
                 'phone'      => $this->request->getPost('phone'),
+                'kategori'      => $this->request->getPost('kategori'),
                 'password'   => md5(
                     $this->request->getPost('password')
                 ),

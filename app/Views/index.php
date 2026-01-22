@@ -104,19 +104,69 @@
   <section id="struktur" class="bg-gradient-to-r from-zinc-900 to-black px-6 py-20">
     <div class="max-w-7xl mx-auto">
       <h2 class="text-3xl font-extrabold text-center mb-12">Instruktur</h2>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
-        <?php
-        $instruktur = ['akademik.jpg', 'psikolog.jpg', 'jasmani.jpg'];
-        foreach ($instruktur as $img):
-        ?>
-          <div class="bg-zinc-800 rounded-2xl overflow-hidden border border-red-900">
-            <img src="<?= base_url('file/instruktur/' . $img) ?>"
-              class="w-full h-64 object-cover" />
-          </div>
-        <?php endforeach; ?>
+
+      <?php
+      $instruktur = [
+        'infra_3.png',
+        'infra_6.png',
+        'infra_1.jpg',
+        'infra_2.jpg',
+        'infra_4.png',
+        'infra_5.png',
+        'infra_7.png',
+        'infra_8.jpg',
+        'infra_9.jpg',
+        'infra_10.jpg',
+        'infra_11.jpg',
+      ];
+
+      function card($img)
+      {
+        return '
+      <div class="group relative bg-zinc-900 rounded-2xl overflow-hidden border border-red-900 
+        shadow-lg hover:shadow-red-900/40 transition 
+        w-full max-w-[200px] mx-auto">
+
+        <div class="h-[260px]">
+          <img src="' . base_url('file/infra/' . $img) . '"
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+        </div>
+
+        <div class="p-3 text-center">
+          <p class="font-bold text-white text-sm">Instruktur</p>
+          <p class="text-xs text-gray-400">Kepala Cabang Sumenep</p>
+        </div>
+      </div>';
+      }
+      ?>
+
+      <!-- ROW 1 : 3 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 justify-items-center mb-10">
+        <?= card($instruktur[0]) ?>
+        <?= card($instruktur[1]) ?>
+        <?= card($instruktur[2]) ?>
       </div>
+
+      <!-- ROW 2 : 4 -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 justify-items-center mb-10">
+        <?= card($instruktur[3]) ?>
+        <?= card($instruktur[4]) ?>
+        <?= card($instruktur[5]) ?>
+        <?= card($instruktur[6]) ?>
+      </div>
+
+      <!-- ROW 3 : 4 -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 justify-items-center">
+        <?= card($instruktur[7]) ?>
+        <?= card($instruktur[8]) ?>
+        <?= card($instruktur[9]) ?>
+        <?= card($instruktur[10]) ?>
+      </div>
+
+
     </div>
   </section>
+
 
   <!-- ================= ALUMNI (NAMING FIXED) ================= -->
   <section id="alumni" class="bg-gradient-to-b from-black to-zinc-900 px-6 py-20">

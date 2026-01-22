@@ -14,100 +14,72 @@
 
     <!-- ALERT ERROR -->
     <?php if (session()->getFlashdata('errors')): ?>
-        <div class="alert alert-danger auto-close show">
+        <div class="alert alert-danger auto-close">
             <?php foreach (session()->getFlashdata('errors') as $err): ?>
                 <div><?= esc($err) ?></div>
             <?php endforeach ?>
         </div>
     <?php endif ?>
 
-    <!-- ALERT SUCCESS -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success auto-close show">
-            <?= esc(session()->getFlashdata('success')) ?>
-        </div>
-    <?php endif ?>
-
     <!-- FORM -->
     <form method="post" action="<?= base_url('register') ?>">
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Nama Lengkap</label>
-            <input type="text"
-                name="name"
-                class="form-control"
-                placeholder="Nama lengkap"
-                value="<?= old('name') ?>"
-                required>
+            <input type="text" name="name" class="form-control"
+                value="<?= old('name') ?>" placeholder="Nama lengkap" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Email</label>
-            <input type="email"
-                name="email"
-                class="form-control"
-                placeholder="contoh@email.com"
-                value="<?= old('email') ?>"
-                required>
+            <input type="email" name="email" class="form-control"
+                value="<?= old('email') ?>" placeholder="contoh@email.com" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>No WhatsApp</label>
-            <input type="text"
-                name="phone"
-                class="form-control"
-                placeholder="628xxxxxxxxxx"
-                value="<?= old('phone') ?>"
-                required>
+            <input type="text" name="phone" class="form-control"
+                value="<?= old('phone') ?>" placeholder="628xxxxxxxxxx" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Kategori</label>
-            <select id="kategori" name="kategori" class="form-control select-paket">
+            <select name="kategori" class="form-control select-paket">
                 <option value="tni">TNI</option>
                 <option value="polri">POLRI</option>
                 <option value="kedinasan">Kedinasan</option>
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Paket Belajar</label>
             <select name="paket_id" class="form-control select-paket" required>
                 <option value="">Pilih Paket</option>
                 <?php foreach ($paket as $pkg): ?>
-                    <option value="<?= $pkg['id'] ?>"
-                        <?= old('paket_id') == $pkg['id'] ? 'selected' : '' ?>>
+                    <option value="<?= $pkg['id'] ?>">
                         <?= esc($pkg['nama']) ?> (<?= $pkg['range_month'] ?> Bulan)
                     </option>
                 <?php endforeach ?>
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mb-3">
             <label>Password</label>
-            <input type="password"
-                name="password"
-                class="form-control"
-                placeholder="••••••••"
-                required>
+            <input type="password" name="password"
+                class="form-control" placeholder="••••••••" required>
         </div>
 
         <div class="form-group mb-4">
             <label>Konfirmasi Password</label>
-            <input type="password"
-                name="password_confirm"
-                class="form-control"
-                placeholder="••••••••"
-                required>
+            <input type="password" name="password_confirm"
+                class="form-control" placeholder="••••••••" required>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block mb-3">
+        <button class="btn btn-primary btn-block mb-3">
             Daftar
         </button>
-
     </form>
 
-    <!-- LINKS -->
     <div class="login-links text-center">
         <span>Sudah punya akun?</span>
         <a href="<?= base_url('login') ?>">Masuk</a>
@@ -115,7 +87,6 @@
 
 </div>
 
-<!-- STYLE (KONSISTEN DENGAN LOGIN) -->
 <style>
     .login-card {
         width: 100%;
@@ -123,30 +94,19 @@
         background: linear-gradient(180deg, #0f0f0f, #080808);
         padding: 34px;
         border-radius: 20px;
-        border: 1px solid rgba(127, 29, 29, 0.8);
+        border: 1px solid rgba(127, 29, 29, .8);
         box-shadow: 0 30px 80px rgba(0, 0, 0, .85);
         color: #fff;
         position: relative;
     }
 
-    /* AURA MERAH */
     .login-card::before {
         content: "";
         position: absolute;
         inset: -45px;
-        background: radial-gradient(circle, rgba(127, 29, 29, 0.25), transparent 70%);
+        background: radial-gradient(circle, rgba(127, 29, 29, .25), transparent 70%);
         z-index: -1;
         border-radius: 40px;
-    }
-
-    .login-header h3 {
-        font-weight: 800;
-        letter-spacing: 1px;
-    }
-
-    .login-header p {
-        font-size: 14px;
-        color: #aaa;
     }
 
     .logo-circle {
@@ -158,7 +118,6 @@
         align-items: center;
         justify-content: center;
         margin: auto;
-        box-shadow: 0 0 30px rgba(220, 38, 38, 0.6);
     }
 
     .logo-circle img {
@@ -179,23 +138,17 @@
     }
 
     .form-control:focus {
-        background: #111;
         border-color: #dc2626;
         box-shadow: none;
-        color: #fff;
     }
 
-    /* SELECT PAKET */
     .select-paket {
         height: 48px;
-        padding: 6px 42px 6px 14px;
         appearance: none;
-        background-color: #111;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23dc2626' d='M5.5 7l4.5 5 4.5-5z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 14px center;
         background-size: 14px;
-        cursor: pointer;
     }
 
     .btn-primary {
@@ -203,12 +156,6 @@
         border: none;
         border-radius: 12px;
         font-weight: 700;
-        padding: 12px;
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #ef4444, #991b1b);
     }
 
     .login-links {
@@ -218,22 +165,9 @@
 
     .login-links a {
         color: #fca5a5;
-        margin-left: 5px;
-        text-decoration: none;
+        margin-left: 6px;
         font-weight: 600;
-    }
-
-    .login-links a:hover {
-        text-decoration: underline;
-    }
-
-    .alert {
-        border-radius: 12px;
-        font-size: 14px;
-    }
-
-    .alert.auto-close {
-        transition: opacity .5s ease, transform .5s ease;
+        text-decoration: none;
     }
 </style>
 
