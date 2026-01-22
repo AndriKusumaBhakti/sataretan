@@ -10,6 +10,7 @@ class TryoutModel extends Model
     protected $primaryKey       = 'id';
     protected $allowedFields    = [
         'judul',
+        'program',
         'kategori',
         'jumlah_soal',
         'durasi',
@@ -32,7 +33,7 @@ class TryoutModel extends Model
         return [];
     }
 
-    public function getTryoutStatistik($kategori, $isGuruOrAdmin = false)
+    public function getTryoutStatistik($kategori)
     {
         return $this->db->table('tryout t')
             ->select("
@@ -51,9 +52,6 @@ class TryoutModel extends Model
             ->where('t.kategori', $kategori)
             ->groupBy('t.id')
             ->orderBy('t.created_at', 'DESC')
-            ->when(!$isGuruOrAdmin, function ($builder) {
-                return $builder->where('t.status', 'aktif');
-            })
             ->get()
             ->getResultArray();
     }
@@ -94,5 +92,30 @@ class TryoutModel extends Model
         }
 
         return $builder->get()->getResultArray();
+    }
+
+    public function getStatistikSiswaByProgram(string $program, $kategori)
+    {
+        return $this->db->table('tryout t')
+            ->select("
+                t.id,
+                t.judul,
+                t.kategori,
+                t.jumlah_soal,
+                t.durasi,
+                t.status,
+
+                COUNT(DISTINCT a.user_id) AS peserta,
+                COUNT(a.id) AS attempt,
+                COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
+            ")
+            ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
+            ->where('t.kategori', $kategori)
+            ->where('t.status', 'aktif')
+            ->where("JSON_CONTAINS(t.program, '\"{$program}\"')", null, false)
+            ->groupBy('t.id')
+            ->orderBy('t.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
     }
 }

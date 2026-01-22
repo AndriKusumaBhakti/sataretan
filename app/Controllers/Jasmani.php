@@ -59,7 +59,7 @@ class Jasmani extends BaseController
             'kategori'      => 'required|in_list[tni,polri]',
             'jenis_kelamin' => 'required|in_list[pria,wanita]',
 
-            'lari_12'       => 'required|numeric',
+            'lari_12'       => 'permit_empty|numeric',
             'pull_up'     => 'permit_empty|numeric',
             'sit_up'      => 'permit_empty|numeric',
             'push_up'     => 'permit_empty|numeric',

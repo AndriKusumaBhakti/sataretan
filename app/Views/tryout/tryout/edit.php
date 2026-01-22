@@ -22,20 +22,80 @@
 
                         <?= csrf_field() ?>
 
+                        <!-- ================= PROGRAM ================= -->
+                        <?php
+                        // Ambil program dari DB (support: json / array / string)
+                        $dbProgram = $tryout['program'] ?? [];
+                        if (is_string($dbProgram)) {
+                            $decoded = json_decode($dbProgram, true);
+                            $dbProgram = is_array($decoded) ? $decoded : [$dbProgram];
+                        }
+
+                        // Jika ada old() (validasi gagal), pakai old()
+                        $oldProgram = old('program');
+                        $programSelected = is_array($oldProgram)
+                            ? $oldProgram
+                            : ($oldProgram ? [$oldProgram] : $dbProgram);
+                        ?>
+
+                        <?php if (session()->getFlashdata('errors')['program'] ?? false): ?>
+                            <small class="text-danger">
+                                <?= session()->getFlashdata('errors')['program'] ?>
+                            </small>
+                        <?php endif; ?>
+
+
                         <div class="form-group">
                             <label class="font-weight-bold">Judul Try Out</label>
                             <input type="text"
                                 name="judul"
-                                value="<?= esc($tryout['judul']) ?>"
+                                value="<?= old('judul') ?? esc($tryout['judul']) ?>"
                                 class="form-control rounded-pill px-4"
                                 required>
                         </div>
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-block mb-2">
+                                Program <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <label class="program-pill">
+                                    <input type="checkbox"
+                                        name="program[]"
+                                        value="tni"
+                                        required
+                                        <?= in_array('tni', $programSelected) ? 'checked' : '' ?>>
+                                    <span>TNI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox"
+                                        name="program[]"
+                                        value="polri"
+                                        <?= in_array('polri', $programSelected) ? 'checked' : '' ?>>
+                                    <span>POLRI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox"
+                                        name="program[]"
+                                        value="kedinasan"
+                                        <?= in_array('kedinasan', $programSelected) ? 'checked' : '' ?>>
+                                    <span>KEDINASAN</span>
+                                </label>
+
+                            </div>
+
+                        </div>
+                        <!-- ================= END PROGRAM ================= -->
 
                         <div class="form-group">
                             <label class="font-weight-bold">Jumlah Soal</label>
                             <input type="number"
                                 name="jumlah_soal"
-                                value="<?= $tryout['jumlah_soal'] ?>"
+                                value="<?= old('jumlah_soal') ?? $tryout['jumlah_soal'] ?>"
                                 class="form-control rounded-pill px-4"
                                 required>
                         </div>
@@ -44,7 +104,7 @@
                             <label class="font-weight-bold">Durasi (Menit)</label>
                             <input type="number"
                                 name="durasi"
-                                value="<?= $tryout['durasi'] ?>"
+                                value="<?= old('durasi') ?? $tryout['durasi'] ?>"
                                 class="form-control rounded-pill px-4"
                                 required>
                         </div>
@@ -76,9 +136,40 @@
 <!-- ================= STYLE ================= -->
 <style>
     .tryout-card {
-        background: #fff;
+        background: #ffffff;
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    }
+
+    .form-control {
+        height: 46px;
+    }
+
+    /* PROGRAM PILL */
+    .program-pill {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .program-pill input {
+        display: none;
+    }
+
+    .program-pill span {
+        display: inline-block;
+        padding: 8px 18px;
+        border-radius: 999px;
+        border: 1px solid #d1d3e2;
+        background: #f8f9fc;
+        font-weight: 600;
+        transition: .2s ease;
+        user-select: none;
+    }
+
+    .program-pill input:checked+span {
+        background: #1cc88a;
+        color: #fff;
+        border-color: #1cc88a;
     }
 </style>
 
@@ -86,15 +177,11 @@
 <script>
     document.getElementById('form-edit-tryout').addEventListener('submit', function() {
         const btn = document.getElementById('btn-update');
-
-        // Disable tombol submit saja (AMAN)
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm mr-2"></span>
-        Mengupdate...
-    `;
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Mengupdate...
+        `;
     });
 </script>
 

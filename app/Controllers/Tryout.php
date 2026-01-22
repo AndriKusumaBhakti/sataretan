@@ -47,7 +47,22 @@ class Tryout extends BaseController
         if ($kategori == "jasmani") {
             return redirect()->to(site_url('tryout/' . $kategori . '/view'));
         }
-        $data['tryout'] = $this->tryoutModel->getTryoutStatistik($kategori, isGuruOrAdmin());
+        if (!isGuruOrAdmin()) {
+            $user = $this->userPaketModel
+                ->select('program')
+                ->where('user_id', user_id())
+                ->first();
+
+            $userProgram = $user['program'] ?? null;
+
+            if (! $userProgram) {
+                $data['tryout'] = [];
+            } else {
+                $data['tryout'] = $this->tryoutModel->getStatistikSiswaByProgram($userProgram, $kategori);
+            }
+        } else {
+            $data['tryout'] = $this->tryoutModel->getTryoutStatistik($kategori);
+        }
 
         return view('tryout/index', $data);
     }
@@ -80,8 +95,24 @@ class Tryout extends BaseController
 
     public function simpan($kategori)
     {
+        $rules = [
+            'program' => 'required',
+            'judul'   => 'required|min_length[3]',
+            'jumlah_soal'    => 'permit_empty|numeric',
+            'durasi'  => 'permit_empty|numeric'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+        $programArray = $this->request->getPost('program'); // ['tni','polri']
+        $programJson  = json_encode($programArray);
+
         $this->tryoutModel->insert([
             'kategori'     => $kategori,
+            'program'  => $programJson,
             'judul'        => $this->request->getPost('judul'),
             'jumlah_soal'  => $this->request->getPost('jumlah_soal'),
             'durasi'       => $this->request->getPost('durasi'),
@@ -106,7 +137,23 @@ class Tryout extends BaseController
 
     public function update($kategori, $id)
     {
+        $rules = [
+            'program' => 'required',
+            'judul'   => 'required|min_length[3]',
+            'jumlah_soal'    => 'permit_empty|numeric',
+            'durasi'  => 'permit_empty|numeric'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+        $programArray = $this->request->getPost('program'); // ['tni','polri']
+        $programJson  = json_encode($programArray);
+
         $this->tryoutModel->update($id, [
+            'program'  => $programJson,
             'judul'       => $this->request->getPost('judul'),
             'jumlah_soal' => $this->request->getPost('jumlah_soal'),
             'durasi'      => $this->request->getPost('durasi')
