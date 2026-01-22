@@ -2,14 +2,17 @@
 
 namespace App\Controllers;
 
+use Config\Database;
 use App\Models\MateriModel;
 use App\Models\UserPaketModel;
+use App\Models\MateriDetailModel;
 
 class Materi extends BaseController
 {
     protected array $menuItems = [];
     protected $materiModel;
     protected $userPaketModel;
+    protected $materiDetailModel;
 
     public function __construct()
     {
@@ -18,6 +21,7 @@ class Materi extends BaseController
         $this->menuItems = user_menu();
         $this->materiModel = new MateriModel();
         $this->userPaketModel = new UserPaketModel();
+        $this->materiDetailModel = new MateriDetailModel();
     }
 
     private function baseData(): array
@@ -76,6 +80,8 @@ class Materi extends BaseController
         }
 
         $data['materi'] = $materi;
+        $data['subMateri'] = $this->materiDetailModel->where('materi_id', $id)->orderBy('urutan', 'ASC')
+            ->findAll();
         $data['kategori'] = $kategori;
         return view('materi/materi_single_view', $data);
     }
@@ -89,11 +95,6 @@ class Materi extends BaseController
 
     public function store()
     {
-        // Proteksi role
-        if (!isGuruOrAdmin()) {
-            return redirect()->back()->with('errors', ['Anda tidak memiliki akses']);
-        }
-
         $rules = [
             'program' => 'required',
             'judul'   => 'required|min_length[3]',
@@ -101,13 +102,29 @@ class Materi extends BaseController
             'sumber'  => 'required|in_list[file,link]'
         ];
 
-        if ($this->request->getPost('sumber') === 'file') {
-            $rules['file'] = 'uploaded[file]|max_size[file,10240]';
-        } else {
-            $rules['link'] = 'required|valid_url';
+        $sumber   = $this->request->getPost('sumber');
+        $subJudul = $this->request->getPost('sub_judul') ?? [];
+        if (count($subJudul) === 0) {
+            if ($sumber === 'file') {
+                $rules['file'] = 'uploaded[file]|max_size[file,10240]';
+            }
+            if ($sumber === 'link') {
+                $rules['link'] = 'required|valid_url';
+            }
         }
-
-        if (!$this->validate($rules)) {
+        if (count($subJudul) > 0) {
+            foreach ($subJudul as $i => $judulSub) {
+                $rules["sub_judul.$i"] = 'required|min_length[3]';
+                if ($sumber === 'file') {
+                    $rules["sub_file.$i"] =
+                        'uploaded[sub_file.' . $i . ']|max_size[sub_file.' . $i . ',10240]';
+                }
+                if ($sumber === 'link') {
+                    $rules["sub_link.$i"] = 'required|valid_url';
+                }
+            }
+        }
+        if (! $this->validate($rules)) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
@@ -115,32 +132,82 @@ class Materi extends BaseController
 
         $fileName = null;
         $link     = null;
-        $programArray = $this->request->getPost('program'); // ['tni','polri']
+
+        $programArray = $this->request->getPost('program');
         $programJson  = json_encode($programArray);
 
-        if ($this->request->getPost('sumber') === 'file') {
-            $file = $this->request->getFile('file');
-            $fileName = $file->getRandomName();
-            $path = WRITEPATH . 'uploads/materi';
-            $file->move($path, $fileName);
+        if (count($subJudul) === 0) {
+            if ($sumber === 'file') {
+                $file = $this->request->getFile('file');
+                $fileName = $file->getRandomName();
+                $file->move(WRITEPATH . 'uploads/materi', $fileName);
+            }
+            if ($sumber === 'link') {
+                $link = $this->request->getPost('link');
+            }
         }
 
-        if ($this->request->getPost('sumber') === 'link') {
-            $link = $this->request->getPost('link');
+        $db = Database::connect();
+        $db->transStart();
+
+        try {
+
+            $materiId = $this->materiModel->insert([
+                'program'  => $programJson,
+                'judul'    => $this->request->getPost('judul'),
+                'kategori' => $this->request->getPost('kategori'),
+                'tipe'     => $this->request->getPost('tipe'),
+                'sumber'   => $sumber,
+                'file'     => $fileName,
+                'link'     => $link
+            ]);
+
+            if (count($subJudul) > 0) {
+                if ($sumber === 'file') {
+                    $subFiles = $this->request->getFiles()['sub_file'];
+                    foreach ($subJudul as $i => $judulSub) {
+                        $namaFile = $subFiles[$i]->getRandomName();
+                        $subFiles[$i]->move(
+                            WRITEPATH . 'uploads/materi/sub',
+                            $namaFile
+                        );
+                        $this->materiDetailModel->insert([
+                            'materi_id' => $materiId,
+                            'sub_judul' => $judulSub,
+                            'file'      => $namaFile,
+                            'link'      => null
+                        ]);
+                    }
+                }
+                if ($sumber === 'link') {
+                    $subLinks = $this->request->getPost('sub_link');
+                    foreach ($subJudul as $i => $judulSub) {
+                        $this->materiDetailModel->insert([
+                            'materi_id' => $materiId,
+                            'sub_judul' => $judulSub,
+                            'file'      => null,
+                            'link'      => $subLinks[$i]
+                        ]);
+                    }
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal menyimpan materi');
+            }
+
+            return redirect()->to(site_url('/materi/' . $this->request->getPost('kategori')))
+                ->with('success', 'Materi berhasil ditambahkan');
+        } catch (\Throwable $e) {
+
+            $db->transRollback();
+
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', [$e->getMessage()]);
         }
-
-        $this->materiModel->insert([
-            'program'  => $programJson,
-            'judul'    => $this->request->getPost('judul'),
-            'kategori' => $this->request->getPost('kategori'),
-            'tipe'     => $this->request->getPost('tipe'),
-            'sumber'   => $this->request->getPost('sumber'),
-            'file'     => $fileName,
-            'link'     => $link
-        ]);
-
-        return redirect()->to(site_url('/materi/' . $this->request->getPost('kategori')))
-            ->with('success', 'Materi berhasil ditambahkan');
     }
 
     public function delete($id)
@@ -163,7 +230,18 @@ class Materi extends BaseController
             if (file_exists($path)) {
                 unlink($path);
             }
+
+            $pathSub = WRITEPATH . 'uploads/materi/sub/';
+            $oldSubs = $this->materiDetailModel->where('materi_id', $id)->findAll();
+            foreach ($oldSubs as $sub) {
+                if ($sub['file'] && file_exists($pathSub . $sub['file'])) {
+                    unlink($pathSub . $sub['file']);
+                }
+            }
         }
+
+
+        $this->materiDetailModel->where('materi_id', $id)->delete();
 
         // Hapus data DB
         $this->materiModel->delete($id);
@@ -188,6 +266,7 @@ class Materi extends BaseController
 
         $data['kategori'] = $kategori;
         $data['materi'] = $materi;
+        $data['subMateri'] =  $this->materiDetailModel->where('materi_id', $id)->findAll();
         return view('materi/edit_materi', $data);
     }
 
@@ -199,50 +278,151 @@ class Materi extends BaseController
         }
 
         $materi = $this->materiModel->find($id);
-        if (! $materi) {
+        if (!$materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
         }
-        $programArray = $this->request->getPost('program'); // ['tni','polri']
-        $programJson  = json_encode($programArray);
+        $rules = [
+            'program' => 'required',
+            'judul'   => 'required|min_length[3]',
+            'tipe'    => 'required|in_list[pdf,video,word]',
+            'sumber'  => 'required|in_list[file,link]'
+        ];
+
+        $sumber   = $this->request->getPost('sumber');
+        $subJudul = $this->request->getPost('sub_judul') ?? [];
+
+        if (count($subJudul) === 0) {
+            if ($sumber === 'file') {
+                $rules['file'] = 'permit_empty|max_size[file,10240]';
+            }
+            if ($sumber === 'link') {
+                $rules['link'] = 'required|valid_url';
+            }
+        }
+
+        if (count($subJudul) > 0) {
+            foreach ($subJudul as $i => $judulSub) {
+                $rules["sub_judul.$i"] = 'required|min_length[3]';
+                if ($sumber === 'file') {
+                    $rules["sub_file.$i"] =
+                        'uploaded[sub_file.' . $i . ']|max_size[sub_file.' . $i . ',10240]';
+                }
+
+                if ($sumber === 'link') {
+                    $rules["sub_link.$i"] = 'required|valid_url';
+                }
+            }
+        }
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+        $programJson = json_encode($this->request->getPost('program'));
 
         $data = [
             'program'  => $programJson,
             'judul'    => $this->request->getPost('judul'),
             'kategori' => $this->request->getPost('kategori'),
             'tipe'     => $this->request->getPost('tipe'),
-            'sumber'   => $this->request->getPost('sumber'),
-            'file'     => $materi['file'],
-            'link'     => $materi['link'],
+            'sumber'   => $sumber,
+            'file'     => null,
+            'link'     => null,
         ];
 
-        // jika upload file baru
-        if ($data['sumber'] === 'file') {
-            $file = $this->request->getFile('file');
+        $pathMain = WRITEPATH . 'uploads/materi/';
+        $pathSub  = WRITEPATH . 'uploads/materi/sub/';
 
-            if ($file && $file->isValid()) {
-                if ($materi['file']) {
-                    @unlink(WRITEPATH . 'uploads/materi/' . $materi['file']);
+        if (count($subJudul) === 0) {
+            if ($sumber === 'file') {
+                $file = $this->request->getFile('file');
+                if ($file && $file->isValid()) {
+                    if ($materi['file'] && file_exists($pathMain . $materi['file'])) {
+                        unlink($pathMain . $materi['file']);
+                    }
+
+                    $newName = $file->getRandomName();
+                    $file->move($pathMain, $newName);
+                    $data['file'] = $newName;
+                } else {
+                    $data['file'] = $materi['file']; // pertahankan
                 }
-
-                $newName = $file->getRandomName();
-                $path = WRITEPATH . 'uploads/materi';
-                $file->move($path, $newName);
-
-                $data['file'] = $newName;
-                $data['link'] = null;
+            }
+            if ($sumber === 'link') {
+                $data['link'] = $this->request->getPost('link');
             }
         }
 
-        // jika link
-        if ($data['sumber'] === 'link') {
-            $data['link'] = $this->request->getPost('link');
-            $data['file'] = null;
+        if (count($subJudul) > 0 && $materi['file']) {
+            if (file_exists($pathMain . $materi['file'])) {
+                unlink($pathMain . $materi['file']);
+            }
         }
 
-        $this->materiModel->update($id, $data);
+        $db = Database::connect();
+        $db->transStart();
 
-        return redirect()->to(site_url('/materi/' . $data['kategori']))
-            ->with('success', 'Materi berhasil diperbarui');
+        try {
+            $this->materiModel->update($id, $data);
+            $oldSubs = $this->materiDetailModel
+                ->where('materi_id', $id)
+                ->findAll();
+
+            foreach ($oldSubs as $sub) {
+                if ($sub['file'] && file_exists($pathSub . $sub['file'])) {
+                    unlink($pathSub . $sub['file']);
+                }
+            }
+
+            $this->materiDetailModel
+                ->where('materi_id', $id)
+                ->delete();
+
+            if (count($subJudul) > 0) {
+                if ($sumber === 'file') {
+                    $subFiles = $this->request->getFiles()['sub_file'];
+                    foreach ($subJudul as $i => $judulSub) {
+                        $namaFile = $subFiles[$i]->getRandomName();
+                        $subFiles[$i]->move($pathSub, $namaFile);
+                        $this->materiDetailModel->insert([
+                            'materi_id' => $id,
+                            'sub_judul' => $judulSub,
+                            'file'      => $namaFile,
+                            'link'      => null
+                        ]);
+                    }
+                }
+
+                if ($sumber === 'link') {
+                    $subLinks = $this->request->getPost('sub_link');
+                    foreach ($subJudul as $i => $judulSub) {
+                        $this->materiDetailModel->insert([
+                            'materi_id' => $id,
+                            'sub_judul' => $judulSub,
+                            'file'      => null,
+                            'link'      => $subLinks[$i]
+                        ]);
+                    }
+                }
+            }
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                throw new \Exception('Gagal memperbarui materi');
+            }
+
+            return redirect()->to(site_url('/materi/' . $data['kategori']))
+                ->with('success', 'Materi berhasil diperbarui');
+        } catch (\Throwable $e) {
+
+            $db->transRollback();
+
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', [$e->getMessage()]);
+        }
     }
 
     public function uu()

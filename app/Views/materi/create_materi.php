@@ -2,10 +2,8 @@
 <?= $this->section('content'); ?>
 
 <div class="container-fluid">
-
     <div class="row justify-content-center">
         <div class="col-lg-7 col-md-9">
-
             <div class="card materi-form-binjas border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -14,9 +12,7 @@
                         <h4 class="font-weight-bold mb-1">
                             Tambah Materi <?= strtoupper($kategori) ?>
                         </h4>
-                        <small class="text-muted">
-                            Lengkapi data materi pembelajaran
-                        </small>
+                        <small class="text-muted">Lengkapi data materi pembelajaran</small>
                     </div>
 
                     <!-- ERROR -->
@@ -28,7 +24,7 @@
                         </div>
                     <?php endif ?>
 
-                    <form id="form-materi" action="<?= base_url('materi/store') ?>"
+                    <form action="<?= base_url('materi/store') ?>"
                         method="post"
                         enctype="multipart/form-data">
 
@@ -37,90 +33,80 @@
                         <!-- JUDUL -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Judul Materi</label>
-                            <input type="text"
-                                name="judul"
-                                class="form-control rounded-pill px-4"
-                                placeholder="Masukkan judul materi"
-                                value="<?= old('judul') ?>">
+                            <input type="text" name="judul"
+                                class="form-control rounded-pill px-4">
                         </div>
 
-                        <!-- PROGRAM (MULTI) -->
+                        <!-- PROGRAM -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">Program</label>
-
                             <div class="d-flex flex-wrap gap-2">
-
-                                <?php $oldProgram = old('program') ?? []; ?>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="tni"
-                                        <?= in_array('tni', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>TNI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="polri"
-                                        <?= in_array('polri', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>POLRI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="kedinasan"
-                                        <?= in_array('kedinasan', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>KEDINASAN</span>
-                                </label>
-
+                                <?php foreach (['tni' => 'TNI', 'polri' => 'POLRI', 'kedinasan' => 'KEDINASAN'] as $k => $v): ?>
+                                    <label class="program-pill">
+                                        <input type="checkbox" name="program[]" value="<?= $k ?>">
+                                        <span><?= $v ?></span>
+                                    </label>
+                                <?php endforeach ?>
                             </div>
                         </div>
 
                         <!-- TIPE -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Tipe Materi</label>
-                            <select name="tipe"
-                                class="form-control rounded-pill px-4">
-                                <option value="">-- Pilih Tipe --</option>
-                                <option value="pdf" <?= old('tipe') === 'pdf' ? 'selected' : '' ?>>PDF</option>
+                            <select name="tipe" class="form-control rounded-pill px-4">
+                                <option value="">-- Pilih --</option>
+                                <option value="pdf">PDF</option>
                             </select>
                         </div>
 
                         <!-- SUMBER -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Sumber Materi</label>
-                            <select name="sumber"
-                                id="sumber"
+                            <select name="sumber" id="sumber"
                                 class="form-control rounded-pill px-4">
-                                <option value="">-- Pilih Sumber --</option>
-                                <option value="file" <?= old('sumber') === 'file' ? 'selected' : '' ?>>Upload File</option>
-                                <option value="link" <?= old('sumber') === 'link' ? 'selected' : '' ?>>Link</option>
+                                <option value="">-- Pilih --</option>
+                                <option value="file">Upload File</option>
+                                <option value="link">Link</option>
                             </select>
                         </div>
 
-                        <!-- FILE -->
+                        <!-- FILE UTAMA (AKAN TERKONTROL VIA JS) -->
                         <div class="form-group mb-3 d-none" id="fileInput">
-                            <label class="font-weight-semibold">Upload File</label>
+                            <label class="font-weight-semibold">Upload File Utama</label>
                             <input type="file" name="file" class="form-control-file">
-                            <small class="text-muted">PDF / Word</small>
                         </div>
 
-                        <!-- LINK -->
+                        <!-- LINK UTAMA (AKAN TERKONTROL VIA JS) -->
                         <div class="form-group mb-3 d-none" id="linkInput">
                             <label class="font-weight-semibold">Link Materi</label>
-                            <input type="url"
-                                name="link"
+                            <input type="url" name="link"
                                 class="form-control rounded-pill px-4"
                                 placeholder="https://">
                         </div>
 
+                        <!-- SUB JUDUL -->
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-flex justify-content-between">
+                                <span>Sub Judul Materi</span>
+                                <button type="button"
+                                    class="btn btn-sm btn-outline-success rounded-pill"
+                                    id="btnAddSub">
+                                    + Tambah Sub Judul
+                                </button>
+                            </label>
+
+                            <div id="subJudulWrapper"></div>
+                        </div>
+
                         <!-- BUTTON -->
-                        <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="d-flex justify-content-between mt-4">
                             <a href="<?= base_url('materi/' . $kategori) ?>"
                                 class="btn btn-outline-secondary rounded-pill px-4">
-                                <i class="fas fa-arrow-left mr-1"></i> Kembali
+                                Kembali
                             </a>
-
-                            <button id="btn-submit" type="submit"
+                            <button type="submit"
                                 class="btn btn-success rounded-pill px-5">
-                                <i class="fas fa-save mr-1"></i> Simpan Materi
+                                Simpan Materi
                             </button>
                         </div>
 
@@ -128,10 +114,8 @@
 
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -191,29 +175,65 @@
     const sumberSelect = document.getElementById('sumber');
     const fileInput = document.getElementById('fileInput');
     const linkInput = document.getElementById('linkInput');
+    const wrapper = document.getElementById('subJudulWrapper');
+    const btnAddSub = document.getElementById('btnAddSub');
 
-    function toggleSumber() {
+    function hideUtama() {
         fileInput.classList.add('d-none');
         linkInput.classList.add('d-none');
+    }
+
+    function toggleUtama() {
+        // ❌ JIKA SUB JUDUL > 1 → TIDAK BOLEH TAMPIL
+        if (wrapper.children.length > 0) {
+            hideUtama();
+            return;
+        }
+
+        hideUtama();
 
         if (sumberSelect.value === 'file') {
             fileInput.classList.remove('d-none');
-        } else if (sumberSelect.value === 'link') {
+        }
+        if (sumberSelect.value === 'link') {
             linkInput.classList.remove('d-none');
         }
     }
 
-    sumberSelect.addEventListener('change', toggleSumber);
-    document.addEventListener('DOMContentLoaded', toggleSumber);
+    sumberSelect.addEventListener('change', toggleUtama);
 
-    document.getElementById('form-materi').addEventListener('submit', function() {
-        const btn = document.getElementById('btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = `
-            <span class="spinner-border spinner-border-sm mr-2"></span>
-            Menyimpan...
+    btnAddSub.onclick = () => {
+        if (!sumberSelect.value) {
+            alert('Pilih sumber materi terlebih dahulu');
+            return;
+        }
+
+        const inputTambahan =
+            sumberSelect.value === 'file' ?
+            `<input type="file" name="sub_file[]" class="form-control-file">` :
+            `<input type="url" name="sub_link[]" class="form-control rounded-pill px-4" placeholder="https://">`;
+
+        const div = document.createElement('div');
+        div.className = 'sub-item border rounded p-3 mb-2';
+        div.innerHTML = `
+            <input type="text" name="sub_judul[]"
+                   class="form-control rounded-pill px-4 mb-2"
+                   placeholder="Sub Judul">
+            ${inputTambahan}
+            <button type="button"
+                    class="btn btn-sm btn-danger mt-2 btnRemove">
+                Hapus
+            </button>
         `;
-    });
+
+        wrapper.appendChild(div);
+        toggleUtama();
+
+        div.querySelector('.btnRemove').onclick = () => {
+            div.remove();
+            toggleUtama();
+        };
+    };
 </script>
 
 <?= $this->endSection(); ?>

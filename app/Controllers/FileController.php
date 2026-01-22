@@ -18,4 +18,16 @@ class FileController extends BaseController
         return $this->response->setHeader('Content-Type', mime_content_type($path))
             ->setBody(file_get_contents($path));
     }
+
+    public function showSub($path1, $filename)
+    {
+        $path = WRITEPATH . 'uploads/' . $path1 . '/sub/' . $filename;
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        return $this->response->setHeader('Content-Type', mime_content_type($path))
+            ->setBody(file_get_contents($path));
+    }
 }

@@ -26,6 +26,7 @@ $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::save');
 $routes->get('forgot-password', 'Auth::forgot');
 $routes->get('file/(:segment)/(:any)', 'FileController::show/$1/$2');
+$routes->get('file-sub/(:segment)/(:any)', 'FileController::showSub/$1/$2');
 $routes->group('/', ['filter' => 'jwt'], function ($routes) {
     $routes->get('profile', 'Profile::index');
     $routes->get('profile/edit', 'Profile::edit');
