@@ -3,11 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\MateriModel;
+use App\Models\UserPaketModel;
 
 class Materi extends BaseController
 {
     protected array $menuItems = [];
     protected $materiModel;
+    protected $userPaketModel;
 
     public function __construct()
     {
@@ -15,6 +17,7 @@ class Materi extends BaseController
 
         $this->menuItems = user_menu();
         $this->materiModel = new MateriModel();
+        $this->userPaketModel = new UserPaketModel();
     }
 
     private function baseData(): array
@@ -29,10 +32,32 @@ class Materi extends BaseController
     public function index($kategori = null)
     {
         $data = $this->baseData();
+        $builder = $this->materiModel
+            ->where('tipe !=', 'video');
+
         if ($kategori) {
-            $data['materi'] = $this->materiModel->where('kategori', $kategori)->where('tipe !=', 'video')->findAll();
+            $builder->where('kategori', $kategori);
+        }
+        if (!isGuruOrAdmin()) {
+            $user = $this->userPaketModel
+                ->select('program')
+                ->where('user_id', user_id())
+                ->first();
+
+            $userProgram = $user['program'] ?? null;
+
+            if (! $userProgram) {
+                $data['materi'] = [];
+            } else {
+                $builder
+                    ->groupStart()
+                    ->where("JSON_CONTAINS(program, '\"{$userProgram}\"')")
+                    ->groupEnd();
+
+                $data['materi'] = $builder->findAll();
+            }
         } else {
-            $data['materi'] = $this->materiModel->where('tipe !=', 'video')->findAll();
+            $data['materi'] = $builder->findAll();
         }
 
         $data['kategori'] = $kategori;
@@ -70,6 +95,7 @@ class Materi extends BaseController
         }
 
         $rules = [
+            'program' => 'required',
             'judul'   => 'required|min_length[3]',
             'tipe'    => 'required|in_list[pdf,video,word]',
             'sumber'  => 'required|in_list[file,link]'
@@ -89,6 +115,8 @@ class Materi extends BaseController
 
         $fileName = null;
         $link     = null;
+        $programArray = $this->request->getPost('program'); // ['tni','polri']
+        $programJson  = json_encode($programArray);
 
         if ($this->request->getPost('sumber') === 'file') {
             $file = $this->request->getFile('file');
@@ -102,6 +130,7 @@ class Materi extends BaseController
         }
 
         $this->materiModel->insert([
+            'program'  => $programJson,
             'judul'    => $this->request->getPost('judul'),
             'kategori' => $this->request->getPost('kategori'),
             'tipe'     => $this->request->getPost('tipe'),
@@ -173,8 +202,11 @@ class Materi extends BaseController
         if (! $materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
         }
+        $programArray = $this->request->getPost('program'); // ['tni','polri']
+        $programJson  = json_encode($programArray);
 
         $data = [
+            'program'  => $programJson,
             'judul'    => $this->request->getPost('judul'),
             'kategori' => $this->request->getPost('kategori'),
             'tipe'     => $this->request->getPost('tipe'),

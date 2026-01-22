@@ -44,6 +44,35 @@
                                 value="<?= old('judul') ?>">
                         </div>
 
+                        <!-- PROGRAM (MULTI) -->
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-block mb-2">Program</label>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <?php $oldProgram = old('program') ?? []; ?>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="tni"
+                                        <?= in_array('tni', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>TNI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="polri"
+                                        <?= in_array('polri', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>POLRI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="kedinasan"
+                                        <?= in_array('kedinasan', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>KEDINASAN</span>
+                                </label>
+
+                            </div>
+                        </div>
+
                         <!-- TIPE -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Tipe Materi</label>
@@ -70,9 +99,7 @@
                         <div class="form-group mb-3 d-none" id="fileInput">
                             <label class="font-weight-semibold">Upload File</label>
                             <input type="file" name="file" class="form-control-file">
-                            <small class="text-muted">
-                                PDF / Word
-                            </small>
+                            <small class="text-muted">PDF / Word</small>
                         </div>
 
                         <!-- LINK -->
@@ -109,28 +136,49 @@
 
 <!-- ================= STYLE ================= -->
 <style>
-    /* ===== FORM CARD BINJAS ===== */
     .materi-form-binjas {
         border-radius: 20px;
         box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
     }
 
-    /* LABEL */
     .font-weight-semibold {
         font-weight: 600;
     }
 
-    /* INPUT */
     .form-control {
         height: 46px;
     }
 
-    /* FILE INPUT */
     .form-control-file {
         margin-top: 6px;
     }
 
-    /* RESPONSIVE */
+    /* PROGRAM PILL */
+    .program-pill {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .program-pill input {
+        display: none;
+    }
+
+    .program-pill span {
+        display: inline-block;
+        padding: 10px 22px;
+        border-radius: 999px;
+        border: 2px solid #ced4da;
+        font-weight: 600;
+        transition: .2s;
+        user-select: none;
+    }
+
+    .program-pill input:checked+span {
+        background: #198754;
+        border-color: #198754;
+        color: #fff;
+    }
+
     @media (max-width: 576px) {
         .materi-form-binjas {
             padding: 0;
@@ -160,15 +208,11 @@
 
     document.getElementById('form-materi').addEventListener('submit', function() {
         const btn = document.getElementById('btn-submit');
-
-        // Disable tombol submit saja
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm mr-2"></span>
-        Menyimpan...
-    `;
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Menyimpan...
+        `;
     });
 </script>
 

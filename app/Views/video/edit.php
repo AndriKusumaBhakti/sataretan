@@ -1,6 +1,13 @@
 <?= $this->extend('default/layout-template', get_defined_vars()); ?>
 <?= $this->section('content'); ?>
 
+<?php
+// Decode program JSON → array
+$videoProgram = !empty($video['program'])
+    ? json_decode($video['program'], true)
+    : [];
+?>
+
 <div class="container-fluid">
 
     <div class="row justify-content-center">
@@ -19,7 +26,8 @@
                         </small>
                     </div>
 
-                    <form id="form-video" action="<?= base_url('video/update/' . $video['id']) ?>"
+                    <form id="form-video"
+                        action="<?= base_url('video/update/' . $video['id']) ?>"
                         method="post"
                         enctype="multipart/form-data">
 
@@ -33,16 +41,47 @@
                             <input type="text"
                                 name="judul"
                                 class="form-control rounded-pill px-4"
-                                value="<?= esc($video['judul']) ?>">
+                                value="<?= esc($video['judul']) ?>"
+                                required>
+                        </div>
+
+                        <!-- PROGRAM -->
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-block mb-2">
+                                Program
+                            </label>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="tni"
+                                        <?= in_array('tni', $videoProgram) ? 'checked' : '' ?>>
+                                    <span>TNI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="polri"
+                                        <?= in_array('polri', $videoProgram) ? 'checked' : '' ?>>
+                                    <span>POLRI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="kedinasan"
+                                        <?= in_array('kedinasan', $videoProgram) ? 'checked' : '' ?>>
+                                    <span>KEDINASAN</span>
+                                </label>
+
+                            </div>
                         </div>
 
                         <!-- TIPE -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Tipe Video</label>
                             <select name="tipe"
-                                class="form-control rounded-pill px-4">
+                                class="form-control rounded-pill px-4"
+                                required>
                                 <option value="">-- Pilih Tipe --</option>
-                                <option value="video" <?= $video['tipe'] == 'video' ? 'selected' : '' ?>>Video</option>
+                                <option value="video" selected>Video</option>
                             </select>
                         </div>
 
@@ -51,23 +90,25 @@
                             <label class="font-weight-semibold">Sumber Video</label>
                             <select name="sumber"
                                 id="sumber"
-                                class="form-control rounded-pill px-4">
+                                class="form-control rounded-pill px-4"
+                                required>
                                 <option value="">-- Pilih Sumber --</option>
-                                <option value="file" <?= $video['sumber'] == 'file' ? 'selected' : '' ?>>
+                                <option value="file" <?= $video['sumber'] === 'file' ? 'selected' : '' ?>>
                                     Upload File
                                 </option>
-                                <option value="link" <?= $video['sumber'] == 'link' ? 'selected' : '' ?>>
+                                <option value="link" <?= $video['sumber'] === 'link' ? 'selected' : '' ?>>
                                     Link
                                 </option>
                             </select>
                         </div>
 
                         <!-- FILE -->
-                        <div class="form-group mb-3 <?= $video['sumber'] == 'file' ? '' : 'd-none' ?>"
+                        <div class="form-group mb-3 <?= $video['sumber'] === 'file' ? '' : 'd-none' ?>"
                             id="fileInput">
                             <label class="font-weight-semibold">
                                 Upload File (Opsional)
                             </label>
+
                             <input type="file"
                                 name="file"
                                 class="form-control-file">
@@ -77,11 +118,11 @@
                                     File saat ini:
                                     <strong><?= esc($video['file']) ?></strong>
                                 </small>
-                            <?php endif ?>
+                            <?php endif; ?>
                         </div>
 
                         <!-- LINK -->
-                        <div class="form-group mb-3 <?= $video['sumber'] == 'link' ? '' : 'd-none' ?>"
+                        <div class="form-group mb-3 <?= $video['sumber'] === 'link' ? '' : 'd-none' ?>"
                             id="linkInput">
                             <label class="font-weight-semibold">Link Video</label>
                             <input type="url"
@@ -97,7 +138,8 @@
                                 <i class="fas fa-arrow-left mr-1"></i> Kembali
                             </a>
 
-                            <button id="btn-submit" type="submit"
+                            <button id="btn-submit"
+                                type="submit"
                                 class="btn btn-success rounded-pill px-5">
                                 <i class="fas fa-save mr-1"></i> Update Video
                             </button>
@@ -131,6 +173,31 @@
     .form-control-file {
         margin-top: 6px;
     }
+
+    .program-pill {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 50px;
+        padding: 6px 14px;
+        cursor: pointer;
+        background: #f8f9fa;
+    }
+
+    .program-pill input {
+        display: none;
+    }
+
+    .program-pill span {
+        font-size: 14px;
+    }
+
+    .program-pill input:checked+span {
+        background: #28a745;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 50px;
+    }
 </style>
 
 <!-- ================= SCRIPT ================= -->
@@ -152,13 +219,10 @@
 
     sumberSelect.addEventListener('change', toggleSumber);
     document.addEventListener('DOMContentLoaded', toggleSumber);
+
     document.getElementById('form-video').addEventListener('submit', function() {
         const btn = document.getElementById('btn-submit');
-
-        // Disable tombol submit saja
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
         <span class="spinner-border spinner-border-sm mr-2"></span>
         Menyimpan...

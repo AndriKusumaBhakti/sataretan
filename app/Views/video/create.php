@@ -1,6 +1,11 @@
 <?= $this->extend('default/layout-template', get_defined_vars()); ?>
 <?= $this->section('content'); ?>
 
+<?php
+// Ambil old program (jika validasi gagal)
+$oldProgram = old('program') ?? [];
+?>
+
 <div class="container-fluid">
 
     <div class="row justify-content-center">
@@ -15,7 +20,7 @@
                             Tambah Video <?= strtoupper($kategori) ?>
                         </h4>
                         <small class="text-muted">
-                            Lengkapi data Video pembelajaran
+                            Lengkapi data video pembelajaran
                         </small>
                     </div>
 
@@ -28,9 +33,12 @@
                         </div>
                     <?php endif ?>
 
-                    <form id="form-video" action="<?= base_url('video/store') ?>"
+                    <form id="form-video"
+                        action="<?= base_url('video/store') ?>"
                         method="post"
                         enctype="multipart/form-data">
+
+                        <?= csrf_field() ?>
 
                         <input type="hidden" name="kategori" value="<?= esc($kategori) ?>">
 
@@ -41,16 +49,49 @@
                                 name="judul"
                                 class="form-control rounded-pill px-4"
                                 placeholder="Masukkan judul video"
-                                value="<?= old('judul') ?>">
+                                value="<?= old('judul') ?>"
+                                required>
+                        </div>
+
+                        <!-- PROGRAM -->
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-block mb-2">
+                                Program
+                            </label>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="tni"
+                                        <?= in_array('tni', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>TNI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="polri"
+                                        <?= in_array('polri', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>POLRI</span>
+                                </label>
+
+                                <label class="program-pill">
+                                    <input type="checkbox" name="program[]" value="kedinasan"
+                                        <?= in_array('kedinasan', $oldProgram) ? 'checked' : '' ?>>
+                                    <span>KEDINASAN</span>
+                                </label>
+
+                            </div>
                         </div>
 
                         <!-- TIPE -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Tipe Video</label>
                             <select name="tipe"
-                                class="form-control rounded-pill px-4">
+                                class="form-control rounded-pill px-4"
+                                required>
                                 <option value="">-- Pilih Tipe --</option>
-                                <option value="video" <?= old('tipe') === 'video' ? 'selected' : '' ?>>Video</option>
+                                <option value="video" <?= old('tipe') === 'video' ? 'selected' : '' ?>>
+                                    Video
+                                </option>
                             </select>
                         </div>
 
@@ -59,19 +100,26 @@
                             <label class="font-weight-semibold">Sumber Video</label>
                             <select name="sumber"
                                 id="sumber"
-                                class="form-control rounded-pill px-4">
+                                class="form-control rounded-pill px-4"
+                                required>
                                 <option value="">-- Pilih Sumber --</option>
-                                <option value="file" <?= old('sumber') === 'file' ? 'selected' : '' ?>>Upload File</option>
-                                <option value="link" <?= old('sumber') === 'link' ? 'selected' : '' ?>>Link</option>
+                                <option value="file" <?= old('sumber') === 'file' ? 'selected' : '' ?>>
+                                    Upload File
+                                </option>
+                                <option value="link" <?= old('sumber') === 'link' ? 'selected' : '' ?>>
+                                    Link
+                                </option>
                             </select>
                         </div>
 
                         <!-- FILE -->
                         <div class="form-group mb-3 d-none" id="fileInput">
                             <label class="font-weight-semibold">Upload File</label>
-                            <input type="file" name="file" class="form-control-file">
+                            <input type="file"
+                                name="file"
+                                class="form-control-file">
                             <small class="text-muted">
-                                Video
+                                Format video (mp4, mkv, dll)
                             </small>
                         </div>
 
@@ -91,7 +139,8 @@
                                 <i class="fas fa-arrow-left mr-1"></i> Kembali
                             </a>
 
-                            <button id="btn-submit" type="submit"
+                            <button id="btn-submit"
+                                type="submit"
                                 class="btn btn-success rounded-pill px-5">
                                 <i class="fas fa-save mr-1"></i> Simpan Video
                             </button>
@@ -109,32 +158,46 @@
 
 <!-- ================= STYLE ================= -->
 <style>
-    /* ===== FORM CARD BINJAS ===== */
     .video-form-binjas {
         border-radius: 20px;
         box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
     }
 
-    /* LABEL */
     .font-weight-semibold {
         font-weight: 600;
     }
 
-    /* INPUT */
     .form-control {
         height: 46px;
     }
 
-    /* FILE INPUT */
     .form-control-file {
         margin-top: 6px;
     }
 
-    /* RESPONSIVE */
-    @media (max-width: 576px) {
-        .video-form-binjas {
-            padding: 0;
-        }
+    .program-pill {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 50px;
+        padding: 6px 14px;
+        cursor: pointer;
+        background: #f8f9fa;
+    }
+
+    .program-pill input {
+        display: none;
+    }
+
+    .program-pill span {
+        font-size: 14px;
+    }
+
+    .program-pill input:checked+span {
+        background: #28a745;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 50px;
     }
 </style>
 
@@ -160,11 +223,7 @@
 
     document.getElementById('form-video').addEventListener('submit', function() {
         const btn = document.getElementById('btn-submit');
-
-        // Disable tombol submit saja
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
         <span class="spinner-border spinner-border-sm mr-2"></span>
         Menyimpan...

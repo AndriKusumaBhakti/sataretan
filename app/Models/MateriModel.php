@@ -7,7 +7,7 @@ class MateriModel extends Model
 {
     protected $table      = 'materi';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['judul', 'tipe', 'sumber', 'file', 'link', 'kategori'];
+    protected $allowedFields = ['program', 'judul', 'tipe', 'sumber', 'file', 'link', 'kategori'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
