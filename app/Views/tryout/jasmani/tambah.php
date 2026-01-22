@@ -451,6 +451,10 @@
         const nilaiInput = input
             .closest('.form-row')
             .querySelector(`[data-nilai="${type}"]`);
+        const container = getActiveContainer();
+        const garjasB = container ?
+            container.querySelector('[data-nilai="garjas_b"]') :
+            null;
 
         if (!nilaiInput) return;
 
@@ -478,12 +482,10 @@
             })
             .then(res => res.json())
             .then(res => {
-                console.log(res);
+                console.log(res.garjas_b);
                 nilaiInput.value = res.nilai ?? '-';
-                if (jenisKelamin.value === 'pria' && kategori.value === 'tni') {
-                    nilaiInputgarjas_b.value = res.garjas_b ?? '-';
-                } else if (jenisKelamin.value === 'wanita' && kategori.value === 'tni') {
-                    nilaiInputgarjas_b.value = res.garjas_b ?? '-';
+                if (garjasB && kategori.value === 'tni') {
+                    garjasB.value = res.garjas_b ?? '-';
                 }
                 if (res.csrfHash) csrfHash = res.csrfHash;
             });
@@ -504,7 +506,7 @@
         'sit_up',
         'push_up',
         'shuttle_run',
-        'renang'
+        'renang',
     ];
 
     garjasTypes.forEach(type => {

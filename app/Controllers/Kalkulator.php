@@ -163,10 +163,34 @@ class Kalkulator extends BaseController
                     'csrfHash' => csrf_hash()
                 ]);
         }
-
+        $garjasB = null;
+        if ($kategori === 'tni') {
+            $garjasB = $this->hitungGarjasB($this->request->getPost(), $gender);
+        }
+        
         return $this->response->setJSON([
             'nilai'     => (int) $hasil,
+            'garjas_b' => $garjasB,
             'csrfHash'  => csrf_hash()
         ]);
+    }
+
+    private function hitungGarjasB(array $data, $gender)
+    {
+        $items  = ($gender === 'pria')
+            ? ['pull_up', 'sit_up', 'push_up', 'shuttle_run', 'renang']
+            : ['chinning', 'sit_up', 'push_up', 'shuttle_run', 'renang'];
+
+        $total = 0;
+        $count = 0;
+
+        foreach ($items as $item) {
+            if (!empty($data[$item])) {
+                $total += $data[$item];
+                $count++;
+            }
+        }
+
+        return $count > 0 ? round($total / $count, 2) : 0;
     }
 }
