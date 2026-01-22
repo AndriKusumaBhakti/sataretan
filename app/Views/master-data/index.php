@@ -92,7 +92,7 @@
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>No HP</th>
-
+                                <th>Program</th>
                                 <?php if ($kategori === 'siswa'): ?>
                                     <th>Paket</th>
                                     <th>Status</th>
@@ -111,7 +111,7 @@
                                     <td class="font-weight-bold"><?= esc($u['name']) ?></td>
                                     <td><?= esc($u['email']) ?></td>
                                     <td><?= esc($u['phone']) ?></td>
-
+                                    <td><?= esc(strtoupper($u['user_program'] ?? '-')) ?></td>
                                     <?php if ($kategori === 'siswa'): ?>
                                         <td><?= esc($u['name_paket']) ?></td>
                                         <td>

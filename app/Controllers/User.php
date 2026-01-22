@@ -120,6 +120,7 @@ class User extends BaseController
                 'name' => 'required|min_length[3]',
                 'email' => 'required|valid_email|is_unique[users.email]',
                 'phone' => 'required|min_length[10]',
+                'program' => 'required',
                 'paket_id' => 'required',
                 'password' => 'required|min_length[6]',
             ];
@@ -144,6 +145,7 @@ class User extends BaseController
                     'name'       => $this->request->getPost('name'),
                     'email'      => $this->request->getPost('email'),
                     'phone'      => $this->request->getPost('phone'),
+                    'program'   => md5($this->request->getPost('program')),
                     'password'   => md5($this->request->getPost('password')),
                     'photo'      => $photoName,
                     'role_id'       => 3,

@@ -19,7 +19,7 @@ class UserModel extends Model
 
     public function bySiswa()
     {
-        return $this->select('users.*, user_paket.expired_at AS paket_exp, user_paket.status AS paket_status, paket.nama AS name_paket, paket.deskripsi AS paket_desc')
+        return $this->select('users.*, user_paket.expired_at AS paket_exp, user_paket.status AS paket_status, user_paket.program AS user_program, paket.nama AS name_paket, paket.deskripsi AS paket_desc')
             ->join('user_paket','user_paket.user_id = users.id')
             ->join('paket','paket.id = user_paket.paket_id');
     }

@@ -53,10 +53,21 @@
                         </div>
 
                         <?php if ($kategori === 'siswa'): ?>
-                            <!-- PAKET -->
+                            <!-- PROGRAM -->
                             <div class="form-group mb-3">
+                                <label>Program Tujuan</label>
+                                <select name="program" id="program" class="form-control select-paket" required>
+                                    <option value="">Pilih Program</option>
+                                    <option value="tni" <?= $userPaket['program'] === 'tni' ? 'selected' : '' ?>>TNI</option>
+                                    <option value="polri" <?= $userPaket['program'] === 'polri' ? 'selected' : '' ?>>POLRI</option>
+                                    <option value="kedinasan" <?= $userPaket['program'] === 'kedinasan' ? 'selected' : '' ?>>Kedinasan</option>
+                                </select>
+                            </div>
+
+                            <!-- PAKET -->
+                            <div class="form-group mb-3" id="paket-wrapper">
                                 <label class="font-weight-semibold">Paket</label>
-                                <select name="paket_id"
+                                <select name="paket_id" id="paket"
                                     class="form-control rounded-pill px-4"
                                     required>
                                     <option value="">-- Pilih Paket --</option>
@@ -79,7 +90,7 @@
 
                             <button type="submit"
                                 id="btn-submit"
-                                class="btn btn-primary rounded-pill px-5">
+                                class="btn btn-success rounded-pill px-5">
                                 <i class="fas fa-save mr-1"></i> Simpan Perubahan
                             </button>
                         </div>
@@ -119,6 +130,23 @@
             <span class="spinner-border spinner-border-sm mr-2"></span>
             Menyimpan...
         `;
+    });
+
+    // Program -> Paket logic
+    const programSelect = document.getElementById('program');
+    const paketWrapper = document.getElementById('paket-wrapper');
+    const paketSelect = document.getElementById('paket');
+
+    programSelect.addEventListener('change', function() {
+        const program = this.value;
+        console.log(program);
+        if (!program) {
+            paketWrapper.style.display = 'none';
+            paketSelect.value = '';
+            return;
+        }
+
+        paketWrapper.style.display = 'block';
     });
 </script>
 

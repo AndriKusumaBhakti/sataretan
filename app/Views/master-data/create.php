@@ -70,6 +70,34 @@ $isGuru  = ($kategori ?? '') === 'guru';
                                 value="<?= old('phone') ?>">
                         </div>
 
+
+                        <!-- PAKET (KHUSUS SISWA) -->
+                        <?php if ($isSiswa): ?>
+                            <!-- PROGRAM -->
+                            <div class="form-group mb-3">
+                                <label>Program Tujuan</label>
+                                <select name="program" id="program" class="form-control select-paket" required>
+                                    <option value="">Pilih Program</option>
+                                    <option value="tni">TNI</option>
+                                    <option value="polri">POLRI</option>
+                                    <option value="kedinasan">Kedinasan</option>
+                                </select>
+                            </div>
+
+                            <!-- PAKET (HIDDEN AWAL) -->
+                            <div class="form-group mb-3" id="paket-wrapper" style="display:none;">
+                                <label>Paket Belajar</label>
+                                <select name="paket_id" id="paket" class="form-control select-paket" required>
+                                    <option value="">Pilih Paket</option>
+                                    <?php foreach ($paket as $pkg): ?>
+                                        <option value="<?= $pkg['id'] ?>">
+                                            <?= esc($pkg['nama']) ?> (<?= $pkg['range_month'] ?> Bulan)
+                                        </option>
+                                    <?php endforeach ?>
+                                </select>
+                            </div>
+                        <?php endif ?>
+
                         <!-- PASSWORD -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold">Password</label>
@@ -93,24 +121,6 @@ $isGuru  = ($kategori ?? '') === 'guru';
                             </small>
                         </div>
 
-                        <!-- PAKET (KHUSUS SISWA) -->
-                        <?php if ($isSiswa): ?>
-                            <div class="form-group mb-3">
-                                <select name="paket_id"
-                                    class="form-control rounded-pill"
-                                    required>
-                                    <option value="">Pilih Paket</option>
-                                    <?php foreach ($paket as $pkg): ?>
-                                        <option value="<?= $pkg['id'] ?>"
-                                            <?= old('paket_id') == $pkg['id'] ? 'selected' : '' ?>>
-                                            <?= esc($pkg['nama']) ?>
-                                            (<?= $pkg['range_month'] ?> Bulan)
-                                        </option>
-                                    <?php endforeach ?>
-                                </select>
-                            </div>
-                        <?php endif ?>
-
                         <!-- BUTTON -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <a href="<?= base_url(
@@ -124,7 +134,7 @@ $isGuru  = ($kategori ?? '') === 'guru';
 
                             <button id="btn-submit"
                                 type="submit"
-                                class="btn <?= $isSiswa ? 'btn-primary' : 'btn-success' ?> rounded-pill px-5">
+                                class="btn <?= $isSiswa ? 'btn-success' : 'btn-success' ?> rounded-pill px-5">
                                 Simpan <?= $isSiswa ? 'Siswa' : 'Guru' ?>
                             </button>
                         </div>
@@ -164,6 +174,22 @@ $isGuru  = ($kategori ?? '') === 'guru';
         const btn = document.getElementById('btn-submit');
         btn.disabled = true;
         btn.innerHTML = 'Menyimpan...';
+    });
+    // Program -> Paket logic
+    const programSelect = document.getElementById('program');
+    const paketWrapper = document.getElementById('paket-wrapper');
+    const paketSelect = document.getElementById('paket');
+
+    programSelect.addEventListener('change', function() {
+        const program = this.value;
+        console.log(program);
+        if (!program) {
+            paketWrapper.style.display = 'none';
+            paketSelect.value = '';
+            return;
+        }
+
+        paketWrapper.style.display = 'block';
     });
 </script>
 
