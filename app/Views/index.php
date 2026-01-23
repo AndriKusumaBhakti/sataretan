@@ -82,23 +82,116 @@
   </section>
 
   <!-- ================= PROGRAM ================= -->
+  <!-- ================= PROGRAM UNGGULAN ================= -->
   <section id="informasi" class="max-w-7xl mx-auto px-6 py-20">
-    <h2 class="text-3xl font-extrabold text-center mb-12">Program Unggulan</h2>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="bg-zinc-900 p-8 rounded-2xl border border-red-900 text-center">
-        <h3 class="text-xl font-bold text-yellow-400">Psikologi</h3>
-        <p class="mt-4 text-gray-300">Mental & Kepribadian</p>
+    <h2 class="text-3xl font-extrabold text-center mb-4">
+      Program Unggulan
+    </h2>
+    <p class="text-center text-gray-400 mb-14">
+      Kurikulum disesuaikan dengan kebutuhan seleksi masing-masing jalur
+    </p>
+
+    <div class="grid lg:grid-cols-3 gap-10">
+
+      <!-- ================= POLRI ================= -->
+      <div
+        class="group bg-zinc-900 rounded-2xl border border-red-900 p-8 hover:shadow-2xl hover:shadow-red-900/40 transition">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-extrabold text-yellow-400">POLRI</h3>
+          <span class="text-xs bg-yellow-400 text-black px-3 py-1 rounded-full font-bold">
+            Fokus Psikologi
+          </span>
+        </div>
+
+        <ul class="space-y-3 text-gray-200">
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Psiko Kecerdasan
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Penalaran Numerik
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Pengetahuan Umum
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Wawasan Kebangsaan
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Bahasa Inggris
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Psiko Kecermatan
+          </li>
+        </ul>
       </div>
-      <div class="bg-zinc-900 p-8 rounded-2xl border border-red-900 text-center">
-        <h3 class="text-xl font-bold text-yellow-400">Akademik</h3>
-        <p class="mt-4 text-gray-300">TWK, TIU, Inggris</p>
+
+      <!-- ================= TNI ================= -->
+      <div
+        class="group bg-zinc-900 rounded-2xl border border-red-900 p-8 hover:shadow-2xl hover:shadow-red-900/40 transition">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-extrabold text-yellow-400">TNI</h3>
+          <span class="text-xs bg-red-700 text-white px-3 py-1 rounded-full font-bold">
+            Mental & Ideologi
+          </span>
+        </div>
+
+        <ul class="space-y-3 text-gray-200">
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Psiko Kecerdasan
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Wawasan Kebangsaan
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Bahasa Inggris
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Mental Ideologi
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Tes Gambar
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Tes Koran
+          </li>
+        </ul>
       </div>
-      <div class="bg-zinc-900 p-8 rounded-2xl border border-red-900 text-center">
-        <h3 class="text-xl font-bold text-yellow-400">Jasmani</h3>
-        <p class="mt-4 text-gray-300">Samapta & Renang</p>
+
+      <!-- ================= KEDINASAN ================= -->
+      <div
+        class="group bg-zinc-900 rounded-2xl border border-red-900 p-8 hover:shadow-2xl hover:shadow-red-900/40 transition">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-extrabold text-yellow-400">KEDINASAN</h3>
+          <span class="text-xs bg-zinc-700 text-white px-3 py-1 rounded-full font-bold">
+            Tes Akademik
+          </span>
+        </div>
+
+        <ul class="space-y-3 text-gray-200">
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Psiko Kecerdasan
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Bahasa Inggris
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Tes Gambar
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> Tes Koran
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> TIU
+          </li>
+          <li class="flex items-center gap-3">
+            <span class="text-green-400 font-bold">✓</span> TWK
+          </li>
+        </ul>
       </div>
+
     </div>
   </section>
+
 
   <!-- ================= STRUKTUR ================= -->
   <section id="struktur" class="bg-gradient-to-r from-zinc-900 to-black px-6 py-20">
