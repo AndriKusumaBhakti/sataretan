@@ -1,12 +1,21 @@
-<?php foreach (['lari_12', 'chinning', 'sit_up', 'push_up', 'shuttle_run', 'renang'] as $v): ?>
+<?php
+$items = [
+    'lari_12'     => 'Lari 12 Menit (meter)',
+    'chinning'      => 'Chinning',
+    'sit_up'     => 'Sit Up (1 menit)',
+    'push_up' => 'Push Up (1 menit)',
+    'shuttle_run'      => 'Shuttle Run',
+    'renang'      => 'Renang',
+];
+foreach ($items as $key => $label): ?>
     <div class="form-row">
         <div class="col-8">
-            <label><?= strtoupper($v) ?></label>
-            <input type="number" name="<?= $v ?>" data-type="<?= $v ?>" class="form-control">
+            <label><?= $label ?></label>
+            <input type="number" name="<?= $key ?>" data-type="<?= $key ?>" class="form-control">
         </div>
         <div class="col-4">
             <label>Nilai</label>
-            <input type="text" data-nilai="<?= $v ?>" class="form-control bg-light" readonly>
+            <input type="text" name="nilai_<?= $key ?>" data-nilai="<?= $key ?>" class="form-control bg-light" readonly>
         </div>
     </div>
 <?php endforeach ?>

@@ -17,11 +17,11 @@
     </div>
     <div class="col-2">
         <label>Index BMI</label>
-        <input type="text" class="form-control bg-light nilai_bmi" readonly>
+        <input type="text" name="bmi" class="form-control bg-light nilai_bmi" readonly>
     </div>
     <div class="col-2">
         <label>Kategori</label>
-        <input type="text" class="form-control bg-light kategori_bmi" readonly>
+        <input type="text" name="kategori_bmi" class="form-control bg-light kategori_bmi" readonly>
     </div>
 </div>
 
@@ -56,7 +56,7 @@ foreach ($items as $key => $label):
         </div>
         <div class="col-4">
             <label>Nilai</label>
-            <input type="text" data-nilai="<?= $key ?>" class="form-control bg-light" readonly>
+            <input type="text" name="nilai_<?= $key ?>" data-nilai="<?= $key ?>" class="form-control bg-light" readonly>
         </div>
     </div>
 <?php endforeach ?>

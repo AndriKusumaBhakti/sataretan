@@ -55,8 +55,6 @@ class Jasmani extends BaseController
 
     public function store($kategori)
     {
-        var_dump($this->request->getPost());
-        exit;
         $program = $this->request->getPost('program'); // tni / polri
         $gender   = $this->request->getPost('jenis_kelamin');
 
@@ -69,8 +67,6 @@ class Jasmani extends BaseController
             'push_up'        => 'permit_empty|numeric',
             'shuttle_run'    => 'permit_empty|numeric',
             'renang'         => 'permit_empty|numeric',
-            'pull_up'        => 'permit_empty|numeric',
-            'chinning'       => 'permit_empty|numeric',
         ];
 
         // KHUSUS TNI
@@ -78,6 +74,13 @@ class Jasmani extends BaseController
             $rules['usia']   = 'required|numeric';
             $rules['tinggi'] = 'required|numeric';
             $rules['berat']  = 'required|numeric';
+            $rules['garjas_b']  = 'required|numeric';
+        }
+
+        if ($gender === 'wanita') {
+            $rules['chinning']   = 'permit_empty|numeric';
+        } else {
+            $rules['pull_up']   = 'permit_empty|numeric';
         }
 
         // PILIH USER JIKA GURU / ADMIN
@@ -96,21 +99,17 @@ class Jasmani extends BaseController
             ? $this->request->getPost('user_id')
             : user_id(); // helper user login
 
-        $pullUp = $gender === 'wanita'
-            ? $this->request->getPost('chinning')
-            : $this->request->getPost('pull_up');
-
         $data = [
             'user_id'       => $userId,
-            'kategori'      => $kategori,
+            'kategori'      => $program,
             'jenis_kelamin' => $this->request->getPost('jenis_kelamin'),
 
             // TNI
             'usia'          => $this->request->getPost('usia'),
-            'tinggi_cm'     => $this->request->getPost('tinggi'),
-            'berat_kg'      => $this->request->getPost('berat'),
-            'bmi_index'     => $this->request->getPost('nilai_bmi'),
-            'bmi_kategori'  => $this->request->getPost('kategori_bmi'),
+            'tinggi'     => $this->request->getPost('tinggi'),
+            'berat'      => $this->request->getPost('berat'),
+            'bmi'           => $this->request->getPost('bmi'),
+            'kategori_bmi'  => $this->request->getPost('kategori_bmi'),
 
             // GARJAS
             'lari_12'       => $this->request->getPost('lari_12'),
@@ -119,11 +118,11 @@ class Jasmani extends BaseController
             'pull_up'       => $this->request->getPost('pull_up'),
             'nilai_pull_up' => $this->request->getPost('nilai_pull_up'),
 
+            'chinning'        => $this->request->getPost('chinning'),
+            'nilai_chinning'  => $this->request->getPost('nilai_chinning'),
+
             'sit_up'        => $this->request->getPost('sit_up'),
             'nilai_sit_up'  => $this->request->getPost('nilai_sit_up'),
-
-            'lunges'        => $this->request->getPost('lunges'),
-            'nilai_lunges'  => $this->request->getPost('nilai_lunges'),
 
             'push_up'       => $this->request->getPost('push_up'),
             'nilai_push_up' => $this->request->getPost('nilai_push_up'),
@@ -133,12 +132,9 @@ class Jasmani extends BaseController
 
             'renang'       => $this->request->getPost('renang'),
             'nilai_renang' => $this->request->getPost('nilai_renang'),
+
+            'nilai_garjas_b' => $this->request->getPost('garjas_b'),
         ];
-
-        // HITUNG NILAI
-
-        $data['nilai_garjas_b'] = $this->hitungGarjasB($data);
-        $data['nilai_total']    = $this->hitungTotal($data);
 
         $this->jasmani->insert($data);
 
