@@ -2,7 +2,6 @@
 <?= $this->section('content') ?>
 
 <div class="container-fluid">
-
     <div class="text-center mb-4">
         <h1 class="h5 font-weight-bold text-white">
             Hitung Nilai Jasmani T.A. 2026
@@ -15,246 +14,58 @@
             <form method="post" action="<?= site_url('tryout/jasmani/store') ?>" class="jasmani-card">
                 <?= csrf_field() ?>
 
-                <!-- PILIH USER -->
                 <?php if ($isGuruOrAdmin): ?>
                     <div class="form-group">
                         <label>Pilih User</label>
-                        <select name="user_id" class="form-control select-users" <?= empty($users) ? 'disabled' : 'required' ?>>
-                            <option value="">
-                                <?= empty($users) ? '-- Tidak ada user aktif --' : '-- Pilih User --' ?>
-                            </option>
+                        <select name="user_id" class="form-control select-users" required>
+                            <option value="">-- Pilih User --</option>
                             <?php foreach ($users as $u): ?>
                                 <option value="<?= $u['id'] ?>">
-                                    <?= esc($u['name']) ?> - (<?= esc($u['email']) ?>)
+                                    <?= esc($u['name']) ?> (<?= esc($u['email']) ?>)
                                 </option>
-                            <?php endforeach; ?>
+                            <?php endforeach ?>
                         </select>
                     </div>
-                <?php endif; ?>
+                <?php endif ?>
 
-                <!-- KATEGORI -->
                 <div class="form-group">
-                    <label>Kategori</label>
-                    <select name="kategori" id="kategori" class="form-control select-users">
+                    <label>Program</label>
+                    <select id="program" name="program" class="form-control select-users" required>
+                        <option value="">-- Pilih Program --</option>
                         <option value="tni">TNI</option>
                         <option value="polri">POLRI</option>
                     </select>
                 </div>
 
-                <!-- JENIS KELAMIN -->
                 <div class="form-group">
                     <label>Jenis Kelamin</label>
-                    <select id="jenis_kelamin" name="jenis_kelamin" class="form-control select-users">
+                    <select id="jenis_kelamin" name="jenis_kelamin" class="form-control select-users" required>
+                        <option value="">-- Pilih --</option>
                         <option value="pria">Pria</option>
                         <option value="wanita">Wanita</option>
                     </select>
                 </div>
 
-                <!-- KHUSUS TNI -->
-                <div id="field-tni-pria" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group col-6">
-                            <label>Usia</label>
-                            <input type="number" name="usia" class="form-control">
-                        </div>
-                        <div class="form-group col-6">
-                            <label>Tinggi (cm)</label>
-                            <input type="number" id="tinggi" name="tinggi" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Berat (kg)</label>
-                        <input type="number" id="berat" name="berat" class="form-control">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-6">
-                            <label>Kategori BMI</label>
-                            <input type="text" id="kategori_bmi" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="form-group col-6">
-                            <label>Index BMI</label>
-                            <input type="text" id="nilai_bmi" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-
-                    <!-- GARJAS A -->
-                    <div class="divider">GARJAS A</div>
-
-                    <div class="form-row align-items-center">
-                        <div class="form-group col-8">
-                            <label>Jarak Lari 12 Menit (meter)</label>
-                            <input type="number" data-type="lari_12" name="lari_12" class="form-control">
-                        </div>
-                        <div class="form-group col-4">
-                            <label>Nilai</label>
-                            <input type="text" data-nilai="lari_12" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-
-                    <!-- GARJAS B -->
-                    <div class="divider">GARJAS B</div>
-
-                    <?php
-                    $itemsUmum = [
-                        'pull_up'     => 'Pull Up (1 menit)', //chinning jika perempuan
-                        'sit_up'      => 'Sit Up (1 menit)',
-                        'push_up'     => 'Push Up (1 menit)',
-                        'shuttle_run' => 'Shuttle Run',
-                        'renang'      => 'Renang',
-                    ];
-                    foreach ($itemsUmum as $name => $label): ?>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-8">
-                                <label><?= $label ?></label>
-                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
-                            </div>
-                            <div class="form-group col-4">
-                                <label>Nilai</label>
-                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-
-                    <!-- NILAI GARJAS B -->
-                    <div class="form-row align-items-center">
-                        <div class="form-group col-12">
-                            <label>Nilai Garjas B</label>
-                            <input type="text" data-nilai="garjas_b" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-                </div>
-                <div id="field-tni-wanita" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group col-6">
-                            <label>Usia</label>
-                            <input type="number" name="usia" class="form-control">
-                        </div>
-                        <div class="form-group col-6">
-                            <label>Tinggi (cm)</label>
-                            <input type="number" id="tinggi" name="tinggi" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Berat (kg)</label>
-                        <input type="number" id="berat" name="berat" class="form-control">
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-6">
-                            <label>Kategori BMI</label>
-                            <input type="text" id="kategori_bmi" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="form-group col-6">
-                            <label>Index BMI</label>
-                            <input type="text" id="nilai_bmi" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-
-                    <!-- GARJAS A -->
-                    <div class="divider">GARJAS A</div>
-
-                    <div class="form-row align-items-center">
-                        <div class="form-group col-8">
-                            <label>Jarak Lari 12 Menit (meter)</label>
-                            <input type="number" data-type="lari_12" name="lari_12" class="form-control">
-                        </div>
-                        <div class="form-group col-4">
-                            <label>Nilai</label>
-                            <input type="text" data-nilai="lari_12" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-
-                    <!-- GARJAS B -->
-                    <div class="divider">GARJAS B</div>
-
-                    <?php
-                    $itemsUmum = [
-                        'chinning'     => 'Chinning', //chinning jika perempuan
-                        'sit_up'      => 'Sit Up (1 menit)',
-                        'push_up'     => 'Push Up (1 menit)',
-                        'shuttle_run' => 'Shuttle Run',
-                        'renang'      => 'Renang',
-                    ];
-                    foreach ($itemsUmum as $name => $label): ?>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-8">
-                                <label><?= $label ?></label>
-                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
-                            </div>
-                            <div class="form-group col-4">
-                                <label>Nilai</label>
-                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-
-                    <!-- NILAI GARJAS B -->
-                    <div class="form-row align-items-center">
-                        <div class="form-group col-12">
-                            <label>Nilai Garjas B</label>
-                            <input type="text" data-nilai="garjas_b" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
+                <!-- ====== FORM DINAMIS ====== -->
+                <div id="field-tni-pria" class="jasmani-field d-none">
+                    <?= view('tryout/jasmani/partials/tni_pria') ?>
                 </div>
 
-                <!-- KHUSUS POLRI -->
-                <div id="field-polri-pria" style="display: none;">
-                    <?php
-                    $itemsUmum = [
-                        'lari_12'     => 'Jarak Lari 12 Menit (meter)',
-                        'pull_up'     => 'Pull Up (1 menit)', //chinning jika perempuan
-                        'sit_up'      => 'Sit Up (1 menit)',
-                        'push_up'     => 'Push Up (1 menit)',
-                        'shuttle_run' => 'Shuttle Run',
-                        'renang'      => 'Renang',
-                    ];
-
-                    foreach ($itemsUmum as $name => $label): ?>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-8">
-                                <label><?= $label ?></label>
-                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
-                            </div>
-                            <div class="form-group col-4">
-                                <label>Nilai</label>
-                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <div id="field-polri-wanita" style="display: none;">
-                    <?php
-                    $itemsUmum = [
-                        'lari_12'     => 'Jarak Lari 12 Menit (meter)',
-                        'chinning'     => 'Chinning', //chinning jika perempuan
-                        'sit_up'      => 'Sit Up (1 menit)',
-                        'push_up'     => 'Push Up (1 menit)',
-                        'shuttle_run' => 'Shuttle Run',
-                        'renang'      => 'Renang',
-                    ];
-
-                    foreach ($itemsUmum as $name => $label): ?>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-8">
-                                <label><?= $label ?></label>
-                                <input type="number" data-type="<?= $name ?>" name="<?= $name ?>" class="form-control">
-                            </div>
-                            <div class="form-group col-4">
-                                <label>Nilai</label>
-                                <input type="text" data-nilai="<?= $name ?>" class="form-control bg-light" readonly>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                <div id="field-tni-wanita" class="jasmani-field d-none">
+                    <?= view('tryout/jasmani/partials/tni_wanita') ?>
                 </div>
 
-                <!-- SUBMIT -->
-                <button class="btn btn-success btn-block font-weight-bold mt-3">
-                    Hitung
+                <div id="field-polri-pria" class="jasmani-field d-none">
+                    <?= view('tryout/jasmani/partials/polri_pria') ?>
+                </div>
+
+                <div id="field-polri-wanita" class="jasmani-field d-none">
+                    <?= view('tryout/jasmani/partials/polri_wanita') ?>
+                </div>
+
+                <button class="btn btn-success btn-block mt-3 font-weight-bold">
+                    Hitung & Simpan
                 </button>
-
             </form>
 
         </div>
@@ -262,10 +73,6 @@
 </div>
 
 <style>
-    body {
-        background: url('/assets/img/bg-military.jpg') center/cover no-repeat fixed;
-    }
-
     .jasmani-card {
         background: rgba(255, 255, 255, .95);
         border-radius: 18px;
@@ -309,7 +116,6 @@
         padding: 6px 42px 6px 14px;
         appearance: none;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23facc15' d='M5.5 7l4.5 5 4.5-5z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 14px center;
         background-size: 14px;
@@ -317,203 +123,133 @@
 </style>
 
 <script>
-    const kategori = document.getElementById('kategori');
-    const jenisKelamin = document.getElementById('jenis_kelamin');
-    const fieldTniPria = document.getElementById('field-tni-pria');
-    const fieldPolriPria = document.getElementById('field-polri-pria');
-    const fieldTniWanita = document.getElementById('field-tni-wanita');
-    const fieldPolriWanita = document.getElementById('field-polri-wanita');
+    const program = document.getElementById('program');
+    const gender = document.getElementById('jenis_kelamin');
 
-    function toggleKategori() {
-        if (kategori.value == "" || jenisKelamin.value == "") {
-            fieldTniPria.style.display = 'none';
-            fieldPolriPria.style.display = 'none';
-            fieldTniWanita.style.display = 'none';
-            fieldPolriWanita.style.display = 'none';
-            return;
-        }
-        if (jenisKelamin.value === 'pria' && kategori.value === 'tni') {
-            fieldTniPria.style.display = 'block';
-            fieldPolriPria.style.display = 'none';
-            fieldTniWanita.style.display = 'none';
-            fieldPolriWanita.style.display = 'none';
-        } else if (jenisKelamin.value === 'pria' && kategori.value === 'polri') {
-            fieldTniPria.style.display = 'none';
-            fieldPolriPria.style.display = 'block';
-            fieldTniWanita.style.display = 'none';
-            fieldPolriWanita.style.display = 'none';
-        } else if (jenisKelamin.value === 'wanita' && kategori.value === 'tni') {
-            fieldTniPria.style.display = 'none';
-            fieldPolriPria.style.display = 'none';
-            fieldTniWanita.style.display = 'block';
-            fieldPolriWanita.style.display = 'none';
-        } else if (jenisKelamin.value === 'wanita' && kategori.value === 'polri') {
-            fieldTniPria.style.display = 'none';
-            fieldPolriPria.style.display = 'none';
-            fieldTniWanita.style.display = 'none';
-            fieldPolriWanita.style.display = 'block';
+    /* ================= DEBOUNCE ================= */
+    let hitungTimer = null;
+    const HITUNG_DELAY = 500; // ms
+
+    /* ================= TOGGLE FORM ================= */
+    function hideAll() {
+        document.querySelectorAll('.jasmani-field').forEach(el => {
+            el.classList.add('d-none');
+            el.querySelectorAll('input').forEach(i => i.disabled = true);
+        });
+    }
+
+    function show(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('d-none');
+        el.querySelectorAll('input').forEach(i => i.disabled = false);
+    }
+
+    function toggleForm() {
+        hideAll();
+        if (program.value && gender.value) {
+            show(`field-${program.value}-${gender.value}`);
         }
     }
 
-    kategori.addEventListener('change', toggleKategori);
-    jenisKelamin.addEventListener('change', toggleKategori);
-    toggleKategori();
+    program.addEventListener('change', toggleForm);
+    gender.addEventListener('change', toggleForm);
 
+    function getActive() {
+        return document.querySelector('.jasmani-field:not(.d-none)');
+    }
+
+    /* ================= CSRF ================= */
     let csrfName = '<?= csrf_token() ?>';
     let csrfHash = '<?= csrf_hash() ?>';
 
-    const tinggiInput = document.getElementById('tinggi');
-    const beratInput = document.getElementById('berat');
-    const bmiInput = document.getElementById('nilai_bmi');
-    const kategoriInput = document.getElementById('kategori_bmi');
-
-    // ACTION hanya saat user mengetik di tinggi atau berat
-    tinggiInput.addEventListener('input', hitungBMI);
-    beratInput.addEventListener('input', hitungBMI);
-
-    function hitungBMI() {
-        // hanya aktif untuk TNI
-        if (kategori.value !== 'tni') return;
-
-        const tinggi = parseFloat(tinggiInput.value);
-        const berat = parseFloat(beratInput.value);
-
-        // jalankan hanya jika KEDUANYA terisi
-        if (!tinggi || !berat) {
-            bmiInput.value = '';
-            kategoriInput.value = '';
-            return;
-        }
-
-        fetch("<?= site_url('kalkulator/bmi') ?>", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: new URLSearchParams({
-                    tinggi: tinggi,
-                    berat: berat,
-                    gender: jenisKelamin.value,
-                    [csrfName]: csrfHash
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                bmiInput.value = res.bmi ?? '-';
-                kategoriInput.value = res.kategori ?? '-';
-
-                if (res.csrfHash) csrfHash = res.csrfHash;
-            });
-    }
-
-    /* ===============================
-   DEBOUNCE HELPER
-=============================== */
-    function debounce(fn, delay = 500) {
-        let timer;
-        return function(...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
-
-    function getActiveContainer() {
-        return document.querySelector(
-            '#field-tni-pria[style*="block"], \
-         #field-tni-wanita[style*="block"], \
-         #field-polri-pria[style*="block"], \
-         #field-polri-wanita[style*="block"]'
-        );
-    }
-
-    function getAllNilaiGarjas() {
-        const container = getActiveContainer();
+    /* ================= AMBIL SEMUA NILAI (HASIL) ================= */
+    function collectAllNilai(active) {
         const data = {};
-
-        if (!container) return data;
-
-        container.querySelectorAll('[data-nilai]').forEach(el => {
-            data[el.dataset.nilai] = el.value ?? '';
+        active.querySelectorAll('[data-nilai]').forEach(el => {
+            if (el.value !== '') {
+                data[el.dataset.nilai] = Number(el.value);
+            }
         });
-
         return data;
     }
 
-    /* ===============================
-       FUNGSI HITUNG GARJAS
-    =============================== */
-    function hitungGarjas(e) {
-        const input = e.target;
-        const type = input.dataset.type;
-        const nilai = parseFloat(input.value);
+    /* ================= INPUT HANDLER ================= */
+    document.addEventListener('input', e => {
+        const active = getActive();
+        if (!active) return;
 
-        const nilaiInput = input
-            .closest('.form-row')
-            .querySelector(`[data-nilai="${type}"]`);
-        const container = getActiveContainer();
-        const garjasB = container ?
-            container.querySelector('[data-nilai="garjas_b"]') :
-            null;
+        /* ================= BMI (REALTIME) ================= */
+        if (
+            e.target.classList.contains('tinggi') ||
+            e.target.classList.contains('berat')
+        ) {
+            const tinggi = active.querySelector('.tinggi')?.value;
+            const berat = active.querySelector('.berat')?.value;
+            if (!tinggi || !berat) return;
 
-        if (!nilaiInput) return;
-
-        if (!nilai) {
-            nilaiInput.value = '';
+            fetch("<?= site_url('kalkulator/bmi') ?>", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: new URLSearchParams({
+                        tinggi,
+                        berat,
+                        gender: gender.value,
+                        [csrfName]: csrfHash
+                    })
+                })
+                .then(r => r.json())
+                .then(r => {
+                    active.querySelector('.nilai_bmi').value = r.bmi ?? '';
+                    active.querySelector('.kategori_bmi').value = r.kategori ?? '';
+                    csrfHash = r.csrfHash ?? csrfHash;
+                });
             return;
         }
 
-        const allNilai = getAllNilaiGarjas();
+        /* ================= GARJAS (DELAYED) ================= */
+        if (!e.target.dataset.type) return;
 
-        fetch(`<?= site_url('kalkulator/hitung') ?>`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                body: new URLSearchParams({
-                    nilai: nilai,
-                    type: type,
-                    kategori: kategori.value,
-                    gender: jenisKelamin.value,
-                    ...allNilai,
-                    [csrfName]: csrfHash
+        clearTimeout(hitungTimer);
+
+        hitungTimer = setTimeout(() => {
+            const current = getActive();
+            if (!current) return;
+
+            const allNilai = collectAllNilai(current);
+
+            fetch("<?= site_url('kalkulator/hitung') ?>", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: new URLSearchParams({
+                        type: e.target.dataset.type,
+                        nilai: Number(e.target.value),
+                        kategori: program.value,
+                        gender: gender.value,
+                        ...allNilai,
+                        [csrfName]: csrfHash
+                    })
                 })
-            })
-            .then(res => res.json())
-            .then(res => {
-                console.log(res.garjas_b);
-                nilaiInput.value = res.nilai ?? '-';
-                if (garjasB && kategori.value === 'tni') {
-                    garjasB.value = res.garjas_b ?? '-';
-                }
-                if (res.csrfHash) csrfHash = res.csrfHash;
-            });
-    }
+                .then(r => r.json())
+                .then(r => {
+                    const n = current.querySelector(
+                        `[data-nilai="${e.target.dataset.type}"]`
+                    );
+                    if (n) n.value = r.nilai ?? '';
 
-    /* ===============================
-       WRAP DENGAN DEBOUNCE
-    =============================== */
-    const hitungGarjasDebounced = debounce(hitungGarjas, 500);
+                    const g = current.querySelector('[data-nilai="garjas_b"]');
+                    if (g && r.garjas_b) g.value = r.garjas_b;
 
-    /* ===============================
-       REGISTER EVENT
-    =============================== */
-    const garjasTypes = [
-        'lari_12',
-        'pull_up',
-        'chinning',
-        'sit_up',
-        'push_up',
-        'shuttle_run',
-        'renang',
-    ];
+                    csrfHash = r.csrfHash ?? csrfHash;
+                });
 
-    garjasTypes.forEach(type => {
-        document.querySelectorAll(`[data-type="${type}"]`)
-            .forEach(input =>
-                input.addEventListener('input', hitungGarjasDebounced)
-            );
+        }, HITUNG_DELAY);
     });
 </script>
 

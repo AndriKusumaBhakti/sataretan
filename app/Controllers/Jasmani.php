@@ -55,30 +55,32 @@ class Jasmani extends BaseController
 
     public function store($kategori)
     {
-        $rules = [
-            'kategori'      => 'required|in_list[tni,polri]',
-            'jenis_kelamin' => 'required|in_list[pria,wanita]',
+        var_dump($this->request->getPost());
+        exit;
+        $program = $this->request->getPost('program'); // tni / polri
+        $gender   = $this->request->getPost('jenis_kelamin');
 
-            'lari_12'       => 'permit_empty|numeric',
-            'pull_up'     => 'permit_empty|numeric',
-            'sit_up'      => 'permit_empty|numeric',
-            'push_up'     => 'permit_empty|numeric',
-            'shuttle_run' => 'permit_empty|numeric',
+        $rules = [
+            'program'        => 'required|in_list[tni,polri]',
+            'jenis_kelamin'  => 'required|in_list[pria,wanita]',
+
+            'lari_12'        => 'permit_empty|numeric',
+            'sit_up'         => 'permit_empty|numeric',
+            'push_up'        => 'permit_empty|numeric',
+            'shuttle_run'    => 'permit_empty|numeric',
+            'renang'         => 'permit_empty|numeric',
+            'pull_up'        => 'permit_empty|numeric',
+            'chinning'       => 'permit_empty|numeric',
         ];
 
         // KHUSUS TNI
-        if ($kategori === 'tni') {
-            $rules['lunges']   = 'required|numeric';
+        if ($program === 'tni') {
             $rules['usia']   = 'required|numeric';
             $rules['tinggi'] = 'required|numeric';
             $rules['berat']  = 'required|numeric';
         }
 
-        // KHUSUS POLRI
-        if ($kategori === 'polri') {
-            $rules['renang'] = 'required|numeric';
-        }
-
+        // PILIH USER JIKA GURU / ADMIN
         if (isGuruOrAdmin()) {
             $rules['user_id'] = 'required|is_not_unique[users.id]';
         }
@@ -88,9 +90,15 @@ class Jasmani extends BaseController
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
         }
+
+
         $userId = isGuruOrAdmin()
             ? $this->request->getPost('user_id')
             : user_id(); // helper user login
+
+        $pullUp = $gender === 'wanita'
+            ? $this->request->getPost('chinning')
+            : $this->request->getPost('pull_up');
 
         $data = [
             'user_id'       => $userId,
