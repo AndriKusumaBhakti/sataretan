@@ -27,7 +27,6 @@
 
                         <?= csrf_field() ?>
 
-                        <!-- ================= PROGRAM (MULTI) ================= -->
                         <?php
                         $oldProgram = old('program');
                         $oldProgram = is_array($oldProgram)
@@ -35,16 +34,18 @@
                             : ($oldProgram ? [$oldProgram] : []);
                         ?>
 
-
+                        <!-- ERROR PROGRAM -->
                         <?php if (session()->getFlashdata('errors')['program'] ?? false): ?>
-                            <small class="text-danger">
+                            <small class="text-danger d-block mb-2">
                                 <?= session()->getFlashdata('errors')['program'] ?>
                             </small>
                         <?php endif; ?>
 
-
+                        <!-- JUDUL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Judul Try Out<span class="text-danger">*</span></label>
+                            <label class="font-weight-bold">
+                                Judul Try Out <span class="text-danger">*</span>
+                            </label>
                             <input type="text"
                                 name="judul"
                                 class="form-control rounded-pill px-4"
@@ -53,6 +54,7 @@
                                 required>
                         </div>
 
+                        <!-- PROGRAM -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">
                                 Program <span class="text-danger">*</span>
@@ -64,7 +66,6 @@
                                     <input type="checkbox"
                                         name="program[]"
                                         value="tni"
-                                        required
                                         <?= in_array('tni', $oldProgram) ? 'checked' : '' ?>>
                                     <span>TNI</span>
                                 </label>
@@ -87,10 +88,12 @@
 
                             </div>
                         </div>
-                        <!-- ================= END PROGRAM ================= -->
 
+                        <!-- JUMLAH SOAL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Jumlah Soal<span class="text-danger">*</span></label>
+                            <label class="font-weight-bold">
+                                Jumlah Soal <span class="text-danger">*</span>
+                            </label>
                             <input type="number"
                                 name="jumlah_soal"
                                 class="form-control rounded-pill px-4"
@@ -99,8 +102,11 @@
                                 required>
                         </div>
 
+                        <!-- DURASI -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Durasi (Menit)<span class="text-danger">*</span></label>
+                            <label class="font-weight-bold">
+                                Durasi (Menit) <span class="text-danger">*</span>
+                            </label>
                             <input type="number"
                                 name="durasi"
                                 class="form-control rounded-pill px-4"
@@ -109,6 +115,7 @@
                                 required>
                         </div>
 
+                        <!-- ACTION -->
                         <div class="d-flex justify-content-end mt-4">
                             <a href="<?= site_url('tryout/' . $kategori) ?>"
                                 class="btn btn-light rounded-pill px-4 mr-2">
@@ -136,7 +143,7 @@
 <!-- ================= STYLE ================= -->
 <style>
     .tryout-card {
-        background: #ffffff;
+        background: #fff;
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
         transition: .3s ease;
@@ -151,9 +158,7 @@
         height: 46px;
     }
 
-    /* PROGRAM PILL */
     .program-pill {
-        position: relative;
         cursor: pointer;
     }
 
@@ -162,14 +167,12 @@
     }
 
     .program-pill span {
-        display: inline-block;
         padding: 8px 18px;
         border-radius: 999px;
         border: 1px solid #d1d3e2;
         background: #f8f9fc;
         font-weight: 600;
         transition: .2s ease;
-        user-select: none;
     }
 
     .program-pill input:checked+span {
@@ -179,9 +182,22 @@
     }
 </style>
 
-<!-- ================= SCRIPT (ANTI DOUBLE SUBMIT) ================= -->
+<!-- ================= SCRIPT ================= -->
 <script>
-    document.getElementById('form-tryout').addEventListener('submit', function() {
+    const form = document.getElementById('form-tryout');
+
+    form.addEventListener('submit', function(e) {
+
+        const checkedProgram = document.querySelectorAll(
+            'input[name="program[]"]:checked'
+        );
+
+        if (checkedProgram.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return false;
+        }
+
         const btn = document.getElementById('btn-submit');
         btn.disabled = true;
         btn.innerHTML = `

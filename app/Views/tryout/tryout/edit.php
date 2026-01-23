@@ -24,14 +24,14 @@
 
                         <!-- ================= PROGRAM ================= -->
                         <?php
-                        // Ambil program dari DB (support: json / array / string)
+                        // Ambil program dari DB (json / array / string)
                         $dbProgram = $tryout['program'] ?? [];
                         if (is_string($dbProgram)) {
                             $decoded = json_decode($dbProgram, true);
                             $dbProgram = is_array($decoded) ? $decoded : [$dbProgram];
                         }
 
-                        // Jika ada old() (validasi gagal), pakai old()
+                        // Prioritas: old() > DB
                         $oldProgram = old('program');
                         $programSelected = is_array($oldProgram)
                             ? $oldProgram
@@ -39,14 +39,16 @@
                         ?>
 
                         <?php if (session()->getFlashdata('errors')['program'] ?? false): ?>
-                            <small class="text-danger">
+                            <small class="text-danger d-block mb-2">
                                 <?= session()->getFlashdata('errors')['program'] ?>
                             </small>
                         <?php endif; ?>
 
-
+                        <!-- JUDUL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Judul Try Out</label>
+                            <label class="font-weight-bold">
+                                Judul Try Out <span class="text-danger">*</span>
+                            </label>
                             <input type="text"
                                 name="judul"
                                 value="<?= old('judul') ?? esc($tryout['judul']) ?>"
@@ -54,6 +56,7 @@
                                 required>
                         </div>
 
+                        <!-- PROGRAM -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">
                                 Program <span class="text-danger">*</span>
@@ -65,7 +68,6 @@
                                     <input type="checkbox"
                                         name="program[]"
                                         value="tni"
-                                        required
                                         <?= in_array('tni', $programSelected) ? 'checked' : '' ?>>
                                     <span>TNI</span>
                                 </label>
@@ -87,12 +89,14 @@
                                 </label>
 
                             </div>
-
                         </div>
                         <!-- ================= END PROGRAM ================= -->
 
+                        <!-- JUMLAH SOAL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Jumlah Soal</label>
+                            <label class="font-weight-bold">
+                                Jumlah Soal <span class="text-danger">*</span>
+                            </label>
                             <input type="number"
                                 name="jumlah_soal"
                                 value="<?= old('jumlah_soal') ?? $tryout['jumlah_soal'] ?>"
@@ -100,8 +104,11 @@
                                 required>
                         </div>
 
+                        <!-- DURASI -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Durasi (Menit)</label>
+                            <label class="font-weight-bold">
+                                Durasi (Menit) <span class="text-danger">*</span>
+                            </label>
                             <input type="number"
                                 name="durasi"
                                 value="<?= old('durasi') ?? $tryout['durasi'] ?>"
@@ -109,6 +116,7 @@
                                 required>
                         </div>
 
+                        <!-- ACTION -->
                         <div class="d-flex justify-content-end mt-4">
                             <a href="<?= site_url('tryout/' . $kategori) ?>"
                                 class="btn btn-light rounded-pill px-4 mr-2">
@@ -173,9 +181,22 @@
     }
 </style>
 
-<!-- ================= SCRIPT (ANTI DOUBLE SUBMIT) ================= -->
+<!-- ================= SCRIPT ================= -->
 <script>
-    document.getElementById('form-edit-tryout').addEventListener('submit', function() {
+    const formEdit = document.getElementById('form-edit-tryout');
+
+    formEdit.addEventListener('submit', function(e) {
+
+        const checkedProgram = document.querySelectorAll(
+            'input[name="program[]"]:checked'
+        );
+
+        if (checkedProgram.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return false;
+        }
+
         const btn = document.getElementById('btn-update');
         btn.disabled = true;
         btn.innerHTML = `
