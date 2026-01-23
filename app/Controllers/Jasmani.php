@@ -74,7 +74,6 @@ class Jasmani extends BaseController
             $rules['usia']   = 'required|numeric';
             $rules['tinggi'] = 'required|numeric';
             $rules['berat']  = 'required|numeric';
-            $rules['garjas_b']  = 'required|numeric';
         }
 
         if ($gender === 'wanita') {
@@ -99,6 +98,10 @@ class Jasmani extends BaseController
             ? $this->request->getPost('user_id')
             : user_id(); // helper user login
 
+        $garjasB = null;
+        if ($program === 'tni') {
+            $garjasB = $this->hitungGarjasB($this->request->getPost(), $gender);
+        }
         $data = [
             'user_id'       => $userId,
             'kategori'      => $program,
@@ -133,7 +136,7 @@ class Jasmani extends BaseController
             'renang'       => $this->request->getPost('renang'),
             'nilai_renang' => $this->request->getPost('nilai_renang'),
 
-            'nilai_garjas_b' => $this->request->getPost('garjas_b'),
+            'nilai_garjas_b' => $garjasB,
         ];
 
         $this->jasmani->insert($data);
@@ -145,15 +148,22 @@ class Jasmani extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $data['jasmani'] = $this->jasmani
+        $jasmani = $this->jasmani
             ->select('jasmani.*, users.name, users.email')
             ->join('users', 'users.id = jasmani.user_id', 'left')
             ->where('jasmani.id', $id)
             ->first();
 
-        if (!$data['jasmani']) {
+        if (!$jasmani) {
             return redirect()->back()->with('errors', ['Data tidak ditemukan']);
         }
+        if ($jasmani['kategori'] === 'tni') {
+            $jasmani['total_nilai'] = $this->hitungTotalTni($jasmani);
+        } else {
+            $jasmani['total_nilai'] = $this->hitungTotalPolri($jasmani);
+        }
+        
+        $data['jasmani'] = $jasmani;
 
         return view('tryout/jasmani/detail', $data);
     }
@@ -164,32 +174,53 @@ class Jasmani extends BaseController
         return redirect()->to(site_url('tryout/' . $kategori))->with('success', 'Data jasmani berhasil dihapus');
     }
 
-    private function hitungGarjasB(array $data)
+    private function hitungGarjasB(array $data, $gender)
     {
-        $nilai = [
-            $data['nilai_pull_up'],
-            $data['nilai_sit_up'],
-            $data['nilai_lunges'],
-            $data['nilai_push_up'],
-            $data['nilai_shuttle_run'],
-        ];
+        $items  = ($gender === 'pria')
+            ? ['nilai_pull_up', 'nilai_sit_up', 'nilai_push_up', 'nilai_shuttle_run', 'nilai_renang']
+            : ['nilai_chinning', 'nilai_sit_up', 'nilai_push_up', 'nilai_shuttle_run', 'nilai_renang'];
 
-        if (!empty($data['nilai_renang'])) {
-            $nilai[] = $data['nilai_renang'];
+        $total = 0;
+        $count = 0;
+
+        foreach ($items as $item) {
+            if (!empty($data[$item])) {
+                $total += $data[$item];
+                $count++;
+            }
         }
 
-        $nilai = array_filter($nilai, 'is_numeric');
+        return $count > 0 ? round($total / $count, 2) : 0;
+    }
+
+    private function hitungTotalTni(array $data)
+    {
+        $nilai = array_filter([
+            $data['nilai_lari_12'],
+            $data['nilai_garjas_b'],
+        ], 'is_numeric');
 
         return count($nilai)
             ? round(array_sum($nilai) / count($nilai), 2)
             : null;
     }
 
-    private function hitungTotal(array $data)
+    private function hitungTotalPolri(array $data)
     {
-        $nilai = array_filter([
+        $nilai =  ($data['jenis_kelamin'] === 'pria') ? array_filter([
             $data['nilai_lari_12'],
-            $data['nilai_garjas_b'],
+            $data['nilai_pull_up'],
+            $data['nilai_sit_up'],
+            $data['nilai_push_up'],
+            $data['nilai_shuttle_run'],
+            $data['nilai_renang'],
+        ], 'is_numeric') :  array_filter([
+            $data['nilai_lari_12'],
+            $data['nilai_chinning'],
+            $data['nilai_sit_up'],
+            $data['nilai_push_up'],
+            $data['nilai_shuttle_run'],
+            $data['nilai_renang'],
         ], 'is_numeric');
 
         return count($nilai)

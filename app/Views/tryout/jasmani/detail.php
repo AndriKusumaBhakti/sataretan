@@ -152,11 +152,9 @@ $items = $garjasB[$program][$gender] ?? [];
                         <div class="info-title"><?= esc($label) ?></div>
                         <div class="info-value"><?= esc($jasmani[$key] ?? '-') ?></div>
 
-                        <?php if ($program !== 'polri'): ?>
-                            <small class="text-muted">
-                                Nilai: <?= esc($jasmani['nilai_' . $key] ?? '-') ?>
-                            </small>
-                        <?php endif; ?>
+                        <small class="text-muted">
+                            Nilai: <?= esc($jasmani['nilai_' . $key] ?? '-') ?>
+                        </small>
                     </div>
                 <?php endforeach; ?>
 
@@ -178,7 +176,7 @@ $items = $garjasB[$program][$gender] ?? [];
     <div class="card shadow-sm border-0 rounded-lg">
         <div class="card-body text-center">
             <div class="total-title">Nilai Akhir</div>
-            <div class="total-value"><?= esc($jasmani['nilai_total'] ?? '-') ?></div>
+            <div class="total-value"><?= esc($jasmani['total_nilai'] ?? '-') ?></div>
             <div class="text-muted small mt-1">
                 <?= !empty($jasmani['created_at'])
                     ? 'Tanggal Tes: ' . date('d M Y', strtotime($jasmani['created_at']))

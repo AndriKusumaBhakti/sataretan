@@ -62,9 +62,3 @@ foreach ($items as $key => $label):
         </div>
     </div>
 <?php endforeach ?>
-
-<!-- NILAI GARJAS B -->
-<div class="form-group mt-2">
-    <label>Nilai Garjas B</label>
-    <input type="text" data-nilai="garjas_b" name="garjas_b" class="form-control bg-light" readonly>
-</div>

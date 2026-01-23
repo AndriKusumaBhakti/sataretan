@@ -11,7 +11,7 @@
     <div class="row justify-content-center">
         <div class="col-xl-5 col-lg-6 col-md-8">
 
-            <form method="post" action="<?= site_url('tryout/jasmani/store') ?>" class="jasmani-card">
+            <form id="form-jasmani" method="post" action="<?= site_url('tryout/jasmani/store') ?>" class="jasmani-card">
                 <?= csrf_field() ?>
 
                 <?php if ($isGuruOrAdmin): ?>
@@ -63,7 +63,7 @@
                     <?= view('tryout/jasmani/partials/polri_wanita') ?>
                 </div>
 
-                <button class="btn btn-success btn-block mt-3 font-weight-bold">
+                <button id="btn-submit" class="btn btn-success btn-block mt-3 font-weight-bold">
                     Hitung & Simpan
                 </button>
             </form>
@@ -123,6 +123,7 @@
 </style>
 
 <script>
+    const form = document.getElementById('form-jasmani');
     const program = document.getElementById('program');
     const gender = document.getElementById('jenis_kelamin');
 
@@ -219,8 +220,6 @@
             const current = getActive();
             if (!current) return;
 
-            const allNilai = collectAllNilai(current);
-
             fetch("<?= site_url('kalkulator/hitung') ?>", {
                     method: "POST",
                     headers: {
@@ -232,7 +231,6 @@
                         nilai: Number(e.target.value),
                         kategori: program.value,
                         gender: gender.value,
-                        ...allNilai,
                         [csrfName]: csrfHash
                     })
                 })
@@ -243,14 +241,70 @@
                     );
                     if (n) n.value = r.nilai ?? '';
 
-                    const g = current.querySelector('[data-nilai="garjas_b"]');
-                    if (g && r.garjas_b) g.value = r.garjas_b;
-                    console.log(r.garjas_b);
-
                     csrfHash = r.csrfHash ?? csrfHash;
                 });
 
         }, HITUNG_DELAY);
+    });
+
+    /* ================= VALIDASI ================= */
+    form.addEventListener('submit', e => {
+        let valid = true;
+
+        // reset error
+        document.querySelectorAll('.is-invalid').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+
+        if (!program.value) {
+            program.classList.add('is-invalid');
+            valid = false;
+        }
+
+        if (!gender.value) {
+            gender.classList.add('is-invalid');
+            valid = false;
+        }
+
+        const active = getActive();
+        if (!active) {
+            alert('Silakan pilih Program dan Jenis Kelamin');
+            e.preventDefault();
+            return;
+        }
+
+        active.querySelectorAll('input:not([type="hidden"])').forEach(input => {
+            if (input.disabled) return;
+
+            if (input.value === '') {
+                input.classList.add('is-invalid');
+                valid = false;
+            }
+
+            if (input.type === 'number') {
+                const val = Number(input.value);
+                if (isNaN(val) || val < 0) {
+                    input.classList.add('is-invalid');
+                    valid = false;
+                }
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            alert('⚠️ Lengkapi semua field dengan nilai yang valid');
+            document.querySelector('.is-invalid')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        } else {
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = `
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Menyimpan...
+        `;
+        }
     });
 </script>
 
