@@ -2,15 +2,12 @@
 <?= $this->section('content'); ?>
 
 <?php
-// Ambil old program (jika validasi gagal)
 $oldProgram = old('program') ?? [];
 ?>
 
 <div class="container-fluid">
-
     <div class="row justify-content-center">
         <div class="col-lg-7 col-md-9">
-
             <div class="card video-form-binjas border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -24,7 +21,7 @@ $oldProgram = old('program') ?? [];
                         </small>
                     </div>
 
-                    <!-- ERROR -->
+                    <!-- ERROR SERVER -->
                     <?php if (session('errors')): ?>
                         <div class="alert alert-danger">
                             <?php foreach (session('errors') as $err): ?>
@@ -39,7 +36,6 @@ $oldProgram = old('program') ?? [];
                         enctype="multipart/form-data">
 
                         <?= csrf_field() ?>
-
                         <input type="hidden" name="kategori" value="<?= esc($kategori) ?>">
 
                         <!-- JUDUL -->
@@ -48,7 +44,6 @@ $oldProgram = old('program') ?? [];
                             <input type="text"
                                 name="judul"
                                 class="form-control rounded-pill px-4"
-                                placeholder="Masukkan judul video"
                                 value="<?= old('judul') ?>"
                                 required>
                         </div>
@@ -56,29 +51,19 @@ $oldProgram = old('program') ?? [];
                         <!-- PROGRAM -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">
-                                Program
+                                Program <span class="text-danger">*</span>
                             </label>
 
                             <div class="d-flex flex-wrap gap-2">
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="tni"
-                                        <?= in_array('tni', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>TNI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="polri"
-                                        <?= in_array('polri', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>POLRI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="kedinasan"
-                                        <?= in_array('kedinasan', $oldProgram) ? 'checked' : '' ?>>
-                                    <span>KEDINASAN</span>
-                                </label>
-
+                                <?php foreach (['tni', 'polri', 'kedinasan'] as $p): ?>
+                                    <label class="program-pill">
+                                        <input type="checkbox"
+                                            name="program[]"
+                                            value="<?= $p ?>"
+                                            <?= in_array($p, $oldProgram) ? 'checked' : '' ?>>
+                                        <span><?= strtoupper($p) ?></span>
+                                    </label>
+                                <?php endforeach ?>
                             </div>
                         </div>
 
@@ -115,12 +100,8 @@ $oldProgram = old('program') ?? [];
                         <!-- FILE -->
                         <div class="form-group mb-3 d-none" id="fileInput">
                             <label class="font-weight-semibold">Upload File</label>
-                            <input type="file"
-                                name="file"
-                                class="form-control-file">
-                            <small class="text-muted">
-                                Format video (mp4, mkv, dll)
-                            </small>
+                            <input type="file" name="file" class="form-control-file">
+                            <small class="text-muted">Format video (mp4, mkv, dll)</small>
                         </div>
 
                         <!-- LINK -->
@@ -150,10 +131,8 @@ $oldProgram = old('program') ?? [];
 
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -206,6 +185,8 @@ $oldProgram = old('program') ?? [];
     const sumberSelect = document.getElementById('sumber');
     const fileInput = document.getElementById('fileInput');
     const linkInput = document.getElementById('linkInput');
+    const form = document.getElementById('form-video');
+    const btnSubmit = document.getElementById('btn-submit');
 
     function toggleSumber() {
         fileInput.classList.add('d-none');
@@ -213,7 +194,8 @@ $oldProgram = old('program') ?? [];
 
         if (sumberSelect.value === 'file') {
             fileInput.classList.remove('d-none');
-        } else if (sumberSelect.value === 'link') {
+        }
+        if (sumberSelect.value === 'link') {
             linkInput.classList.remove('d-none');
         }
     }
@@ -221,10 +203,18 @@ $oldProgram = old('program') ?? [];
     sumberSelect.addEventListener('change', toggleSumber);
     document.addEventListener('DOMContentLoaded', toggleSumber);
 
-    document.getElementById('form-video').addEventListener('submit', function() {
-        const btn = document.getElementById('btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = `
+    // ✅ VALIDASI PROGRAM + ANTI DOUBLE SUBMIT
+    form.addEventListener('submit', function(e) {
+        const checked = document.querySelectorAll('input[name="program[]"]:checked');
+
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return false;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `
         <span class="spinner-border spinner-border-sm mr-2"></span>
         Menyimpan...
     `;

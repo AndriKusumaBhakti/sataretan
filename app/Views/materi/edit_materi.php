@@ -3,7 +3,7 @@
 
 <?php
 $materiProgram = !empty($materi['program'])
-    ? explode(',', $materi['program'])
+    ? json_decode($materi['program'], true)
     : [];
 ?>
 
@@ -21,7 +21,16 @@ $materiProgram = !empty($materi['program'])
                         <small class="text-muted">Perbarui informasi materi pembelajaran</small>
                     </div>
 
-                    <form action="<?= base_url('materi/update/' . $materi['id']) ?>"
+                    <?php if (session('errors')): ?>
+                        <div class="alert alert-danger">
+                            <?php foreach (session('errors') as $err): ?>
+                                <div><?= esc($err) ?></div>
+                            <?php endforeach ?>
+                        </div>
+                    <?php endif ?>
+
+                    <form id="form-edit-materi"
+                        action="<?= base_url('materi/update/' . $materi['id']) ?>"
                         method="post"
                         enctype="multipart/form-data">
 
@@ -30,19 +39,26 @@ $materiProgram = !empty($materi['program'])
 
                         <!-- JUDUL -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Judul Materi</label>
-                            <input type="text" name="judul"
+                            <label class="font-weight-semibold">
+                                Judul Materi <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                name="judul"
                                 class="form-control rounded-pill px-4"
-                                value="<?= esc($materi['judul']) ?>" required>
+                                value="<?= old('judul') ?? esc($materi['judul']) ?>">
                         </div>
 
                         <!-- PROGRAM -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">Program</label>
+                            <label class="font-weight-semibold d-block mb-2">
+                                Program <span class="text-danger">*</span>
+                            </label>
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach (['tni', 'polri', 'kedinasan'] as $p): ?>
                                     <label class="program-pill">
-                                        <input type="checkbox" name="program[]" value="<?= $p ?>"
+                                        <input type="checkbox"
+                                            name="program[]"
+                                            value="<?= $p ?>"
                                             <?= in_array($p, $materiProgram) ? 'checked' : '' ?>>
                                         <span><?= strtoupper($p) ?></span>
                                     </label>
@@ -52,17 +68,23 @@ $materiProgram = !empty($materi['program'])
 
                         <!-- TIPE -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Tipe Materi</label>
-                            <select name="tipe" class="form-control rounded-pill px-4" required>
+                            <label class="font-weight-semibold">
+                                Tipe Materi <span class="text-danger">*</span>
+                            </label>
+                            <select name="tipe"
+                                class="form-control rounded-pill px-4">
                                 <option value="pdf" selected>PDF</option>
                             </select>
                         </div>
 
                         <!-- SUMBER -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Sumber Materi</label>
-                            <select name="sumber" id="sumber"
-                                class="form-control rounded-pill px-4" required>
+                            <label class="font-weight-semibold">
+                                Sumber Materi <span class="text-danger">*</span>
+                            </label>
+                            <select name="sumber"
+                                id="sumber"
+                                class="form-control rounded-pill px-4">
                                 <option value="">-- Pilih --</option>
                                 <option value="file" <?= $materi['sumber'] === 'file' ? 'selected' : '' ?>>File</option>
                                 <option value="link" <?= $materi['sumber'] === 'link' ? 'selected' : '' ?>>Link</option>
@@ -71,17 +93,20 @@ $materiProgram = !empty($materi['program'])
 
                         <!-- FILE UTAMA -->
                         <div id="fileInput" class="form-group mb-3">
-                            <label>Upload File (opsional)</label>
+                            <label>Upload File Utama (opsional)</label>
                             <input type="file" name="file" class="form-control-file">
                             <?php if ($materi['file']): ?>
-                                <small class="text-muted">File saat ini: <?= esc($materi['file']) ?></small>
+                                <small class="text-muted">
+                                    File saat ini: <?= esc($materi['file']) ?>
+                                </small>
                             <?php endif ?>
                         </div>
 
                         <!-- LINK UTAMA -->
                         <div id="linkInput" class="form-group mb-3">
                             <label>Link Materi</label>
-                            <input type="url" name="link"
+                            <input type="url"
+                                name="link"
                                 class="form-control rounded-pill px-4"
                                 value="<?= esc($materi['link']) ?>">
                         </div>
@@ -102,9 +127,10 @@ $materiProgram = !empty($materi['program'])
                             <div id="subWrapper">
                                 <?php foreach ($subMateri as $sub): ?>
                                     <div class="sub-item border rounded p-3 mb-2">
-                                        <input type="text" name="sub_judul[]"
+                                        <input type="text"
+                                            name="sub_judul[]"
                                             class="form-control rounded-pill px-4 mb-2"
-                                            value="<?= esc($sub['sub_judul']) ?>" required>
+                                            value="<?= esc($sub['sub_judul']) ?>">
 
                                         <?php if ($materi['sumber'] === 'file'): ?>
                                             <input type="file" name="sub_file[]" class="form-control-file">
@@ -112,7 +138,8 @@ $materiProgram = !empty($materi['program'])
                                                 <small class="text-muted">File: <?= esc($sub['file']) ?></small>
                                             <?php endif ?>
                                         <?php else: ?>
-                                            <input type="url" name="sub_link[]"
+                                            <input type="url"
+                                                name="sub_link[]"
                                                 class="form-control rounded-pill px-4"
                                                 value="<?= esc($sub['link']) ?>">
                                         <?php endif ?>
@@ -132,7 +159,9 @@ $materiProgram = !empty($materi['program'])
                                 class="btn btn-outline-secondary rounded-pill px-4">
                                 Kembali
                             </a>
-                            <button class="btn btn-success rounded-pill px-5">
+                            <button type="submit"
+                                id="btn-submit"
+                                class="btn btn-success rounded-pill px-5">
                                 Update Materi
                             </button>
                         </div>
@@ -191,6 +220,7 @@ $materiProgram = !empty($materi['program'])
 
 <!-- ================= SCRIPT ================= -->
 <script>
+    const form = document.getElementById('form-edit-materi');
     const sumber = document.getElementById('sumber');
     const fileInput = document.getElementById('fileInput');
     const linkInput = document.getElementById('linkInput');
@@ -205,13 +235,11 @@ $materiProgram = !empty($materi['program'])
     function toggleUtama() {
         const jumlahSub = subWrapper.querySelectorAll('.sub-item').length;
 
-        // ❌ ADA SUB → FILE & LINK UTAMA HILANG
-        if (jumlahSub >= 1) {
+        if (jumlahSub > 0) {
             hideUtama();
             return;
         }
 
-        // ✅ TIDAK ADA SUB → TAMPIL SESUAI SUMBER
         hideUtama();
         if (sumber.value === 'file') fileInput.classList.remove('d-none');
         if (sumber.value === 'link') linkInput.classList.remove('d-none');
@@ -221,7 +249,7 @@ $materiProgram = !empty($materi['program'])
 
     btnAddSub.onclick = () => {
         if (!sumber.value) {
-            alert('Pilih sumber dulu');
+            alert('Pilih sumber materi terlebih dahulu');
             return;
         }
 
@@ -232,14 +260,17 @@ $materiProgram = !empty($materi['program'])
         const div = document.createElement('div');
         div.className = 'sub-item border rounded p-3 mb-2';
         div.innerHTML = `
-            <input type="text" name="sub_judul[]"
-                   class="form-control rounded-pill px-4 mb-2" required>
+            <input type="text"
+                name="sub_judul[]"
+                class="form-control rounded-pill px-4 mb-2"
+                placeholder="Sub Judul">
             ${inputSumber}
             <button type="button"
-                    class="btn btn-sm btn-danger mt-2 btnRemove">
+                class="btn btn-sm btn-danger mt-2 btnRemove">
                 Hapus
             </button>
         `;
+
         subWrapper.appendChild(div);
         toggleUtama();
     };
@@ -251,8 +282,50 @@ $materiProgram = !empty($materi['program'])
         }
     });
 
-    // 🔥 JALANKAN SAAT HALAMAN DIBUKA
     document.addEventListener('DOMContentLoaded', toggleUtama);
+
+    // ================= VALIDASI SUBMIT =================
+    form.addEventListener('submit', function(e) {
+
+        if (!form.judul.value.trim()) {
+            e.preventDefault();
+            alert('Judul materi wajib diisi');
+            return;
+        }
+
+        if (document.querySelectorAll('input[name="program[]"]:checked').length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return;
+        }
+
+        if (!sumber.value) {
+            e.preventDefault();
+            alert('Pilih sumber materi');
+            return;
+        }
+
+        if (subWrapper.children.length === 0) {
+            if (sumber.value === 'file' && !form.file.value && !<?= json_encode((bool) $materi['file']) ?>) {
+                e.preventDefault();
+                alert('Upload file utama');
+                return;
+            }
+
+            if (sumber.value === 'link' && !form.link.value) {
+                e.preventDefault();
+                alert('Isi link materi');
+                return;
+            }
+        }
+
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.innerHTML = `
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Mengupdate...
+        `;
+    });
 </script>
 
 <?= $this->endSection(); ?>

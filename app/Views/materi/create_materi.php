@@ -24,26 +24,44 @@
                         </div>
                     <?php endif ?>
 
-                    <form action="<?= base_url('materi/store') ?>"
+                    <form id="form-materi"
+                        action="<?= base_url('materi/store') ?>"
                         method="post"
                         enctype="multipart/form-data">
+
+                        <?= csrf_field() ?>
 
                         <input type="hidden" name="kategori" value="<?= esc($kategori) ?>">
 
                         <!-- JUDUL -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Judul Materi</label>
-                            <input type="text" name="judul"
-                                class="form-control rounded-pill px-4">
+                            <label class="font-weight-semibold">
+                                Judul Materi <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                name="judul"
+                                class="form-control rounded-pill px-4"
+                                value="<?= old('judul') ?>">
                         </div>
 
                         <!-- PROGRAM -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">Program</label>
+                            <label class="font-weight-semibold d-block mb-2">
+                                Program <span class="text-danger">*</span>
+                            </label>
                             <div class="d-flex flex-wrap gap-2">
+                                <?php
+                                $oldProgram = old('program');
+                                $oldProgram = is_array($oldProgram)
+                                    ? $oldProgram
+                                    : ($oldProgram ? [$oldProgram] : []);
+                                ?>
                                 <?php foreach (['tni' => 'TNI', 'polri' => 'POLRI', 'kedinasan' => 'KEDINASAN'] as $k => $v): ?>
                                     <label class="program-pill">
-                                        <input type="checkbox" name="program[]" value="<?= $k ?>">
+                                        <input type="checkbox"
+                                            name="program[]"
+                                            value="<?= $k ?>"
+                                            <?= in_array($k, $oldProgram) ? 'checked' : '' ?>>
                                         <span><?= $v ?></span>
                                     </label>
                                 <?php endforeach ?>
@@ -52,34 +70,45 @@
 
                         <!-- TIPE -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Tipe Materi</label>
-                            <select name="tipe" class="form-control rounded-pill px-4">
+                            <label class="font-weight-semibold">
+                                Tipe Materi <span class="text-danger">*</span>
+                            </label>
+                            <select name="tipe"
+                                class="form-control rounded-pill px-4">
                                 <option value="">-- Pilih --</option>
-                                <option value="pdf">PDF</option>
+                                <option value="pdf" <?= old('tipe') === 'pdf' ? 'selected' : '' ?>>PDF</option>
                             </select>
                         </div>
 
                         <!-- SUMBER -->
                         <div class="form-group mb-3">
-                            <label class="font-weight-semibold">Sumber Materi</label>
-                            <select name="sumber" id="sumber"
+                            <label class="font-weight-semibold">
+                                Sumber Materi <span class="text-danger">*</span>
+                            </label>
+                            <select name="sumber"
+                                id="sumber"
                                 class="form-control rounded-pill px-4">
                                 <option value="">-- Pilih --</option>
-                                <option value="file">Upload File</option>
-                                <option value="link">Link</option>
+                                <option value="file" <?= old('sumber') === 'file' ? 'selected' : '' ?>>Upload File</option>
+                                <option value="link" <?= old('sumber') === 'link' ? 'selected' : '' ?>>Link</option>
                             </select>
                         </div>
 
-                        <!-- FILE UTAMA (AKAN TERKONTROL VIA JS) -->
+                        <!-- FILE UTAMA -->
                         <div class="form-group mb-3 d-none" id="fileInput">
-                            <label class="font-weight-semibold">Upload File Utama</label>
+                            <label class="font-weight-semibold">
+                                Upload File Utama
+                            </label>
                             <input type="file" name="file" class="form-control-file">
                         </div>
 
-                        <!-- LINK UTAMA (AKAN TERKONTROL VIA JS) -->
+                        <!-- LINK UTAMA -->
                         <div class="form-group mb-3 d-none" id="linkInput">
-                            <label class="font-weight-semibold">Link Materi</label>
-                            <input type="url" name="link"
+                            <label class="font-weight-semibold">
+                                Link Materi
+                            </label>
+                            <input type="url"
+                                name="link"
                                 class="form-control rounded-pill px-4"
                                 placeholder="https://">
                         </div>
@@ -105,6 +134,7 @@
                                 Kembali
                             </a>
                             <button type="submit"
+                                id="btn-submit"
                                 class="btn btn-success rounded-pill px-5">
                                 Simpan Materi
                             </button>
@@ -172,6 +202,7 @@
 
 <!-- ================= SCRIPT ================= -->
 <script>
+    const form = document.getElementById('form-materi');
     const sumberSelect = document.getElementById('sumber');
     const fileInput = document.getElementById('fileInput');
     const linkInput = document.getElementById('linkInput');
@@ -184,7 +215,6 @@
     }
 
     function toggleUtama() {
-        // ❌ JIKA SUB JUDUL > 1 → TIDAK BOLEH TAMPIL
         if (wrapper.children.length > 0) {
             hideUtama();
             return;
@@ -216,12 +246,13 @@
         const div = document.createElement('div');
         div.className = 'sub-item border rounded p-3 mb-2';
         div.innerHTML = `
-            <input type="text" name="sub_judul[]"
-                   class="form-control rounded-pill px-4 mb-2"
-                   placeholder="Sub Judul">
+            <input type="text"
+                name="sub_judul[]"
+                class="form-control rounded-pill px-4 mb-2"
+                placeholder="Sub Judul">
             ${inputTambahan}
             <button type="button"
-                    class="btn btn-sm btn-danger mt-2 btnRemove">
+                class="btn btn-sm btn-danger mt-2 btnRemove">
                 Hapus
             </button>
         `;
@@ -234,6 +265,55 @@
             toggleUtama();
         };
     };
+
+    // ================= VALIDASI SUBMIT =================
+    form.addEventListener('submit', function(e) {
+
+        if (document.querySelectorAll('input[name="program[]"]:checked').length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return;
+        }
+
+        if (!form.judul.value.trim()) {
+            e.preventDefault();
+            alert('Judul materi wajib diisi');
+            return;
+        }
+
+        if (!form.tipe.value) {
+            e.preventDefault();
+            alert('Tipe materi wajib dipilih');
+            return;
+        }
+
+        if (!form.sumber.value) {
+            e.preventDefault();
+            alert('Sumber materi wajib dipilih');
+            return;
+        }
+
+        if (wrapper.children.length === 0) {
+            if (form.sumber.value === 'file' && !form.file.value) {
+                e.preventDefault();
+                alert('Upload file utama');
+                return;
+            }
+
+            if (form.sumber.value === 'link' && !form.link.value) {
+                e.preventDefault();
+                alert('Isi link materi');
+                return;
+            }
+        }
+
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.innerHTML = `
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Menyimpan...
+        `;
+    });
 </script>
 
 <?= $this->endSection(); ?>

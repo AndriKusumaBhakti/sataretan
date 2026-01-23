@@ -2,17 +2,14 @@
 <?= $this->section('content'); ?>
 
 <?php
-// Decode program JSON → array
 $videoProgram = !empty($video['program'])
     ? json_decode($video['program'], true)
     : [];
 ?>
 
 <div class="container-fluid">
-
     <div class="row justify-content-center">
         <div class="col-lg-7 col-md-9">
-
             <div class="card video-form-binjas border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -32,7 +29,6 @@ $videoProgram = !empty($video['program'])
                         enctype="multipart/form-data">
 
                         <?= csrf_field() ?>
-
                         <input type="hidden" name="kategori" value="<?= esc($kategori) ?>">
 
                         <!-- JUDUL -->
@@ -48,29 +44,19 @@ $videoProgram = !empty($video['program'])
                         <!-- PROGRAM -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">
-                                Program
+                                Program <span class="text-danger">*</span>
                             </label>
 
                             <div class="d-flex flex-wrap gap-2">
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="tni"
-                                        <?= in_array('tni', $videoProgram) ? 'checked' : '' ?>>
-                                    <span>TNI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="polri"
-                                        <?= in_array('polri', $videoProgram) ? 'checked' : '' ?>>
-                                    <span>POLRI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox" name="program[]" value="kedinasan"
-                                        <?= in_array('kedinasan', $videoProgram) ? 'checked' : '' ?>>
-                                    <span>KEDINASAN</span>
-                                </label>
-
+                                <?php foreach (['tni', 'polri', 'kedinasan'] as $p): ?>
+                                    <label class="program-pill">
+                                        <input type="checkbox"
+                                            name="program[]"
+                                            value="<?= $p ?>"
+                                            <?= in_array($p, $videoProgram) ? 'checked' : '' ?>>
+                                        <span><?= strtoupper($p) ?></span>
+                                    </label>
+                                <?php endforeach ?>
                             </div>
                         </div>
 
@@ -80,7 +66,6 @@ $videoProgram = !empty($video['program'])
                             <select name="tipe"
                                 class="form-control rounded-pill px-4"
                                 required>
-                                <option value="">-- Pilih Tipe --</option>
                                 <option value="video" selected>Video</option>
                             </select>
                         </div>
@@ -118,7 +103,7 @@ $videoProgram = !empty($video['program'])
                                     File saat ini:
                                     <strong><?= esc($video['file']) ?></strong>
                                 </small>
-                            <?php endif; ?>
+                            <?php endif ?>
                         </div>
 
                         <!-- LINK -->
@@ -149,10 +134,8 @@ $videoProgram = !empty($video['program'])
 
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -205,6 +188,8 @@ $videoProgram = !empty($video['program'])
     const sumberSelect = document.getElementById('sumber');
     const fileInput = document.getElementById('fileInput');
     const linkInput = document.getElementById('linkInput');
+    const form = document.getElementById('form-video');
+    const btnSubmit = document.getElementById('btn-submit');
 
     function toggleSumber() {
         fileInput.classList.add('d-none');
@@ -212,7 +197,8 @@ $videoProgram = !empty($video['program'])
 
         if (sumberSelect.value === 'file') {
             fileInput.classList.remove('d-none');
-        } else if (sumberSelect.value === 'link') {
+        }
+        if (sumberSelect.value === 'link') {
             linkInput.classList.remove('d-none');
         }
     }
@@ -220,10 +206,18 @@ $videoProgram = !empty($video['program'])
     sumberSelect.addEventListener('change', toggleSumber);
     document.addEventListener('DOMContentLoaded', toggleSumber);
 
-    document.getElementById('form-video').addEventListener('submit', function() {
-        const btn = document.getElementById('btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = `
+    // ✅ VALIDASI PROGRAM + ANTI DOUBLE SUBMIT
+    form.addEventListener('submit', function(e) {
+        const checked = document.querySelectorAll('input[name="program[]"]:checked');
+
+        if (checked.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return false;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = `
         <span class="spinner-border spinner-border-sm mr-2"></span>
         Menyimpan...
     `;
