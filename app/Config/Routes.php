@@ -84,7 +84,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/create', 'Jasmani::create/$1');
         $routes->post('(:segment)/store', 'Jasmani::store/$1');
         $routes->get('(:segment)/detail/(:num)', 'Jasmani::detail/$1/$2');
-        $routes->post('(:segment)/remove/(:num)', 'Jasmani::delete/$1/$2');
+        $routes->get('(:segment)/remove/(:num)', 'Jasmani::delete/$1/$2');
     });
 
     $routes->group('video', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {

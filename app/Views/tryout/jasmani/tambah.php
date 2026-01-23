@@ -128,7 +128,7 @@
 
     /* ================= DEBOUNCE ================= */
     let hitungTimer = null;
-    const HITUNG_DELAY = 500; // ms
+    const HITUNG_DELAY = 200; // ms
 
     /* ================= TOGGLE FORM ================= */
     function hideAll() {
@@ -245,6 +245,7 @@
 
                     const g = current.querySelector('[data-nilai="garjas_b"]');
                     if (g && r.garjas_b) g.value = r.garjas_b;
+                    console.log(r.garjas_b);
 
                     csrfHash = r.csrfHash ?? csrfHash;
                 });

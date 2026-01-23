@@ -1,5 +1,20 @@
-<?= $this->extend('default/layout-template', get_defined_vars()); ?>
-<?= $this->section('content'); ?>
+<?= $this->extend('default/layout-template') ?>
+<?= $this->section('content') ?>
+
+<?php
+$jasmaniData = $jasmani ?? [];
+
+$totalData = count($jasmaniData);
+$totalTni = count(array_filter($jasmaniData, function ($j) {
+    return ($j['kategori'] ?? '') === 'tni';
+}));
+$totalPolri = count(array_filter($jasmaniData, function ($j) {
+    return ($j['kategori'] ?? '') === 'polri';
+}));
+$totalBulanIni = count(array_filter($jasmaniData, function ($j) {
+    return date('Y-m', strtotime($j['created_at'])) === date('Y-m');
+}));
+?>
 
 <div class="container-fluid">
 
@@ -26,7 +41,7 @@
             <div class="card stat-card stat-primary">
                 <div class="card-body">
                     <div class="stat-title">Total Data</div>
-                    <div class="stat-value"><?= count($jasmani ?? []) ?></div>
+                    <div class="stat-value"><?= $totalData ?></div>
                     <i class="fas fa-clipboard-list stat-icon"></i>
                 </div>
             </div>
@@ -36,9 +51,7 @@
             <div class="card stat-card stat-success">
                 <div class="card-body">
                     <div class="stat-title">TNI</div>
-                    <div class="stat-value">
-                        <?= count(array_filter($jasmani ?? [], fn($j) => $j['kategori'] === 'tni')) ?>
-                    </div>
+                    <div class="stat-value"><?= $totalTni ?></div>
                     <i class="fas fa-shield-alt stat-icon"></i>
                 </div>
             </div>
@@ -48,9 +61,7 @@
             <div class="card stat-card stat-info">
                 <div class="card-body">
                     <div class="stat-title">POLRI</div>
-                    <div class="stat-value">
-                        <?= count(array_filter($jasmani ?? [], fn($j) => $j['kategori'] === 'polri')) ?>
-                    </div>
+                    <div class="stat-value"><?= $totalPolri ?></div>
                     <i class="fas fa-user-shield stat-icon"></i>
                 </div>
             </div>
@@ -60,13 +71,7 @@
             <div class="card stat-card stat-warning">
                 <div class="card-body">
                     <div class="stat-title">Bulan Ini</div>
-                    <div class="stat-value">
-                        <?= count(array_filter(
-                            $jasmani ?? [],
-                            fn($j) =>
-                            date('Y-m', strtotime($j['created_at'])) === date('Y-m')
-                        )) ?>
-                    </div>
+                    <div class="stat-value"><?= $totalBulanIni ?></div>
                     <i class="fas fa-calendar-alt stat-icon"></i>
                 </div>
             </div>
@@ -74,7 +79,7 @@
     </div>
 
     <!-- ================= CONTENT ================= -->
-    <?php if (empty($jasmani)): ?>
+    <?php if (empty($jasmaniData)): ?>
 
         <div class="empty-state">
             <i class="fas fa-dumbbell empty-icon"></i>
@@ -104,7 +109,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($jasmani as $i => $j): ?>
+                            <?php foreach ($jasmaniData as $i => $j): ?>
                                 <tr>
                                     <td><?= $i + 1 ?></td>
 
@@ -121,12 +126,10 @@
 
                                     <td><?= esc($j['jenis_kelamin']) ?></td>
                                     <td><?= $j['usia'] ?? '-' ?></td>
-                                    <td><?= esc($j['lari_12']) ?> m</td>
-                                    <td><?= esc($j['nilai_garjas_b'] ?? '-') ?></td>
+                                    <td><?= (int) $j['lari_12'] ?> m</td>
+                                    <td><?= $j['nilai_garjas_b'] ?? '-' ?></td>
 
-                                    <td>
-                                        <?= date('d M Y', strtotime($j['created_at'])) ?>
-                                    </td>
+                                    <td><?= date('d M Y', strtotime($j['created_at'])) ?></td>
 
                                     <td class="text-center">
                                         <a href="<?= site_url('tryout/jasmani/detail/' . $j['id']) ?>"
@@ -134,10 +137,12 @@
                                             title="Detail">
                                             <i class="fas fa-eye text-info"></i>
                                         </a>
-                                        <form action="<?= base_url('tryout/jasmani/remove/' . $j['id']) ?>"
-                                            method="post"
+
+                                        <form action="<?= site_url('tryout/jasmani/remove/' . $j['id']) ?>"
+                                            method="get"
                                             class="d-inline">
                                             <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
                                             <button class="btn btn-sm btn-light border"
                                                 onclick="return confirm('Yakin ingin menghapus data ini?')"
                                                 title="Hapus">
@@ -146,14 +151,14 @@
                                         </form>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php endforeach ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-    <?php endif; ?>
+    <?php endif ?>
 
 </div>
 
@@ -227,10 +232,13 @@
         if (window.jQuery && $('#jasmaniTable').length) {
             $('#jasmaniTable').DataTable({
                 pageLength: 10,
-                responsive: true
+                responsive: true,
+                order: [
+                    [7, 'desc']
+                ]
             });
         }
     });
 </script>
 
-<?= $this->endSection(); ?>
+<?= $this->endSection() ?>

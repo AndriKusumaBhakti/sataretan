@@ -1,19 +1,59 @@
 <?= $this->extend('default/layout-template', get_defined_vars()); ?>
 <?= $this->section('content'); ?>
 
+<?php
+// ================= BASIC VAR =================
+$program = strtolower($jasmani['kategori'] ?? '');
+$gender  = strtolower($jasmani['jenis_kelamin'] ?? '');
+$badge   = $program === 'tni' ? 'success' : 'info';
+
+// ================= GARJAS B CONFIG =================
+$garjasB = [
+    'tni' => [
+        'pria' => [
+            'pull_up'     => 'Pull Up',
+            'sit_up'      => 'Sit Up',
+            'push_up'     => 'Push Up',
+            'shuttle_run' => 'Shuttle Run',
+            'renang'      => 'Renang',
+        ],
+        'wanita' => [
+            'chinning'    => 'Chinning',
+            'sit_up'      => 'Sit Up',
+            'push_up'     => 'Push Up',
+            'shuttle_run' => 'Shuttle Run',
+            'renang'      => 'Renang',
+        ],
+    ],
+    'polri' => [
+        'pria' => [
+            'pull_up'     => 'Pull Up',
+            'sit_up'      => 'Sit Up',
+            'push_up'     => 'Push Up',
+            'shuttle_run' => 'Shuttle Run',
+            'renang'      => 'Renang',
+        ],
+        'wanita' => [
+            'chinning'    => 'Chinning',
+            'sit_up'      => 'Sit Up',
+            'push_up'     => 'Push Up',
+            'shuttle_run' => 'Shuttle Run',
+            'renang'      => 'Renang',
+        ],
+    ],
+];
+
+$items = $garjasB[$program][$gender] ?? [];
+?>
+
 <div class="container-fluid">
 
     <!-- ================= HEADER ================= -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h4 font-weight-bold text-gray-800 mb-1">
-                Detail Hasil Jasmani
-            </h1>
-            <p class="text-muted small mb-0">
-                Informasi lengkap hasil tes jasmani
-            </p>
+            <h1 class="h4 font-weight-bold text-gray-800 mb-1">Detail Hasil Jasmani</h1>
+            <p class="text-muted small mb-0">Informasi lengkap hasil tes jasmani</p>
         </div>
-
         <a href="<?= site_url('tryout/jasmani') ?>" class="btn btn-light border shadow-sm">
             <i class="fas fa-arrow-left mr-1"></i> Kembali
         </a>
@@ -21,22 +61,20 @@
 
     <!-- ================= USER INFO ================= -->
     <div class="card shadow-sm border-0 rounded-lg mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="info-title">Nama</div>
-                    <div class="info-value"><?= esc($jasmani['name'] ?? '-') ?></div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-title">Email</div>
-                    <div class="info-value"><?= esc($jasmani['email'] ?? '-') ?></div>
-                </div>
-                <div class="col-md-4">
-                    <div class="info-title">Kategori</div>
-                    <span class="badge badge-soft-<?= $jasmani['kategori'] === 'tni' ? 'success' : 'info' ?>">
-                        <?= strtoupper($jasmani['kategori']) ?>
-                    </span>
-                </div>
+        <div class="card-body row">
+            <div class="col-md-4">
+                <div class="info-title">Nama</div>
+                <div class="info-value"><?= esc($jasmani['name'] ?? '-') ?></div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-title">Email</div>
+                <div class="info-value"><?= esc($jasmani['email'] ?? '-') ?></div>
+            </div>
+            <div class="col-md-4">
+                <div class="info-title">Program</div>
+                <span class="badge badge-soft-<?= esc($badge) ?>">
+                    <?= strtoupper(esc($program)) ?>
+                </span>
             </div>
         </div>
     </div>
@@ -44,90 +82,95 @@
     <!-- ================= DATA DASAR ================= -->
     <div class="card shadow-sm border-0 rounded-lg mb-4">
         <div class="card-header bg-white font-weight-bold">Data Dasar</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="info-title">Jenis Kelamin</div>
-                    <div class="info-value"><?= esc($jasmani['jenis_kelamin']) ?></div>
-                </div>
+        <div class="card-body row">
+
+            <div class="col-md-3">
+                <div class="info-title">Jenis Kelamin</div>
+                <div class="info-value"><?= ucfirst(esc($gender)) ?></div>
+            </div>
+
+            <?php if ($program !== 'polri'): ?>
                 <div class="col-md-3">
                     <div class="info-title">Usia</div>
-                    <div class="info-value"><?= $jasmani['usia'] ?? '-' ?></div>
+                    <div class="info-value"><?= esc($jasmani['usia'] ?? '-') ?></div>
                 </div>
                 <div class="col-md-3">
                     <div class="info-title">Tinggi</div>
-                    <div class="info-value"><?= $jasmani['tinggi'] ? $jasmani['tinggi'] . ' cm' : '-' ?></div>
+                    <div class="info-value"><?= esc($jasmani['tinggi'] ?? '-') ?> cm</div>
                 </div>
                 <div class="col-md-3">
                     <div class="info-title">Berat</div>
-                    <div class="info-value"><?= $jasmani['berat'] ? $jasmani['berat'] . ' kg' : '-' ?></div>
+                    <div class="info-value"><?= esc($jasmani['berat'] ?? '-') ?> kg</div>
                 </div>
-            </div>
+            <?php endif; ?>
+
         </div>
     </div>
 
     <!-- ================= GARJAS A ================= -->
     <div class="card shadow-sm border-0 rounded-lg mb-4">
         <div class="card-header bg-white font-weight-bold">Garjas A</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="info-title">Lari 12 Menit</div>
-                    <div class="info-value"><?= esc($jasmani['lari_12']) ?> meter</div>
-                </div>
+        <div class="card-body row">
+
+            <div class="col-md-4">
+                <div class="info-title">Lari 12 Menit</div>
+                <div class="info-value"><?= esc($jasmani['lari_12'] ?? '-') ?> meter</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="info-title">Nilai Lari 12 Menit</div>
+                <div class="info-value"><?= esc($jasmani['nilai_lari_12'] ?? '-') ?></div>
+            </div>
+
+            <?php if ($program !== 'polri'): ?>
                 <div class="col-md-4">
                     <div class="info-title">Nilai Garjas A</div>
-                    <div class="info-value"><?= $jasmani['nilai_garjas_a'] ?? '-' ?></div>
+                    <div class="info-value font-weight-bold">
+                        <?= esc($jasmani['nilai_lari_12'] ?? '-') ?>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
+
         </div>
     </div>
 
     <!-- ================= GARJAS B ================= -->
     <div class="card shadow-sm border-0 rounded-lg mb-4">
         <div class="card-header bg-white font-weight-bold">
-            Garjas B (<?= strtoupper($jasmani['kategori']) ?>)
+            Garjas B (<?= strtoupper($program) ?> - <?= ucfirst($gender) ?>)
         </div>
-        <div class="card-body">
-            <div class="row">
+        <div class="card-body row">
 
-                <?php if ($jasmani['kategori'] === 'tni'): ?>
-                    <?php
-                    $items = [
-                        'pull_up'     => 'Pull Up',
-                        'sit_up'      => 'Sit Up',
-                        'push_up'     => 'Push Up',
-                        'shuttle_run' => 'Shuttle Run',
-                        'renang'      => 'Renang',
-                    ];
-                    ?>
-                <?php else: ?>
-                    <?php
-                    $items = [
-                        'pull_up'     => 'Pull Up',
-                        'sit_up'      => 'Sit Up',
-                        'push_up'     => 'Push Up',
-                        'lunges'      => 'Lunges',
-                        'shuttle_run' => 'Shuttle Run',
-                    ];
-                    ?>
-                <?php endif; ?>
+            <?php if (empty($items)): ?>
+                <div class="col-12 text-muted text-center">
+                    Data Garjas B tidak tersedia
+                </div>
+            <?php else: ?>
 
                 <?php foreach ($items as $key => $label): ?>
                     <div class="col-md-4 mb-3">
-                        <div class="info-title"><?= $label ?></div>
-                        <div class="info-value"><?= $jasmani[$key] ?? '-' ?></div>
+                        <div class="info-title"><?= esc($label) ?></div>
+                        <div class="info-value"><?= esc($jasmani[$key] ?? '-') ?></div>
+
+                        <?php if ($program !== 'polri'): ?>
+                            <small class="text-muted">
+                                Nilai: <?= esc($jasmani['nilai_' . $key] ?? '-') ?>
+                            </small>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
 
-                <div class="col-md-4">
-                    <div class="info-title">Nilai Garjas B</div>
-                    <div class="info-value font-weight-bold">
-                        <?= $jasmani['nilai_garjas_b'] ?? '-' ?>
+                <?php if ($program !== 'polri'): ?>
+                    <div class="col-md-4">
+                        <div class="info-title">Nilai Garjas B</div>
+                        <div class="info-value font-weight-bold">
+                            <?= esc($jasmani['nilai_garjas_b'] ?? '-') ?>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
 
-            </div>
+            <?php endif; ?>
+
         </div>
     </div>
 
@@ -135,9 +178,11 @@
     <div class="card shadow-sm border-0 rounded-lg">
         <div class="card-body text-center">
             <div class="total-title">Nilai Akhir</div>
-            <div class="total-value"><?= $jasmani['nilai_total'] ?? '-' ?></div>
+            <div class="total-value"><?= esc($jasmani['nilai_total'] ?? '-') ?></div>
             <div class="text-muted small mt-1">
-                Tanggal Tes: <?= date('d M Y', strtotime($jasmani['created_at'])) ?>
+                <?= !empty($jasmani['created_at'])
+                    ? 'Tanggal Tes: ' . date('d M Y', strtotime($jasmani['created_at']))
+                    : '-' ?>
             </div>
         </div>
     </div>

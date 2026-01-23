@@ -33,7 +33,7 @@
     </div>
     <div class="col-4">
         <label>Nilai</label>
-        <input type="text" data-nilai="lari_12" class="form-control bg-light" readonly>
+        <input type="text" name="nilai_lari_12" data-nilai="lari_12" class="form-control bg-light" readonly>
     </div>
 </div>
 
@@ -63,5 +63,5 @@ foreach ($items as $key => $label):
 
 <div class="form-group mt-2">
     <label>Nilai Garjas B</label>
-    <input type="text" data-nilai="garjas_b" class="form-control bg-light" readonly>
+    <input type="text" data-nilai="garjas_b"  name="garjas_b" class="form-control bg-light" readonly>
 </div>
