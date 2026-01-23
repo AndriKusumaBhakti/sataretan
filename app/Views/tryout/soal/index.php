@@ -76,7 +76,7 @@
 
                             <!-- PERTANYAAN -->
                             <div class="soal-text mb-3">
-                                <?= esc($soal['pertanyaan'], 'raw') ?>
+                                <?= esc($soal['pertanyaan']) ?>
                             </div>
 
                             <?php if (!empty($soal['gambar_soal'])): ?>
@@ -93,7 +93,7 @@
 
                                         <div class="flex-fill">
                                             <div class="opsi-text">
-                                                <?= esc($soal['opsi_' . $opsi], 'raw') ?>
+                                                <?= esc($soal['opsi_' . $opsi]) ?>
                                             </div>
 
                                             <?php if (!empty($soal['gambar_opsi_' . $opsi])): ?>

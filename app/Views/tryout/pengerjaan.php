@@ -34,7 +34,7 @@
                 <div class="soal-header mb-4">
                     <span class="soal-number"><?= $current ?></span>
 
-                    <?= esc($soal['pertanyaan'], 'raw') ?>
+                    <?= esc($soal['pertanyaan']) ?>
 
                     <?php if (!empty($soal['gambar_soal'])): ?>
                         <div class="soal-image">
@@ -56,7 +56,7 @@
                         <span class="opsi-label"><?= $opsi ?></span>
 
                         <span class="opsi-text">
-                            <?= esc($soal['opsi_' . $opsi], 'raw') ?>
+                            <?= esc($soal['opsi_' . $opsi]) ?>
                             <?php if (!empty($soal['gambar_opsi_' . $opsi])): ?>
                                 <div class="opsi-image">
                                     <img src="<?= base_url('file/soal/' . $soal['gambar_opsi_' . $opsi]) ?>"
