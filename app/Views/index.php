@@ -200,20 +200,23 @@
 
       <?php
       $instruktur = [
-        'infra_3.png',
-        'infra_6.png',
-        'infra_1.jpg',
-        'infra_2.jpg',
-        'infra_4.png',
-        'infra_5.png',
-        'infra_7.png',
-        'infra_8.jpg',
-        'infra_9.jpg',
-        'infra_10.jpg',
-        'infra_11.jpg',
+        ['nama' => 'Dewi Ratnani', 'img' => '1.png', 'jabatan' => 'Manager'],
+        ['nama' => 'Vicky Agung Apri Dwi Putra', 'img' => '2.png', 'jabatan' => 'Pimpinan'],
+        ['nama' => 'Erik Apri Wandana Putra', 'img' => '3.png', 'jabatan' => 'Manager'],
+        ['nama' => 'Ermyatul Mahfudoh', 'img' => '4.jpg', 'jabatan' => 'Tentor'],
+        ['nama' => 'Lia Yunikasanti', 'img' => '', 'jabatan' => 'Tentor'],
+        ['nama' => 'Dewi Kumala Sari', 'img' => '6.png', 'jabatan' => 'Tentor'],
+        ['nama' => 'Putri Safitri Rahman', 'img' => '7.jpg', 'jabatan' => 'Tentor'],
+        ['nama' => 'Nurfaiz Subaktiyo', 'img' => '8.jpg', 'jabatan' => 'Tentor'],
+        ['nama' => 'Radita Shafira', 'img' => '9.jpg', 'jabatan' => 'Administrator'],
+        ['nama' => 'M. Rafi Ramadhana', 'img' => '10.jpg', 'jabatan' => 'Coach'],
+        ['nama' => 'Moh. Fitril Nurdiansyah', 'img' => '11.jpg', 'jabatan' => 'Coach'],
+        ['nama' => 'Moh. Asril Azyim', 'img' => '12.png', 'jabatan' => 'Coach'],
+        ['nama' => 'Triana Nur Kholifah', 'img' => '13.png', 'jabatan' => 'Conten Creator'],
+        ['nama' => 'Danil Andadi', 'img' => '14.png', 'jabatan' => 'Conten Creator'],
       ];
 
-      function card($img)
+      function card($data)
       {
         return '
       <div class="group relative bg-zinc-900 rounded-2xl overflow-hidden border border-red-900 
@@ -221,13 +224,13 @@
         w-full max-w-[200px] mx-auto">
 
         <div class="h-[260px]">
-          <img src="' . base_url('file/infra/' . $img) . '"
+          <img src="' . base_url('file/infra/' . $data['img']) . '"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
         </div>
 
         <div class="p-3 text-center">
-          <p class="font-bold text-white text-sm">Instruktur</p>
-          <p class="text-xs text-gray-400">Kepala Cabang Sumenep</p>
+          <p class="font-bold text-white text-sm">' . $data['nama'] . '</p>
+          <p class="text-xs text-gray-400">' . $data['jabatan'] . '</p>
         </div>
       </div>';
       }
@@ -241,22 +244,23 @@
       </div>
 
       <!-- ROW 2 : 4 -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 justify-items-center mb-10">
+      <div class="grid grid-cols-1 sm:grid-cols-6 gap-8 justify-items-center mb-10">
         <?= card($instruktur[3]) ?>
         <?= card($instruktur[4]) ?>
         <?= card($instruktur[5]) ?>
         <?= card($instruktur[6]) ?>
+        <?= card($instruktur[7]) ?>
+        <?= card($instruktur[8]) ?>
       </div>
 
       <!-- ROW 3 : 4 -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 justify-items-center">
-        <?= card($instruktur[7]) ?>
-        <?= card($instruktur[8]) ?>
+      <div class="grid grid-cols-1 sm:grid-cols-5 gap-8 justify-items-center">
         <?= card($instruktur[9]) ?>
         <?= card($instruktur[10]) ?>
+        <?= card($instruktur[11]) ?>
+        <?= card($instruktur[12]) ?>
+        <?= card($instruktur[13]) ?>
       </div>
-
-
     </div>
   </section>
 
