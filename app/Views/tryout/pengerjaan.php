@@ -3,13 +3,13 @@
 
 <div class="container-fluid">
 
-    <!-- HEADER -->
+    <!-- ================= HEADER ================= -->
     <div class="cbt-header mb-4">
         <div>
-            <h5 class="font-weight-bold mb-0 text-gray-800">
+            <h5 class="font-weight-bold mb-0 text-gray-800 text-wrap">
                 <?= esc($tryout['judul']) ?>
             </h5>
-            <small class="text-muted">
+            <small class="text-muted d-block">
                 Soal <?= $current ?> dari <?= $totalSoal ?>
             </small>
         </div>
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <!-- FORM -->
+    <!-- ================= FORM ================= -->
     <form id="formTryout"
         action="<?= site_url('tryout/' . $kategori . '/submit/' . $tryout['id']) ?>"
         method="post">
@@ -34,14 +34,16 @@
                 <div class="soal-header mb-4">
                     <span class="soal-number"><?= $current ?></span>
 
-                    <?= esc($soal['pertanyaan']) ?>
+                    <div class="soal-text">
+                        <?= esc($soal['pertanyaan']) ?>
 
-                    <?php if (!empty($soal['gambar_soal'])): ?>
-                        <div class="soal-image">
-                            <img src="<?= base_url('file/soal/' . $soal['gambar_soal']) ?>"
-                                alt="Gambar Soal">
-                        </div>
-                    <?php endif; ?>
+                        <?php if (!empty($soal['gambar_soal'])): ?>
+                            <div class="soal-image">
+                                <img src="<?= base_url('file/soal/' . $soal['gambar_soal']) ?>"
+                                    alt="Gambar Soal">
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- OPSI -->
@@ -57,6 +59,7 @@
 
                         <span class="opsi-text">
                             <?= esc($soal['opsi_' . $opsi]) ?>
+
                             <?php if (!empty($soal['gambar_opsi_' . $opsi])): ?>
                                 <div class="opsi-image">
                                     <img src="<?= base_url('file/soal/' . $soal['gambar_opsi_' . $opsi]) ?>"
@@ -70,7 +73,7 @@
             </div>
         </div>
 
-        <!-- PAGINATION -->
+        <!-- ================= PAGINATION ================= -->
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <?php if ($current > 1): ?>
@@ -91,29 +94,24 @@
                 <button id="btnSubmit"
                     type="submit"
                     class="btn btn-binjas rounded-pill px-5">
-                    <i class="fas fa-paper-plane mr-1"></i>
-                    Submit
+                    <i class="fas fa-paper-plane mr-1"></i> Submit
                 </button>
             <?php endif; ?>
 
         </div>
 
     </form>
-
 </div>
 
-<!-- ================= TIMER + CSRF ================= -->
+<!-- ================= SCRIPT ================= -->
 <script>
-    const TRYOUT_ID = <?= $tryout['id'] ?>;
     const DURASI = <?= $sisa_waktu ?>;
-
     const form = document.getElementById('formTryout');
     const timerEl = document.getElementById('timer');
     const btnSubmit = document.getElementById('btnSubmit');
 
     let csrfName = "<?= csrf_token() ?>";
     let csrfHash = "<?= csrf_hash() ?>";
-
     let endTime = Math.floor(Date.now() / 1000) + DURASI;
     let submitted = false;
 
@@ -124,7 +122,6 @@
         if (sisa <= 0) {
             clearInterval(interval);
             timerEl.innerText = '0:00';
-
             if (!submitted) {
                 submitted = true;
                 form.submit();
@@ -137,25 +134,17 @@
         timerEl.innerText = m + ':' + (s < 10 ? '0' + s : s);
     }, 1000);
 
-    form.addEventListener('submit', function() {
+    form.addEventListener('submit', () => {
         submitted = true;
-        if (btnSubmit) btnSubmit.disabled = true;
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `
+                <span class="spinner-border spinner-border-sm mr-2"></span>
+                Menyimpan...
+            `;
+        }
     });
 
-    document.getElementById('formTryout').addEventListener('submit', function() {
-        const btn = document.getElementById('btnSubmit');
-
-        // Disable tombol submit saja
-        btn.disabled = true;
-
-        // Loading state
-        btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm mr-2"></span>
-        Menyimpan...
-    `;
-    });
-
-    /* AUTO SAVE JAWABAN */
     document.querySelectorAll('input[type=radio]').forEach(el => {
         el.addEventListener('change', function() {
             fetch("<?= site_url('tryout/save-jawaban') ?>", {
@@ -223,10 +212,6 @@
         justify-content: center;
     }
 
-    .soal-text {
-        line-height: 1.6;
-    }
-
     .soal-text img,
     .opsi-text img {
         max-width: 100%;
@@ -243,10 +228,15 @@
         border: 1px solid #e9ecef;
         cursor: pointer;
         margin-bottom: 12px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .opsi-card:hover {
         background: #f8fdf9;
+    }
+
+    .opsi-card:active {
+        transform: scale(0.98);
     }
 
     .opsi-card input {
@@ -270,10 +260,6 @@
         color: #fff;
     }
 
-    .opsi-text {
-        line-height: 1.6;
-    }
-
     .btn-binjas {
         background: linear-gradient(135deg, #28a745, #1e7e34);
         color: #fff;
@@ -285,12 +271,6 @@
         font-weight: 600;
     }
 
-    .soal-image,
-    .opsi-image {
-        margin-top: 12px;
-        text-align: center;
-    }
-
     .soal-image img,
     .opsi-image img {
         max-width: 100%;
@@ -298,6 +278,57 @@
         object-fit: contain;
         border-radius: 10px;
         box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+    }
+
+    /* ========== MOBILE ========== */
+    @media (max-width: 576px) {
+
+        .container-fluid {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .cbt-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .timer-box {
+            align-self: flex-end;
+            font-size: 14px;
+            padding: 6px 14px;
+        }
+
+        .soal-header {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .soal-number,
+        .opsi-label {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+        }
+
+        .opsi-text,
+        .soal-text {
+            font-size: 14px;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .d-flex.justify-content-between .btn {
+            width: 100%;
+            padding: 12px;
+        }
     }
 </style>
 

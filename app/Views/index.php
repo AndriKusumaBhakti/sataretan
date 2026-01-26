@@ -196,7 +196,7 @@
   <!-- ================= STRUKTUR ================= -->
   <section id="struktur" class="bg-gradient-to-r from-zinc-900 to-black px-6 py-20">
     <div class="max-w-7xl mx-auto">
-      <h2 class="text-3xl font-extrabold text-center mb-12">Instruktur</h2>
+      <h2 class="text-3xl font-extrabold text-center mb-12">Struktur</h2>
 
       <?php
       $instruktur = [
