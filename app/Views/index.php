@@ -204,7 +204,7 @@
         ['nama' => 'Vicky Agung Apri Dwi Putra', 'img' => '2.png', 'jabatan' => 'Pimpinan'],
         ['nama' => 'Erik Apri Wandana Putra', 'img' => '3.png', 'jabatan' => 'Manager'],
         ['nama' => 'Ermyatul Mahfudoh', 'img' => '4.jpg', 'jabatan' => 'Tentor'],
-        ['nama' => 'Lia Yunikasanti', 'img' => '', 'jabatan' => 'Tentor'],
+        ['nama' => 'Lia Yunikasanti', 'img' => '5.png', 'jabatan' => 'Tentor'],
         ['nama' => 'Dewi Kumala Sari', 'img' => '6.png', 'jabatan' => 'Tentor'],
         ['nama' => 'Putri Safitri Rahman', 'img' => '7.jpg', 'jabatan' => 'Tentor'],
         ['nama' => 'Nurfaiz Subaktiyo', 'img' => '8.jpg', 'jabatan' => 'Tentor'],
