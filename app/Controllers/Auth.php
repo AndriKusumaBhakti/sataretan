@@ -207,8 +207,7 @@ class Auth extends BaseController
         $client->setClientId(getenv('GOOGLE_CLIENT_ID'));
         $client->setClientSecret(getenv('GOOGLE_CLIENT_SECRET'));
         $client->setRedirectUri(base_url('auth/googleCallback'));
-        var_dump($this->request->getGet());
-        exit;
+        
         if (!$this->request->getGet('code')) {
             return redirect()->to('/login');
         }
