@@ -61,9 +61,6 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('(:segment)/submit/(:num)', 'Tryout::submit/$1/$2');
         $routes->get('(:segment)/hasil/(:num)', 'Tryout::hasil/$1/$2');
         $routes->post('save-jawaban', 'Tryout::saveJawaban');
-        $routes->get('(:segment)/nilai/(:num)', 'Tryout::nilai/$1/$2');
-        $routes->get('(:segment)/nilai/reset/(:num)', 'Tryout::reset/$1/$2');
-        $routes->get('(:segment)/nilai/detail/(:num)', 'Tryout::detail/$1/$2');
 
         //admin or guru
         $routes->get('(:segment)/tambah', 'Tryout::tambah/$1');
@@ -88,6 +85,12 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('(:segment)/store', 'Jasmani::store/$1');
         $routes->get('(:segment)/detail/(:num)', 'Jasmani::detail/$1/$2');
         $routes->get('(:segment)/remove/(:num)', 'Jasmani::delete/$1/$2');
+
+        $routes->get('(:segment)/nilai/(:num)', 'TryoutNilai::nilai/$1/$2');
+        $routes->get('(:segment)/nilai/reset/(:num)', 'TryoutNilai::reset/$1/$2');
+        $routes->get('(:segment)/nilai/detail/(:num)', 'TryoutNilai::detail/$1/$2');
+        $routes->get('(:segment)/nilai/export-pdf/(:num)', 'TryoutNilai::exportPdf/$1/$2');
+        $routes->get('(:segment)/nilai/export-excel/(:num)', 'TryoutNilai::exportExcel/$1/$2');
     });
 
     $routes->group('video', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
