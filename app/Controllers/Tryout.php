@@ -165,11 +165,38 @@ class Tryout extends BaseController
     // ================= DELETE =================
     public function delete($kategori, $id)
     {
-        $this->tryoutSoalModel
-            ->where('tryout_id', $id)
-            ->delete();
-        $this->tryoutModel->delete($id);
-        return redirect()->to(site_url('tryout/' . $kategori));
+        $tryout = $this->tryoutModel->where('id', $id)->where('kategori', $kategori)->first();
+
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
+        }
+        $this->db->transStart();
+
+        try {
+            $this->tryoutjawabanModel
+                ->where('tryout_id', $id)
+                ->delete();
+
+            $this->tryoutattemptModel
+                ->where('tryout_id', $id)
+                ->delete();
+
+            $this->tryoutSoalModel
+                ->where('tryout_id', $id)
+                ->delete();
+            $this->tryoutModel->delete($id);
+
+            $this->db->transComplete();
+
+            return redirect()->back()
+                ->with('success', 'Tryout berhasil dihapus');
+        } catch (\Throwable $e) {
+
+            $this->db->transRollback();
+
+            return redirect()->back()
+                ->with('errors', 'Gagal menghapus tryout');
+        }
     }
 
     public function pengerjaan($kategori, $tryoutId, $nomor = 1)
@@ -178,7 +205,8 @@ class Tryout extends BaseController
         $data['kategori'] = $kategori;
 
         // Ambil tryout
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
+
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
@@ -344,7 +372,7 @@ class Tryout extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -416,5 +444,140 @@ class Tryout extends BaseController
         ]);
 
         return redirect()->back()->with('success', 'Try out berhasil dinonaktifkan');
+    }
+
+    public function nilai($kategori, $tryoutId)
+    {
+        $data = $this->baseData();
+        $data['kategori'] = $kategori;
+        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
+
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
+        }
+
+        $attempts = $this->tryoutattemptModel->getDaftarNilai($tryoutId);
+        $totalSoal = $this->tryoutSoalModel
+            ->where('tryout_id', $tryoutId)
+            ->countAllResults();
+
+        foreach ($attempts as &$row) {
+            // hitung skor akhir (AMAN)
+            $skor_akhir = $totalSoal > 0
+                ? round(($row['skor_akhir'] / $totalSoal) * 100, 2)
+                : 0;
+
+            // inject ke array buat view
+            $row['skor_akhir'] = $skor_akhir;
+        }
+
+        $data['tryoutId'] = $tryoutId;
+        $data['nilai'] = $attempts;
+
+        return view('tryout/tryout/nilai', $data);
+    }
+
+    public function reset($kategori, $id)
+    {
+        $data = $this->baseData();
+        $data['kategori'] = $kategori;
+        $attempts = $this->tryoutattemptModel->find($id);
+
+        if (!$attempts) {
+            return redirect()->back()->with('errors', 'Data tidak ditemukan');
+        }
+
+        $tryout = $this->tryoutModel->where('id', $attempts['tryout_id'])->where('kategori', $kategori)->first();
+
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
+        }
+
+        $this->db->transStart();
+
+        try {
+            // === Hapus jawaban peserta ===
+            $this->tryoutjawabanModel
+                ->where('tryout_id', $attempts['tryout_id'])
+                ->where('user_id', $attempts['user_id'])
+                ->delete();
+
+            // === Reset data peserta ===
+            // === Hapus jawaban peserta ===
+            $this->tryoutattemptModel->delete($id);
+
+            $this->db->transComplete();
+
+            return redirect()->back()
+                ->with('success', 'Nilai berhasil di-reset');
+        } catch (\Throwable $e) {
+
+            $this->db->transRollback();
+
+            return redirect()->back()
+                ->with('errors', 'Gagal reset nilai');
+        }
+    }
+
+    public function detail($kategori, $id)
+    {
+        $data = $this->baseData();
+        $data['kategori'] = $kategori;
+        $attempts = $this->tryoutattemptModel->find($id);
+
+        if (!$attempts) {
+            return redirect()->back()->with('errors', 'Data tidak ditemukan');
+        }
+
+        $tryout = $this->tryoutModel->where('id', $attempts['tryout_id'])->where('kategori', $kategori)->first();
+
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
+        }
+
+        $jawaban = $this->tryoutjawabanModel
+            ->where('user_id', $attempts['user_id'])
+            ->where('tryout_id', $attempts['tryout_id'])
+            ->findAll();
+
+        $totalSoal = $this->tryoutSoalModel
+            ->where('tryout_id', $attempts['tryout_id'])
+            ->countAllResults();
+
+        $benar = 0;
+        $detail = [];
+
+        foreach ($jawaban as $j) {
+            $soal = $this->tryoutSoalModel->find($j['soal_id']);
+
+            if (!$soal) {
+                continue;
+            }
+
+            $isBenar = $soal['jawaban_benar'] === $j['jawaban'];
+
+            if ($isBenar) {
+                $benar++;
+            }
+
+            $detail[] = [
+                'pertanyaan' => $soal['pertanyaan'],
+                'jawaban_user' => $j['jawaban'],
+                'jawaban_benar' => $soal['jawaban_benar'],
+                'benar' => $isBenar
+            ];
+        }
+
+        $salah = $totalSoal - $benar;
+        $nilai = round(($benar / $totalSoal) * 100, 2);
+
+        $data['tryout'] = $tryout;
+        $data['total'] = $totalSoal;
+        $data['benar'] = $benar;
+        $data['salah'] = $salah;
+        $data['nilai'] = $nilai;
+        $data['detail'] = $detail;
+
+        return view('tryout/tryout/detail-nilai', $data);
     }
 }

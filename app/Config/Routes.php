@@ -61,6 +61,9 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('(:segment)/submit/(:num)', 'Tryout::submit/$1/$2');
         $routes->get('(:segment)/hasil/(:num)', 'Tryout::hasil/$1/$2');
         $routes->post('save-jawaban', 'Tryout::saveJawaban');
+        $routes->get('(:segment)/nilai/(:num)', 'Tryout::nilai/$1/$2');
+        $routes->get('(:segment)/nilai/reset/(:num)', 'Tryout::reset/$1/$2');
+        $routes->get('(:segment)/nilai/detail/(:num)', 'Tryout::detail/$1/$2');
 
         //admin or guru
         $routes->get('(:segment)/tambah', 'Tryout::tambah/$1');

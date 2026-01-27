@@ -23,6 +23,16 @@
             </div>
         <?php endif ?>
 
+
+        <!-- ALERT -->
+        <?php if (session()->getFlashdata('errors')): ?>
+            <div class="alert alert-danger auto-close show">
+                <?php foreach (session()->getFlashdata('errors') as $err): ?>
+                    <div><?= esc($err) ?></div>
+                <?php endforeach ?>
+            </div>
+        <?php endif ?>
+
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-toggle="dropdown">
                 <span class="mr-2 d-none d-lg-inline user-name">
@@ -67,3 +77,12 @@
         min-height: calc(100vh - 70px);
     }
 </style>
+
+<script>
+setTimeout(() => {
+    document.querySelectorAll('.auto-close').forEach(el => {
+        el.style.opacity = 0;
+        setTimeout(() => el.remove(), 500);
+    });
+}, 4000);
+</script>

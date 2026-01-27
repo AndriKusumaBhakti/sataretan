@@ -80,8 +80,7 @@
                                     </form>
                                 <?php endif; ?>
 
-                                <a href="<?= site_url('tryout/' . $kategori . '/edit/' . $t['id']) ?>"
-                                    title="Edit">
+                                <a href="<?= site_url('tryout/' . $kategori . '/edit/' . $t['id']) ?>" title="Edit">
                                     <i class="fas fa-pen"></i>
                                 </a>
 
@@ -140,21 +139,24 @@
                             </div>
                         </div>
 
-                        <!-- BUTTON -->
-                        <a href="<?= site_url('tryout/' . $kategori . '/start/' . $t['id']) ?>"
-                            class="btn btn-outline-success btn-sm rounded-pill mt-auto">
-                            <i class="fas fa-play mr-1"></i> Mulai Try Out
-                        </a>
+                        <div class="tryout-buttons mt-auto">
+                            <a href="<?= site_url('tryout/' . $kategori . '/start/' . $t['id']) ?>"
+                                class="btn btn-outline-success btn-sm rounded-pill">
+                                <i class="fas fa-play mr-1"></i> Mulai Try Out
+                            </a>
+                            <?php if ($isGuruOrAdmin): ?>
+                                <a href="<?= site_url('tryout/' . $kategori . '/nilai/' . $t['id']) ?>"
+                                    class="btn btn-outline-secondary btn-sm rounded-pill">
+                                    <i class="fas fa-list-alt mr-1"></i> Daftar Nilai
+                                </a>
+                            <?php endif; ?>
 
+                        </div>
                     </div>
-
                 </div>
             <?php endforeach; ?>
-
         <?php endif; ?>
-
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -346,6 +348,29 @@
     .tryout-actions button:hover {
         background: #28a745;
         color: #fff;
+    }
+
+    .tryout-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .tryout-buttons .btn {
+        flex: 1;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 575px) {
+        .tryout-buttons {
+            flex-direction: column;
+        }
+    }
+
+    @media (hover: none) {
+        .tryout-actions {
+            opacity: 1;
+            transform: none;
+        }
     }
 </style>
 

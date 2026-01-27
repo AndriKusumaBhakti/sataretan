@@ -53,7 +53,7 @@ class User extends BaseController
         // 1. Validasi user
         $user = $this->userModel->find($id);
         if (!$user) {
-            return redirect()->back()->with('error', 'User tidak ditemukan');
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
         }
 
         // 2. Ambil paket user berdasarkan user_id
@@ -62,7 +62,7 @@ class User extends BaseController
             ->first();
 
         if (!$userPaket) {
-            return redirect()->back()->with('error', 'Paket user tidak ditemukan');
+            return redirect()->back()->with('errors', 'Paket user tidak ditemukan');
         }
 
         // 3. Ambil paket aktif
@@ -72,7 +72,7 @@ class User extends BaseController
             ->first();
 
         if (!$paket) {
-            return redirect()->back()->with('error', 'Paket tidak aktif atau tidak tersedia');
+            return redirect()->back()->with('errors', 'Paket tidak aktif atau tidak tersedia');
         }
 
         // 4. Hitung expired (detik)
@@ -225,7 +225,7 @@ class User extends BaseController
             ->find($id);
 
         if (!$user) {
-            return redirect()->back()->with('error', 'User tidak ditemukan');
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
         }
 
         $data['user'] = $user;
@@ -239,7 +239,7 @@ class User extends BaseController
                 ->first();
 
             if (!$userPaket) {
-                return redirect()->back()->with('error', 'Paket user tidak ditemukan');
+                return redirect()->back()->with('errors', 'Paket user tidak ditemukan');
             }
 
             $data['userPaket'] = $userPaket;
@@ -259,7 +259,7 @@ class User extends BaseController
 
         if (!$user) {
             return redirect()->back()
-                ->with('error', 'Data user tidak ditemukan');
+                ->with('errors', 'Data user tidak ditemukan');
         }
 
         // Hapus foto jika ada
@@ -289,7 +289,7 @@ class User extends BaseController
 
         if (! $user) {
             return redirect()->back()
-                ->with('error', 'Data user tidak ditemukan');
+                ->with('errors', 'Data user tidak ditemukan');
         }
         // ================= VALIDASI =================
         $rules = [
