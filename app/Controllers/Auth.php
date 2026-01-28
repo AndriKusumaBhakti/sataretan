@@ -101,6 +101,8 @@ class Auth extends BaseController
 
         session()->set([
             'Authorization' => $token,
+            'name' => $user['name'],
+            'photo' => $user['photo'],
         ]);
         last_time_activity_session('renew');
 
@@ -263,6 +265,8 @@ class Auth extends BaseController
 
         session()->set([
             'Authorization' => $token,
+            'name' => $user['name'],
+            'photo' => $user['photo'],
         ]);
         last_time_activity_session('renew');
 

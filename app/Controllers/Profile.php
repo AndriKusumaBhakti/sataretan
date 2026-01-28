@@ -31,9 +31,22 @@ class Profile extends BaseController
     {
         $data = $this->baseData();
 
-        $data['user'] = $this->userModel
-            ->where('id', user_id())
-            ->first();
+        $userQuery = $this->userModel
+            ->where('id', user_id());
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
+        if (!$user) {
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
+        }
+
+        $data['user'] = $user;
+        
         return view('profile/index', $data);
     }
 
@@ -47,15 +60,41 @@ class Profile extends BaseController
     public function edit()
     {
         $data = $this->baseData();
-        $data['user'] = $this->userModel
-            ->where('id', user_id())
-            ->first();
+        $userQuery = $this->userModel
+            ->where('id', user_id());
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
+        if (!$user) {
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
+        }
+
+        $data['user'] = $user;
 
         return view('profile/edit', $data);
     }
 
     public function update()
     {
+        $userQuery = $this->userModel
+            ->where('id', user_id());
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
+        if (!$user) {
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
+        }
+
         $data = $this->baseData();
         $data['name'] = $this->request->getPost('name');
         $data['email'] = $this->request->getPost('email');
@@ -81,7 +120,7 @@ class Profile extends BaseController
             session()->set('photo', $newName);
         }
 
-        $this->userModel->update(user_id(), $data_user);
+        $this->userModel->update($user['id'], $data_user);
 
         // update session name
         session()->set('name', $data['name']);
@@ -93,9 +132,21 @@ class Profile extends BaseController
     {
         $data = $this->baseData();
 
-        $data['user'] = $this->userModel
-            ->where('id', user_id())
-            ->first();
+        $userQuery = $this->userModel
+            ->where('id', user_id());
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
+        if (!$user) {
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
+        }
+
+        $data['user'] = $user;
         return view('profile/account-settings', $data);
     }
 
@@ -113,7 +164,19 @@ class Profile extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        $user   = $this->userModel->find(user_id());
+        $userQuery = $this->userModel
+            ->where('id', user_id());
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
+        if (!$user) {
+            return redirect()->back()->with('errors', 'User tidak ditemukan');
+        }
 
         // Validasi password lama
         if (md5($this->request->getPost('old_password')) != $user['password']) {

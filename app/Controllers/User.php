@@ -33,6 +33,8 @@ class User extends BaseController
     {
         $data = default_parser_item([]); // Pastikan helper ini tersedia
         $data['menuItems'] = $this->menuItems;
+        $data['isAdmin'] = isAdmin();
+        $data['isSuperAdmin'] = isSuperAdmin();
         return $data;
     }
 
@@ -51,7 +53,16 @@ class User extends BaseController
     public function approve($kategori, $id)
     {
         // 1. Validasi user
-        $user = $this->userModel->find($id);
+        $userQuery = $this->userModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
+
         if (!$user) {
             return redirect()->back()->with('errors', 'User tidak ditemukan');
         }
@@ -225,9 +236,16 @@ class User extends BaseController
         $data['kategori'] = $kategori;
 
         // Ambil user + role
-        $user = $this->userModel
+        $userQuery = $this->userModel
             ->withRole()
-            ->find($id);
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
 
         if (!$user) {
             return redirect()->back()->with('errors', 'User tidak ditemukan');
@@ -260,11 +278,19 @@ class User extends BaseController
 
     public function delete($kategori, $id)
     {
-        $user = $this->userModel->find($id);
+        $userQuery = $this->userModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
 
         if (!$user) {
             return redirect()->back()
-                ->with('errors', 'Data user tidak ditemukan');
+                ->with('errors', 'User tidak ditemukan');
         }
 
         // Hapus foto jika ada
@@ -290,7 +316,15 @@ class User extends BaseController
 
     public function update($kategori, $id)
     {
-        $user = $this->userModel->find($id);
+        $userQuery = $this->userModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $userQuery->where('company_id', companyId());
+        }
+
+        $user = $userQuery->first();
 
         if (! $user) {
             return redirect()->back()
