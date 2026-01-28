@@ -4,7 +4,7 @@
 <div class="container-fluid">
 
     <!-- HEADER -->
-    <div class="mb-5">
+    <div class="mb-4">
         <h1 class="h4 font-weight-bold text-gray-800 mb-1">
             Edit Profile
         </h1>
@@ -14,11 +14,12 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-lg-6 col-md-8 col-sm-12">
 
             <div class="profile-card">
 
-                <form id="form-profile" action="<?= base_url('profile/update') ?>"
+                <form id="form-profile"
+                    action="<?= base_url('profile/update') ?>"
                     method="post"
                     enctype="multipart/form-data">
 
@@ -33,13 +34,15 @@
                         ?>
 
                         <img src="<?= $photoUrl ?>"
-                            class="profile-avatar mb-3">
+                            class="profile-avatar mb-3"
+                            alt="Profile Photo">
 
                         <div class="custom-file">
                             <input type="file"
                                 name="photo"
                                 class="custom-file-input"
-                                id="photo">
+                                id="photo"
+                                accept="image/*">
                             <label class="custom-file-label" for="photo">
                                 Pilih foto baru
                             </label>
@@ -61,7 +64,7 @@
                     </div>
 
                     <!-- EMAIL -->
-                    <div class="form-group mb-4">
+                    <div class="form-group mb-3">
                         <label class="font-weight-bold">Email</label>
                         <input type="email"
                             name="email"
@@ -70,18 +73,32 @@
                             required>
                     </div>
 
-                    <!-- BUTTON -->
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="<?= base_url('profile') ?>"
-                            class="btn btn-outline-success rounded-pill px-4">
-                            <i class="fas fa-arrow-left mr-1"></i>
-                            Kembali
-                        </a>
+                    <!-- PHONE -->
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold">No HP / Whatsapp</label>
+                        <input type="tel"
+                            name="phone"
+                            class="form-control rounded-pill px-4"
+                            value="<?= esc($user['phone'] ?? '') ?>">
+                    </div>
 
-                        <button id="btn-submit" class="btn btn-success rounded-pill px-5">
-                            <i class="fas fa-save mr-1"></i>
-                            Simpan Perubahan
-                        </button>
+                    <!-- BUTTON -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-2">
+                            <a href="<?= base_url('profile') ?>"
+                                class="btn btn-outline-success btn-block rounded-pill px-4">
+                                <i class="fas fa-arrow-left mr-1"></i>
+                                Kembali
+                            </a>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <button id="btn-submit"
+                                class="btn btn-success btn-block rounded-pill px-4">
+                                <i class="fas fa-save mr-1"></i>
+                                Simpan Perubahan
+                            </button>
+                        </div>
                     </div>
 
                 </form>
@@ -95,21 +112,22 @@
 
 <!-- ================= STYLE ================= -->
 <style>
-    /* CARD – sama dengan Materi */
     .profile-card {
-        background: #ffffff;
+        background: #fff;
         padding: 28px;
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
         transition: .3s ease;
     }
 
-    .profile-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 36px rgba(0, 0, 0, .15);
+    /* Hover hanya desktop */
+    @media (min-width: 768px) {
+        .profile-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, .15);
+        }
     }
 
-    /* AVATAR */
     .profile-avatar {
         width: 120px;
         height: 120px;
@@ -119,19 +137,23 @@
         background: #f8f9fa;
     }
 
-    /* FORM */
+    /* Avatar lebih kecil di mobile */
+    @media (max-width: 576px) {
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+        }
+    }
+
     .form-control:focus {
         box-shadow: none;
         border-color: #28a745;
     }
 
-    /* BUTTON */
-    .btn-success {
-        font-weight: 600;
-    }
-
+    .btn-success,
     .btn-outline-success {
         font-weight: 600;
+        padding: 12px;
     }
 </style>
 
@@ -141,17 +163,14 @@
         this.nextElementSibling.innerText =
             this.files[0]?.name || 'Pilih foto baru';
     });
-    document.getElementById('form-profile').addEventListener('submit', function() {
+
+    document.getElementById('form-profile')?.addEventListener('submit', function() {
         const btn = document.getElementById('btn-submit');
-
-        // Disable tombol submit saja
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm mr-2"></span>
-        Menyimpan...
-    `;
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Menyimpan...
+        `;
     });
 </script>
 

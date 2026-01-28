@@ -32,6 +32,8 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
     $routes->get('profile/edit', 'Profile::edit');
     $routes->post('profile/update', 'Profile::update');
     $routes->get('help', 'Help::index');
+    $routes->get('account-settings', 'Profile::accountSettings');
+    $routes->post('change-password', 'Profile::changePassword');
 
     $routes->get('settings', 'Profile::settings'); // optional
     $routes->get('logout', 'Auth::logout');
@@ -113,6 +115,8 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/edit/(:num)', 'User::edit/$1/$2');
         $routes->post('(:segment)/update/(:num)', 'User::update/$1/$2');
         $routes->post('(:segment)/delete/(:num)', 'User::delete/$1/$2');
+
+        $routes->get('(:segment)/export-excel', 'TryoutNilai::exportExcelRekap/$1');
     });
 
     $routes->group('kalkulator', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {

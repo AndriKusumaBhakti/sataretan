@@ -59,10 +59,12 @@ class Profile extends BaseController
         $data = $this->baseData();
         $data['name'] = $this->request->getPost('name');
         $data['email'] = $this->request->getPost('email');
+        $data['phone'] = $this->request->getPost('phone');
 
         $data_user = [
             'name'  => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
+            'phone' => $this->request->getPost('phone'),
         ];
 
         // upload foto
@@ -85,5 +87,44 @@ class Profile extends BaseController
         session()->set('name', $data['name']);
 
         return redirect()->to(site_url('profile'))->with('success', 'Profile berhasil diperbarui');
+    }
+
+    public function accountSettings()
+    {
+        $data = $this->baseData();
+
+        $data['user'] = $this->userModel
+            ->where('id', user_id())
+            ->first();
+        return view('profile/account-settings', $data);
+    }
+
+    public function changePassword()
+    {
+        $rules = [
+            'old_password' => 'required',
+            'new_password'     => 'required|min_length[8]',
+            'confirm_password' => 'required|matches[new_password]',
+        ];
+
+        if (! $this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $user   = $this->userModel->find(user_id());
+
+        // Validasi password lama
+        if (md5($this->request->getPost('old_password')) != $user['password']) {
+            return redirect()->back()->with('errors', ['Password lama tidak sesuai']);
+        }
+
+        // Update password baru
+        $this->userModel->update(user_id(), [
+            'password' => md5($this->request->getPost('new_password')),
+        ]);
+
+        return redirect()->back()->with('success', 'Password berhasil diperbarui');
     }
 }

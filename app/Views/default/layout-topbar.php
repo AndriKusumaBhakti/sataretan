@@ -46,6 +46,12 @@
                 <a class="dropdown-item" href="<?= base_url('profile') ?>">
                     <i class="fas fa-user mr-2"></i> Profile
                 </a>
+                <a class="dropdown-item" href="<?= base_url('account-settings') ?>">
+                    <i class="fas fa-cog mr-2"></i> Pengaturan Akun
+                </a>
+                <a class="dropdown-item" href="<?= base_url('help') ?>">
+                    <i class="fas fa-question-circle mr-2"></i> Bantuan
+                </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">
                     <i class="fas fa-sign-out-alt mr-2"></i> Logout
@@ -79,10 +85,10 @@
 </style>
 
 <script>
-setTimeout(() => {
-    document.querySelectorAll('.auto-close').forEach(el => {
-        el.style.opacity = 0;
-        setTimeout(() => el.remove(), 500);
-    });
-}, 4000);
+    setTimeout(() => {
+        document.querySelectorAll('.auto-close').forEach(el => {
+            el.style.opacity = 0;
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
 </script>

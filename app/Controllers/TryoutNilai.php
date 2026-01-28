@@ -281,6 +281,142 @@ class TryoutNilai extends BaseController
             ->setBody($this->writeExcel($writer));
     }
 
+    public function exportExcelRekap($kategori)
+    {
+        // ===============================
+        // 1. AMBIL SEMUA TRYOUT PER PROGRAM
+        // ===============================
+        $tryouts = $this->db->table('tryout')
+            ->select('id, judul, program, kategori')
+            ->where('status', 'aktif')
+            ->orderBy('program')
+            ->orderBy('id')
+            ->get()
+            ->getResultArray();
+
+        // Group tryout by program
+        $tryoutByProgram = [];
+        foreach ($tryouts as $t) {
+            $tryoutByProgram[$t['program']][] = $t;
+        }
+
+        // ===============================
+        // 2. AMBIL USER + PROGRAM
+        // ===============================
+        $users = $this->db->table('users u')
+            ->select('u.id, u.name, up.program')
+            ->join('user_paket up', 'up.user_id = u.id', 'left')
+            ->where('up.status', 'A')
+            ->orderBy('u.name')
+            ->get()
+            ->getResultArray();
+
+        // ===============================
+        // 3. AMBIL NILAI TRYOUT
+        // ===============================
+        $attempts = $this->db->table('tryout_attempts')
+            ->select('user_id, tryout_id, skor_akhir')
+            ->where('status', 'finished')
+            ->get()
+            ->getResultArray();
+
+        // Index nilai: user_id + tryout_id
+        $nilaiMap = [];
+        foreach ($attempts as $a) {
+            $nilaiMap[$a['user_id']][$a['tryout_id']] = $a['skor_akhir'];
+        }
+
+        // ===============================
+        // 4. BUAT EXCEL
+        // ===============================
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $row = 1;
+
+        foreach ($tryoutByProgram as $program => $listTryout) {
+
+            // ===== JUDUL PROGRAM =====
+            $sheet->setCellValue("A$row", strtoupper($program));
+            $sheet->mergeCells("A$row:Z$row");
+            $sheet->getStyle("A$row")->getFont()->setBold(true)->setSize(14);
+            $row += 2;
+
+            // ===== HEADER =====
+            $sheet->setCellValue("A$row", "NO");
+            $sheet->setCellValue("B$row", "NAMA");
+
+            $col = 'C';
+            foreach ($listTryout as $t) {
+                $sheet->setCellValue($col . $row, $t['judul']);
+                $col++;
+            }
+
+            $sheet->setCellValue($col . $row, "RATA-RATA");
+
+            $sheet->getStyle("A$row:$col$row")->getFont()->setBold(true);
+            $row++;
+
+            // ===== DATA USER =====
+            $no = 1;
+            foreach ($users as $u) {
+
+                if (strtolower($u['program']) !== strtolower($program)) {
+                    continue;
+                }
+
+                $sheet->setCellValue("A$row", $no++);
+                $sheet->setCellValue("B$row", $u['name']);
+
+                $col = 'C';
+                $total = 0;
+                $count = 0;
+
+                foreach ($listTryout as $t) {
+                    $nilai = $nilaiMap[$u['id']][$t['id']] ?? null;
+
+                    if ($nilai !== null) {
+                        $sheet->setCellValue($col . $row, round($nilai, 2));
+                        $total += $nilai;
+                        $count++;
+                    } else {
+                        $sheet->setCellValue($col . $row, "-");
+                    }
+                    $col++;
+                }
+
+                $sheet->setCellValue(
+                    $col . $row,
+                    $count ? round($total / $count, 2) : "-"
+                );
+
+                $row++;
+            }
+
+            $row += 2;
+        }
+
+        // ===============================
+        // 5. STYLE GLOBAL
+        // ===============================
+        foreach (range('A', 'Z') as $c) {
+            $sheet->getColumnDimension($c)->setAutoSize(true);
+        }
+
+        // ===============================
+        // 6. DOWNLOAD
+        // ===============================
+        $filename = 'rekap_nilai_tryout_' . date('Ymd_His') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
+    }
+
     /* ===== helper stream ===== */
     private function writeExcel($writer)
     {

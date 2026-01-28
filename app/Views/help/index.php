@@ -15,80 +15,71 @@
 
     <div class="row">
 
-        <!-- HELP LIST -->
-        <div class="col-lg-7 mb-4">
-            <div class="card help-card border-0 shadow-sm">
-                <div class="card-body p-4">
+        <!-- HELP CONTENT -->
+        <div class="col-lg-7 col-md-12 mb-4">
+            <div class="help-card">
 
-                    <h6 class="font-weight-bold text-primary mb-3">
-                        <i class="fas fa-question-circle mr-1"></i>
-                        Butuh Bantuan?
-                    </h6>
+                <h6 class="font-weight-bold text-primary mb-3">
+                    <i class="fas fa-question-circle mr-1"></i>
+                    Panduan Penggunaan
+                </h6>
 
-                    <p class="text-muted mb-4">
-                        Jika Anda mengalami kendala dalam penggunaan aplikasi,
-                        silakan baca panduan berikut atau hubungi admin.
-                    </p>
+                <p class="text-muted mb-4">
+                    Jika Anda mengalami kendala dalam penggunaan aplikasi,
+                    silakan baca panduan berikut sebelum menghubungi admin.
+                </p>
 
-                    <ul class="help-list">
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            Cara menggunakan fitur Try Out
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            Cara mengubah profil pengguna
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            Mengatasi masalah login
-                        </li>
-                        <li>
-                            <i class="fas fa-check-circle"></i>
-                            Mengakses dan mengunduh materi
-                        </li>
-                    </ul>
-
+                <div class="help-item">
+                    <i class="fas fa-clipboard-check"></i>
+                    Cara menggunakan fitur Try Out
                 </div>
+
+                <div class="help-item">
+                    <i class="fas fa-user-cog"></i>
+                    Cara mengubah profil pengguna
+                </div>
+
+                <div class="help-item">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Mengatasi masalah login
+                </div>
+
+                <div class="help-item">
+                    <i class="fas fa-download"></i>
+                    Mengakses dan mengunduh materi
+                </div>
+
             </div>
         </div>
 
         <!-- CONTACT -->
-        <div class="col-lg-5 mb-4">
-            <div class="card help-card border-0 shadow-sm">
-                <div class="card-body p-4">
+        <div class="col-lg-5 col-md-12 mb-4">
+            <div class="help-card">
 
-                    <h6 class="font-weight-bold text-success mb-3">
-                        <i class="fas fa-headset mr-1"></i>
-                        Hubungi Admin
-                    </h6>
+                <h6 class="font-weight-bold text-success mb-3">
+                    <i class="fas fa-headset mr-1"></i>
+                    Hubungi Admin
+                </h6>
 
-                    <p class="text-muted mb-3">
-                        Jika masalah belum terselesaikan,
-                        Anda dapat menghubungi admin melalui:
-                    </p>
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="fas fa-phone text-success mr-2"></i>
-                            <a href="https://wa.me/6285755088597"
-                                target="_blank"
-                                class="inline-block bg-yellow-400 text-black px-4 py-2 rounded-lg font-bold hover:bg-yellow-300 transition">
-                                +62 857-5508-8597
-                            </a>
-                            <a href="https://wa.me/6285706770538"
-                                target="_blank"
-                                class="inline-block bg-yellow-400 text-black px-4 py-2 rounded-lg font-bold hover:bg-yellow-300 transition">
-                                +62 857-0677-0538
-                            </a>
+                <p class="text-muted mb-4">
+                    Masalah belum terselesaikan?
+                    Hubungi admin melalui WhatsApp berikut:
+                </p>
 
-                        </li>
-                        <li>
-                            <i class="fab fa-whatsapp text-success mr-2"></i>
-                            WhatsApp Admin
-                        </li>
-                    </ul>
+                <a href="https://wa.me/6285755088597"
+                    target="_blank"
+                    class="btn btn-success btn-block rounded-pill mb-3">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    +62 857-5508-8597
+                </a>
 
-                </div>
+                <a href="https://wa.me/6285706770538"
+                    target="_blank"
+                    class="btn btn-outline-success btn-block rounded-pill">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    +62 857-0677-0538
+                </a>
+
             </div>
         </div>
 
@@ -99,27 +90,50 @@
 <!-- ================= STYLE ================= -->
 <style>
     .help-card {
+        background: #fff;
         border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+        transition: .3s ease;
+        height: 100%;
     }
 
-    .help-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+    /* Hover desktop only */
+    @media (min-width: 768px) {
+        .help-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, .15);
+        }
     }
 
-    .help-list li {
+    .help-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px 0;
+        gap: 14px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        margin-bottom: 12px;
         font-weight: 500;
         color: #555;
     }
 
-    .help-list i {
+    .help-item i {
+        font-size: 18px;
         color: #1cc88a;
-        font-size: 16px;
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .btn-success,
+    .btn-outline-success {
+        padding: 12px;
+    }
+
+    @media (max-width: 576px) {
+        .help-item {
+            font-size: .9rem;
+        }
     }
 </style>
 
