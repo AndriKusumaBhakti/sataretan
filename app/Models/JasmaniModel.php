@@ -50,6 +50,9 @@ class JasmaniModel extends Model
             users.email
         ')
             ->join('users', 'users.id = jasmani.user_id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('company_id', companyId());
+            })
             ->orderBy('jasmani.created_at', 'DESC');
 
         // ✅ FILTER USER JIKA ADA

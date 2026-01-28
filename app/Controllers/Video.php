@@ -33,6 +33,9 @@ class Video extends BaseController
     {
         $data = $this->baseData();
         $builder = $this->materiModel
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('company_id', companyId());
+            })
             ->where('tipe', 'video');
 
         if ($kategori) {
@@ -69,7 +72,16 @@ class Video extends BaseController
     public function view($kategori, $tipe, $id)
     {
         $data = $this->baseData();
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id)
+            ->where('tipe', $tipe);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (!$materi || $materi['tipe'] != $tipe) {
             return redirect()->back()->with('errors', ['Video tidak ditemukan']);
@@ -130,6 +142,7 @@ class Video extends BaseController
         }
 
         $this->materiModel->insert([
+            'company_id'   => companyId(),
             'program'  => $programJson,
             'judul'    => $this->request->getPost('judul'),
             'kategori' => $this->request->getPost('kategori'),
@@ -151,7 +164,15 @@ class Video extends BaseController
         }
 
         // Ambil data materi
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (! $materi) {
             return redirect()->back()->with('errors', ['Video tidak ditemukan']);
@@ -180,7 +201,15 @@ class Video extends BaseController
         }
         $data = $this->baseData();
 
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (! $materi) {
             return redirect()->back()->with('errors', ['Video tidak ditemukan']);
@@ -198,7 +227,15 @@ class Video extends BaseController
             return redirect()->back()->with('errors', ['Anda tidak memiliki akses']);
         }
 
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
         if (! $materi) {
             return redirect()->back()->with('errors', ['Video tidak ditemukan']);
         }

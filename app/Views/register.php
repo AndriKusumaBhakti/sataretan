@@ -37,7 +37,7 @@
         </div>
 
         <div class="form-group mb-3">
-            <label>No WhatsApp</label>
+            <label>No HP / No WhatsApp</label>
             <input type="text" name="phone" class="form-control"
                 value="<?= old('phone') ?>" placeholder="628xxxxxxxxxx" required>
         </div>
@@ -53,13 +53,31 @@
             </select>
         </div>
 
-        <!-- PAKET (HIDDEN AWAL) -->
+        <!-- LOKASI CABANG -->
+        <div class="form-group mb-3" id="company-wrapper" style="display:none;">
+            <label>Lokasi Cabang Sekolah</label>
+            <select name="company_id" class="form-control select-paket" required>
+                <option value="">Pilih Lokasi Cabang</option>
+                <?php foreach ($company as $company): ?>
+                    <option value="<?= $company['id'] ?>">
+                        <?= esc($company['name']) ?>
+                        <?php if (!empty($company['city'])): ?>
+                            - <?= esc($company['city']) ?>
+                        <?php endif ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+        </div>
+
+        <!-- PAKET -->
         <div class="form-group mb-3" id="paket-wrapper" style="display:none;">
             <label>Paket Belajar</label>
             <select name="paket_id" id="paket" class="form-control select-paket" required>
                 <option value="">Pilih Paket</option>
                 <?php foreach ($paket as $pkg): ?>
-                    <option value="<?= $pkg['id'] ?>">
+                    <option
+                        value="<?= $pkg['id'] ?>"
+                        data-company="<?= $pkg['company_id'] ?>">
                         <?= esc($pkg['nama']) ?> (<?= $pkg['range_month'] ?> Bulan)
                     </option>
                 <?php endforeach ?>
@@ -185,21 +203,48 @@
         });
     }, 4000);
 
-    // Program -> Paket logic
     const programSelect = document.getElementById('program');
+    const companySelect = document.querySelector('select[name="company_id"]');
+    const companyWrapper = document.getElementById('company-wrapper');
     const paketWrapper = document.getElementById('paket-wrapper');
     const paketSelect = document.getElementById('paket');
+    const paketOptions = Array.from(paketSelect.querySelectorAll('option'));
 
+    function resetPaket() {
+        paketSelect.value = '';
+        paketWrapper.style.display = 'none';
+    }
+
+    function filterPaketByCompany(companyId) {
+        paketOptions.forEach(opt => {
+            if (!opt.dataset.company) return;
+
+            opt.style.display =
+                opt.dataset.company === companyId ? 'block' : 'none';
+        });
+
+        paketWrapper.style.display = companyId ? 'block' : 'none';
+    }
+
+    // PROGRAM DIPILIH
     programSelect.addEventListener('change', function() {
-        const program = this.value;
+        companySelect.value = '';
+        resetPaket();
 
-        if (!program) {
-            paketWrapper.style.display = 'none';
-            paketSelect.value = '';
-            return;
+        if (this.value) {
+            companyWrapper.style.display = 'block';
+        } else {
+            companyWrapper.style.display = 'none';
         }
+    });
 
-        paketWrapper.style.display = 'block';
+    // LOKASI CABANG DIPILIH
+    companySelect.addEventListener('change', function() {
+        resetPaket();
+
+        if (this.value) {
+            filterPaketByCompany(this.value);
+        }
     });
 </script>
 

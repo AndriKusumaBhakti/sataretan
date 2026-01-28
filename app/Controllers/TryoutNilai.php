@@ -47,7 +47,16 @@ class TryoutNilai extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId)
+            ->where('kategori', $kategori);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -182,7 +191,15 @@ class TryoutNilai extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -223,7 +240,15 @@ class TryoutNilai extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);

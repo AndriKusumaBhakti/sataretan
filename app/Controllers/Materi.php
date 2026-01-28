@@ -37,6 +37,9 @@ class Materi extends BaseController
     {
         $data = $this->baseData();
         $builder = $this->materiModel
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('company_id', companyId());
+            })
             ->where('tipe !=', 'video');
 
         if ($kategori) {
@@ -73,15 +76,23 @@ class Materi extends BaseController
     public function view($kategori, $tipe, $id)
     {
         $data = $this->baseData();
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id)
+            ->where('tipe', $tipe);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (!$materi || $materi['tipe'] != $tipe) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
         }
 
         $data['materi'] = $materi;
-        $data['subMateri'] = $this->materiDetailModel->where('materi_id', $id)->orderBy('urutan', 'ASC')
-            ->findAll();
+        $data['subMateri'] = $this->materiDetailModel->where('materi_id', $id)->orderBy('urutan', 'ASC')->findAll();
         $data['kategori'] = $kategori;
         return view('materi/materi_single_view', $data);
     }
@@ -153,6 +164,7 @@ class Materi extends BaseController
         try {
 
             $materiId = $this->materiModel->insert([
+                'company_id'   => companyId(),
                 'program'  => $programJson,
                 'judul'    => $this->request->getPost('judul'),
                 'kategori' => $this->request->getPost('kategori'),
@@ -218,7 +230,15 @@ class Materi extends BaseController
         }
 
         // Ambil data materi
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (! $materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
@@ -258,7 +278,15 @@ class Materi extends BaseController
         }
         $data = $this->baseData();
 
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
 
         if (! $materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
@@ -277,7 +305,16 @@ class Materi extends BaseController
             return redirect()->back()->with('errors', ['Anda tidak memiliki akses']);
         }
 
-        $materi = $this->materiModel->find($id);
+        $materiQuery = $this->materiModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $materiQuery->where('company_id', companyId());
+        }
+
+        $materi = $materiQuery->first();
+
         if (!$materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
         }

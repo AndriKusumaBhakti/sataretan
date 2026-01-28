@@ -47,6 +47,9 @@ class UserPaketModel extends Model
         return $this->select('users.*')
             ->join('users', 'users.id = user_paket.user_id')
             ->join('paket', 'paket.id = user_paket.paket_id')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('users.company_id', companyId());
+            })
             ->where('user_paket.status', 'A')
             ->where('paket.is_active', 1)
             ->groupStart()

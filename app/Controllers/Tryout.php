@@ -73,7 +73,15 @@ class Tryout extends BaseController
         $data = $this->baseData();
         $data['kategori'] = $kategori;
 
-        $tryout = $this->tryoutModel->find($id);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -111,6 +119,7 @@ class Tryout extends BaseController
         $programJson  = json_encode($programArray);
 
         $this->tryoutModel->insert([
+            'company_id'   => companyId(),
             'kategori'     => $kategori,
             'program'  => $programJson,
             'judul'        => $this->request->getPost('judul'),
@@ -126,7 +135,15 @@ class Tryout extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($id);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $id);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
@@ -165,7 +182,16 @@ class Tryout extends BaseController
     // ================= DELETE =================
     public function delete($kategori, $id)
     {
-        $tryout = $this->tryoutModel->where('id', $id)->where('kategori', $kategori)->first();
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $id)
+            ->where('kategori', $kategori);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -205,7 +231,16 @@ class Tryout extends BaseController
         $data['kategori'] = $kategori;
 
         // Ambil tryout
-        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId)
+            ->where('kategori', $kategori);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
@@ -372,7 +407,16 @@ class Tryout extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->where('id', $tryoutId)->where('kategori', $kategori)->first();
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId)
+            ->where('kategori', $kategori);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);

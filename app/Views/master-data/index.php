@@ -13,24 +13,6 @@
                 Kelola dan pantau pengguna sistem
             </p>
         </div>
-        <?php if ($kategori === 'siswa'): ?>
-            <div class="btn-group">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                    data-toggle="dropdown">
-                    <i class="fas fa-download mr-1"></i> Export
-                </button>
-                <div class="dropdown-menu dropdown-menu-right shadow-sm">
-                    <a class="dropdown-item text-success"
-                        href="<?= site_url('master-data/' . $kategori . '/export-excel') ?>">
-                        <i class="fas fa-file-excel mr-2"></i> Excel
-                    </a>
-                    <a class="dropdown-item text-danger"
-                        href="<?= site_url('master-data/' . $kategori . '/export-pdf') ?>">
-                        <i class="fas fa-file-pdf mr-2"></i> PDF
-                    </a>
-                </div>
-            </div>
-        <?php endif; ?>
         <a href="<?= base_url('master-data/' . $kategori . '/create') ?>"
             class="btn btn-success shadow-sm px-4">
             <i class="fas fa-plus mr-1"></i> Tambah Data

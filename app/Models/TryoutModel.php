@@ -9,6 +9,7 @@ class TryoutModel extends Model
     protected $table            = 'tryout';
     protected $primaryKey       = 'id';
     protected $allowedFields    = [
+        'company_id',
         'judul',
         'program',
         'kategori',
@@ -49,6 +50,9 @@ class TryoutModel extends Model
                 COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
             ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('company_id', companyId());
+            })
             ->where('t.kategori', $kategori)
             ->groupBy('t.id')
             ->orderBy('t.created_at', 'DESC')
@@ -65,7 +69,10 @@ class TryoutModel extends Model
                 COUNT(a.id) AS total_attempt,
                 COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
             ")
-            ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left');
+            ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('t.company_id', companyId());
+            });
 
         if (!$isGuruOrAdmin) {
             $builder->where('t.status', 'aktif');
@@ -84,6 +91,9 @@ class TryoutModel extends Model
             COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100),1), 0) AS rata_nilai
         ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('t.company_id', companyId());
+            })
             ->groupBy('t.kategori')
             ->orderBy('t.kategori', 'ASC');
 
@@ -110,6 +120,9 @@ class TryoutModel extends Model
                 COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
             ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('company_id', companyId());
+            })
             ->where('t.kategori', $kategori)
             ->where('t.status', 'aktif')
             ->where("JSON_CONTAINS(t.program, '\"{$program}\"')", null, false)

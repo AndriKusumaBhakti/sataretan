@@ -34,7 +34,15 @@ class TryoutSoal extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
@@ -54,7 +62,15 @@ class TryoutSoal extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
 
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
@@ -71,7 +87,16 @@ class TryoutSoal extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
+        
         $gambarSoal = null;
 
         if (!$tryout) {
@@ -162,7 +187,16 @@ class TryoutSoal extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryout = $this->tryoutModel->find($tryoutId);
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId);
+
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
+        
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }

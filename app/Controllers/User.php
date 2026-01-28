@@ -103,6 +103,9 @@ class User extends BaseController
         if ($kategori == 'siswa') {
             $paket = $this->paketModel
                 ->where('is_active', 1)
+                ->when(!isSuperAdmin(), function ($query) {
+                    $query->where('company_id', companyId());
+                })
                 ->findAll();
             $data['paket'] = $paket;
         }
@@ -142,6 +145,7 @@ class User extends BaseController
                 }
                 // INSERT USER + AMBIL ID
                 $userId = $this->userModel->insert([
+                    'company_id'   => companyId(),
                     'name'       => $this->request->getPost('name'),
                     'email'      => $this->request->getPost('email'),
                     'phone'      => $this->request->getPost('phone'),
@@ -200,6 +204,7 @@ class User extends BaseController
 
             // === SIMPAN KE DATABASE ===
             $this->userModel->insert([
+                'company_id'   => companyId(),
                 'name'       => $this->request->getPost('name'),
                 'email'      => $this->request->getPost('email'),
                 'phone'      => $this->request->getPost('phone'),

@@ -41,7 +41,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
     /* =====================
      *  MATERI (GURU & SISWA)
      * ===================== */
-    $routes->group('materi', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+    $routes->group('materi', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
         $routes->get('(:segment)', 'Materi::index/$1');
         $routes->get('(:segment)/create', 'Materi::create/$1');
         $routes->post('store', 'Materi::store');
@@ -56,7 +56,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
     /* =====================
      *  TRYOUT (SISWA ONLY)
      * ===================== */
-    $routes->group('tryout', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+    $routes->group('tryout', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
         $routes->get('(:segment)', 'Tryout::index/$1');
         $routes->get('(:segment)/start/(:num)', 'Tryout::start/$1/$2');
         $routes->get('(:segment)/pengerjaan/(:num)/(:num)', 'Tryout::pengerjaan/$1/$2/$3');
@@ -95,7 +95,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/nilai/export-excel/(:num)', 'TryoutNilai::exportExcel/$1/$2');
     });
 
-    $routes->group('video', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+    $routes->group('video', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
         $routes->get('(:segment)', 'Video::index/$1');
         $routes->get('(:segment)/create', 'Video::create/$1');
         $routes->post('store', 'Video::store');
@@ -107,7 +107,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('delete/(:num)', 'Video::delete/$1');
     });
 
-    $routes->group('master-data', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+    $routes->group('master-data', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
         $routes->get('(:segment)', 'User::index/$1');
         $routes->post('(:segment)/approve/(:num)', 'User::approve/$1/$2');
         $routes->get('(:segment)/create', 'User::create/$1');
@@ -119,7 +119,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/export-excel', 'TryoutNilai::exportExcelRekap/$1');
     });
 
-    $routes->group('kalkulator', ['filter' => 'role:super_admin,guru,siswa'], function ($routes) {
+    $routes->group('kalkulator', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
         $routes->post('bmi', 'Kalkulator::hitungBmi');
         $routes->post('hitung', 'Kalkulator::hitung');
     });

@@ -159,6 +159,12 @@ function user_role(): ?string
     return $jwt?->data->role ?? null;
 }
 
+function companyId(): ?string
+{
+    $jwt = jwt_payload();
+    return $jwt?->data->companyid ?? null;
+}
+
 function user_paket(): ?string
 {
     $jwt = jwt_payload();
@@ -172,12 +178,27 @@ function has_role(string $role): bool
 
 function isGuruOrAdmin(): bool
 {
-    return in_array(user_role(), ['guru', 'super_admin'], true);
+    return in_array(user_role(), ['guru', 'admin', 'super_admin'], true);
+}
+
+function isSuperAdmin(): bool
+{
+    return in_array(user_role(), ['super_admin'], true);
+}
+
+function isGuru(): bool
+{
+    return in_array(user_role(), ['guru'], true);
+}
+
+function isAdmin(): bool
+{
+    return in_array(user_role(), ['admin'], true);
 }
 
 function validasiRole($role): bool
 {
-    return in_array($role, ['guru', 'super_admin'], true);
+    return in_array($role, ['guru', 'admin', 'super_admin'], true);
 }
 
 function user_menu(): array
@@ -191,7 +212,7 @@ function user_menu(): array
 
     $menuModel = new MenuModel();
 
-    if (in_array($role, ['super_admin', 'guru'], true)) {
+    if (isGuruOrAdmin()) {
         $rows = $menuModel
             ->where('is_active', 1)
             ->orderBy('parent_id')

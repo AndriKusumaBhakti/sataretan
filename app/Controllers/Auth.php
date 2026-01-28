@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use App\Models\UserPaketModel;
 use App\Models\TryoutModel;
 use App\Models\PaketModel;
+use App\Models\CompanyModel;
 use Google\Client as GoogleClient;
 
 class Auth extends BaseController
@@ -16,6 +17,7 @@ class Auth extends BaseController
     protected $userPaketModel;
     protected $tryoutModel;
     protected $paketModel;
+    protected $company;
 
     public function __construct()
     {
@@ -26,6 +28,7 @@ class Auth extends BaseController
         $this->userPaketModel = new UserPaketModel();
         $this->tryoutModel = new TryoutModel();
         $this->paketModel = new PaketModel();
+        $this->company = new CompanyModel();
     }
 
     private function baseData(): array
@@ -85,14 +88,15 @@ class Auth extends BaseController
 
         // TODO: Tambahkan proses autentikasi (cek username/password)
         $token = generateJWT([
-            'user_id' => $user['id'],
-            'name'    => $user['name'],
-            'email'    => $user['email'],
-            'phone'    => $user['phone'],
-            'role'    => $user['role'],
-            'photo'   => $user['photo'],
-            'paket'   => $paket,
-            'logged'  => true
+            'user_id'       => $user['id'],
+            'name'          => $user['name'],
+            'email'         => $user['email'],
+            'phone'         => $user['phone'],
+            'role'          => $user['role'],
+            'companyid'    => $user['company_id'],
+            'photo'         => $user['photo'],
+            'paket'         => $paket,
+            'logged'        => true
         ]);
 
         session()->set([
@@ -110,6 +114,9 @@ class Auth extends BaseController
         $data['paket'] = $this->paketModel->where('is_active', 1)->orderBy('id', 'ASC')
             ->findAll();
 
+        $data['company'] = $this->company->where('status', 'active')->orderBy('id', 'ASC')
+            ->findAll();
+
         return view('register', $data);
     }
 
@@ -121,6 +128,7 @@ class Auth extends BaseController
             'phone' => 'required|min_length[10]',
             'program' => 'required',
             'paket_id' => 'required',
+            'company_id' => 'required',
             'password' => 'required|min_length[6]',
             'password_confirm' => 'required|matches[password]'
         ];
@@ -135,6 +143,7 @@ class Auth extends BaseController
         try {
             // INSERT USER + AMBIL ID
             $userId = $this->userModel->insert([
+                'company_id'   => $this->request->getPost('company_id'),
                 'name'   => $this->request->getPost('name'),
                 'email'      => $this->request->getPost('email'),
                 'phone'      => $this->request->getPost('phone'),
@@ -207,7 +216,7 @@ class Auth extends BaseController
         $client->setClientId(getenv('GOOGLE_CLIENT_ID'));
         $client->setClientSecret(getenv('GOOGLE_CLIENT_SECRET'));
         $client->setRedirectUri(base_url('auth/googleCallback'));
-        
+
         if (!$this->request->getGet('code')) {
             return redirect()->to('/login');
         }
@@ -241,14 +250,15 @@ class Auth extends BaseController
         }
         // TODO: Tambahkan proses autentikasi (cek username/password)
         $token = generateJWT([
-            'user_id' => $user['id'],
-            'name'    => $googleUser->name,
-            'email'    => $googleUser->email,
-            'phone'    => $user['phone'],
-            'role'    => $user['role'],
-            'photo'   => $user['photo'],
-            'paket'   => $paket,
-            'logged'  => true
+            'user_id'       => $user['id'],
+            'name'          => $user['name'],
+            'email'         => $user['email'],
+            'phone'         => $user['phone'],
+            'role'          => $user['role'],
+            'companyid'    => $user['company_id'],
+            'photo'         => $user['photo'],
+            'paket'         => $paket,
+            'logged'        => true
         ]);
 
         session()->set([

@@ -34,8 +34,6 @@ class Jasmani extends BaseController
         $data = $this->baseData();
         $data['kategori'] = $kategori;
 
-        $user = $this->userPaketModel->getAllUserAktif();
-        $data['users'] = $user;
         $jasmani = $this->jasmani->getAllByUser();
         $data['jasmani'] = $jasmani;
 
@@ -151,6 +149,9 @@ class Jasmani extends BaseController
         $jasmani = $this->jasmani
             ->select('jasmani.*, users.name, users.email')
             ->join('users', 'users.id = jasmani.user_id', 'left')
+            ->when(!isSuperAdmin(), function ($query) {
+                $query->where('users.company_id', companyId());
+            })
             ->where('jasmani.id', $id)
             ->first();
 
