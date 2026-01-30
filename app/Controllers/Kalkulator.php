@@ -136,9 +136,9 @@ class Kalkulator extends BaseController
                     $value = 15;
                 }
                 $hasil = floor(($value / $nilai) * 100);
-                if ($hasil > 100) {
-                    $hasil = 100;
-                }
+                // if ($hasil > 100) {
+                //     $hasil = 100;
+                // }
                 break;
             case 'renang':
                 $value = 0;
@@ -147,14 +147,10 @@ class Kalkulator extends BaseController
                 } else {
                     $value = 14;
                 }
-                if ($nilai >= $value) {
-                    $hasil = 100;
-                } else {
-                    $hasil = floor(($value / $nilai) * 100);
-                    if ($hasil > 100) {
-                        $hasil = 100;
-                    }
-                }
+                $hasil = floor(($value / $nilai) * 100);
+                // if ($hasil > 100) {
+                //     $hasil = 100;
+                // }
                 break;
 
             default:
@@ -163,7 +159,7 @@ class Kalkulator extends BaseController
                     'csrfHash' => csrf_hash()
                 ]);
         }
-        
+
         return $this->response->setJSON([
             'nilai'     => (int) $hasil,
             'csrfHash'  => csrf_hash()
