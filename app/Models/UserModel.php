@@ -25,6 +25,17 @@ class UserModel extends Model
             ->join('roles', 'roles.id = users.role_id');
     }
 
+    public function withRoleById($id)
+    {
+        $query =  $this->select('users.id as id, users.*, roles.name AS role')
+            ->join('roles', 'roles.id = users.role_id')
+            ->where('users.id', $id);
+        if (!isSuperAdmin()) {
+            $query->where('users.company_id', companyId());
+        }
+        return $query;
+    }
+
     public function bySiswa()
     {
         $query = $this->select('users.*, user_paket.expired_at AS paket_exp, user_paket.status AS paket_status, user_paket.program AS user_program, paket.nama AS name_paket, paket.deskripsi AS paket_desc')

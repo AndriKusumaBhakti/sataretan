@@ -236,14 +236,7 @@ class User extends BaseController
         $data['kategori'] = $kategori;
 
         // Ambil user + role
-        $userQuery = $this->userModel
-            ->withRole()
-            ->where('id', $id);
-
-        // validasi company untuk non super admin
-        if (!isSuperAdmin()) {
-            $userQuery->where('company_id', companyId());
-        }
+        $userQuery = $this->userModel->withRoleById($id);
 
         $user = $userQuery->first();
 
@@ -343,6 +336,7 @@ class User extends BaseController
                 'email' => "required|valid_email|is_unique[users.email,id,$id]",
                 'phone' => 'permit_empty',
                 'paket_id' => 'required',
+                'program' => 'required',
             ];
         }
 
@@ -370,6 +364,7 @@ class User extends BaseController
                 $this->userPaketModel
                     ->where('user_id', $id)
                     ->set([
+                        'program' => $this->request->getPost('program'),
                         'paket_id' => $this->request->getPost('paket_id'),
                         'expired_at' => null,
                         'status' => "P"
