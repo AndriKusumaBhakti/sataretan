@@ -208,11 +208,13 @@
         ['nama' => 'Dewi Kumala Sari', 'img' => '6.png', 'jabatan' => 'Tentor'],
         ['nama' => 'Putri Safitri Rahman', 'img' => '7.jpg', 'jabatan' => 'Tentor'],
         ['nama' => 'Nurfaiz Subaktiyo', 'img' => '8.jpg', 'jabatan' => 'Tentor'],
-        ['nama' => 'Radita Shafira', 'img' => '9.jpg', 'jabatan' => 'Administrator'],
+        ['nama' => 'Rohmat Hidayat', 'img' => '15.png', 'jabatan' => 'Tentor'],
         ['nama' => 'M. Rafi Ramadhana', 'img' => '10.jpg', 'jabatan' => 'Coach'],
         ['nama' => 'Moh. Fitril Nurdiansyah', 'img' => '11.jpg', 'jabatan' => 'Coach'],
         ['nama' => 'Moh. Asril Azyim', 'img' => '12.png', 'jabatan' => 'Coach'],
+        ['nama' => 'Irnanda Setyoko', 'img' => '16.png', 'jabatan' => 'Coach'],
         ['nama' => 'Triana Nur Kholifah', 'img' => '13.png', 'jabatan' => 'Conten Creator'],
+        ['nama' => 'Radita Shafira', 'img' => '9.jpg', 'jabatan' => 'Administrator'],
         ['nama' => 'Danil Andadi', 'img' => '14.png', 'jabatan' => 'Conten Creator'],
       ];
 
@@ -254,12 +256,17 @@
       </div>
 
       <!-- ROW 3 : 4 -->
-      <div class="grid grid-cols-1 sm:grid-cols-5 gap-8 justify-items-center">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-8 justify-items-center">
         <?= card($instruktur[9]) ?>
         <?= card($instruktur[10]) ?>
         <?= card($instruktur[11]) ?>
         <?= card($instruktur[12]) ?>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 justify-items-center">
         <?= card($instruktur[13]) ?>
+        <?= card($instruktur[14]) ?>
+        <?= card($instruktur[15]) ?>
       </div>
     </div>
   </section>
