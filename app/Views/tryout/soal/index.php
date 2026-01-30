@@ -299,6 +299,39 @@
         border-color: #198754;
         background: #f0fdf4;
     }
+
+     /* ===== RESPONSIVE ===== */
+    @media (max-width: 767px) {
+        .opsi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .soal-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .toggle-icon {
+            align-self: flex-end;
+        }
+
+        .d-flex.justify-content-end.gap-2 {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .d-flex.justify-content-end.gap-2 a,
+        .d-flex.justify-content-end.gap-2 button {
+            width: 100%;
+        }
+
+        .soal-image img,
+        .opsi-item img {
+            width: 100%;
+            height: auto;
+        }
+    }
 </style>
 
 <!-- ================= SCRIPT ================= -->

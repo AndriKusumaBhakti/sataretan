@@ -98,8 +98,6 @@ class TryoutSoal extends BaseController
 
         $tryout = $tryoutQuery->first();
 
-        $gambarSoal = null;
-
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }
@@ -134,6 +132,12 @@ class TryoutSoal extends BaseController
                 ->withInput();
         }
 
+        $insertdata = [
+            'tryout_id' => $tryoutId,
+            'pertanyaan' => $this->request->getPost('pertanyaan'),
+            'jawaban_benar' => $this->request->getPost('jawaban_benar'),
+        ];
+
         /* ================================
            UPLOAD GAMBAR
         ================================= */
@@ -142,13 +146,13 @@ class TryoutSoal extends BaseController
         if ($fileSoal && $fileSoal->isValid() && !$fileSoal->hasMoved()) {
             $gambarSoal = $fileSoal->getRandomName();
             $path = WRITEPATH . 'uploads/soal';
-            $fileSoal->move($path, $gambarSoal);
+            $insertdata['gambar_soal'] = $gambarSoal;
         }
 
-        /* ================= GAMBAR OPSI ================= */
-        $gambarOpsi = [];
-
         foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+            $insertdata['opsi_'.$opsi] = $this->request->getPost('opsi_'.$opsi);
+            $insertdata['nilai_'.$opsi] = (int) $this->request->getPost('nilai_'.$opsi);
+
             $file = $this->request->getFile('gambar_opsi_' . $opsi);
             $gambarOpsi[$opsi] = null;
 
@@ -157,28 +161,14 @@ class TryoutSoal extends BaseController
                 $path = WRITEPATH . 'uploads/soal';
                 $file->move($path, $namaFile);
                 $gambarOpsi[$opsi] = $namaFile;
+                $insertdata['gambar_opsi_'.$opsi] = $namaFile;
             }
         }
 
         /* ================================
            SIMPAN DATABASE
         ================================= */
-        $this->tryoutSoalModel->insert([
-            'tryout_id'      => $tryoutId,
-            'pertanyaan'     => $this->request->getPost('pertanyaan'),
-            'gambar_soal'    => $gambarSoal,
-            'opsi_A'         => $this->request->getPost('opsi_A'),
-            'opsi_B'         => $this->request->getPost('opsi_B'),
-            'opsi_C'         => $this->request->getPost('opsi_C'),
-            'opsi_D'         => $this->request->getPost('opsi_D'),
-            'opsi_E'         => $this->request->getPost('opsi_E'),
-            'gambar_opsi_A'  => $gambarOpsi['A'],
-            'gambar_opsi_B'  => $gambarOpsi['B'],
-            'gambar_opsi_C'  => $gambarOpsi['C'],
-            'gambar_opsi_D'  => $gambarOpsi['D'],
-            'gambar_opsi_E'  => $gambarOpsi['E'],
-            'jawaban_benar'  => $this->request->getPost('jawaban_benar')
-        ]);
+        $this->tryoutSoalModel->insert($insertdata);
 
         return redirect()->to(site_url('tryout/' . $kategori . '/start/' . $tryoutId))
             ->with('success', 'Soal berhasil ditambahkan');
@@ -223,6 +213,11 @@ class TryoutSoal extends BaseController
             return redirect()->back()->with('errors', 'Soal tidak ditemukan');
         }
 
+        $updatedata = [
+            'pertanyaan' => $this->request->getPost('pertanyaan'),
+            'jawaban_benar' => $this->request->getPost('jawaban_benar'),
+        ];
+        
         /* ================= GAMBAR SOAL ================= */
         $fileSoal = $this->request->getFile('gambar_soal');
         $gambarSoal = $soal['gambar_soal']; // default lama
@@ -236,12 +231,16 @@ class TryoutSoal extends BaseController
 
             $gambarSoal = $fileSoal->getRandomName();
             $fileSoal->move($path, $gambarSoal);
+            $updatedata['gambar_soal'] = $gambarSoal;
         }
 
         /* ================= GAMBAR OPSI ================= */
         $gambarOpsi = [];
 
         foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+            $updatedata['opsi_'.$opsi] = $this->request->getPost('opsi_'.$opsi);
+            $updatedata['nilai_'.$opsi] = (int) $this->request->getPost('nilai_'.$opsi);
+
             $file = $this->request->getFile('gambar_opsi_' . $opsi);
             $gambarOpsi[$opsi] = $soal['gambar_opsi_' . $opsi]; // default lama
 
@@ -254,25 +253,12 @@ class TryoutSoal extends BaseController
                 $namaFile = $file->getRandomName();
                 $file->move($path, $namaFile);
                 $gambarOpsi[$opsi] = $namaFile;
+                $updatedata['gambar_opsi_'.$opsi] = $namaFile;
             }
         }
 
         /* ================= UPDATE DATABASE ================= */
-        $this->tryoutSoalModel->update($soalId, [
-            'pertanyaan'     => $this->request->getPost('pertanyaan'),
-            'gambar_soal'    => $gambarSoal,
-            'opsi_A'         => $this->request->getPost('opsi_A'),
-            'opsi_B'         => $this->request->getPost('opsi_B'),
-            'opsi_C'         => $this->request->getPost('opsi_C'),
-            'opsi_D'         => $this->request->getPost('opsi_D'),
-            'opsi_E'         => $this->request->getPost('opsi_E'),
-            'gambar_opsi_A'  => $gambarOpsi['A'],
-            'gambar_opsi_B'  => $gambarOpsi['B'],
-            'gambar_opsi_C'  => $gambarOpsi['C'],
-            'gambar_opsi_D'  => $gambarOpsi['D'],
-            'gambar_opsi_E'  => $gambarOpsi['E'],
-            'jawaban_benar'  => $this->request->getPost('jawaban_benar'),
-        ]);
+        $this->tryoutSoalModel->update($soalId, $updatedata);
 
         return redirect()->to(site_url('tryout/' . $kategori . '/' . $tryoutId . '/soal'))
             ->with('success', 'Soal berhasil diperbarui');

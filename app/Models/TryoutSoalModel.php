@@ -15,6 +15,7 @@ class TryoutSoalModel extends Model
         'opsi_A', 'opsi_B', 'opsi_C', 'opsi_D', 'opsi_E',
         'gambar_opsi_A', 'gambar_opsi_B', 'gambar_opsi_C',
         'gambar_opsi_D', 'gambar_opsi_E',
+        'nilai_A', 'nilai_B', 'nilai_C', 'nilai_D', 'nilai_E',
         'jawaban_benar'
     ];
 
