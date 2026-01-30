@@ -61,17 +61,51 @@ class TryoutNilai extends BaseController
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
+        $soalList = $this->tryoutSoalModel->where('tryout_id', $tryoutId)->findAll();
+
+        $totalSoal = count($soalList);
 
         $attempts = $this->tryoutattemptModel->getDaftarNilai($tryoutId);
-        $totalSoal = $this->tryoutSoalModel
-            ->where('tryout_id', $tryoutId)
-            ->countAllResults();
+
+        $allNilaiZero = true; // flag untuk cek semua nilai opsi = 0
+        foreach ($soalList as $soal) {
+            // cek semua nilai opsi
+            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+                if (($soal['nilai_' . $opsi] ?? 0) > 0) {
+                    $allNilaiZero = false;
+                    break 2; // langsung stop jika ada >0
+                }
+            }
+        }
 
         foreach ($attempts as &$row) {
             // hitung skor akhir (AMAN)
-            $skor_akhir = $totalSoal > 0
-                ? round(($row['skor_akhir'] / $totalSoal) * 100, 2)
-                : 0;
+            $skor_akhir = 0;
+            if ($allNilaiZero) {
+                $skor_akhir = $totalSoal > 0
+                    ? round(($row['skor_akhir'] / $totalSoal) * 100, 2)
+                    : 0;
+            } else {
+                foreach ($soalList as $soal) {
+                    $j = $this->tryoutjawabanModel
+                        ->where('soal_id', $soal['id'])
+                        ->where('user_id', $row['user_id'])
+                        ->first();
+
+                    $jawaban_user = $j['jawaban'] ?? null;
+
+                    $nilai_soal = 0;
+                    foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+                        $nilai_opsi = isset($soal['nilai_' . $opsi]) ? (float)$soal['nilai_' . $opsi] : 0;
+
+                        if ($jawaban_user === strtoupper($opsi)) {
+                            $nilai_soal += $nilai_opsi;
+                        }
+                    }
+
+                    $skor_akhir += $nilai_soal;
+                }
+            }
 
             // inject ke array buat view
             $row['skor_akhir'] = $skor_akhir;

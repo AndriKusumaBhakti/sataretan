@@ -442,6 +442,11 @@ class TryoutSoal extends BaseController
                     'gambar_opsi_C' => $row[10] ?? null,
                     'gambar_opsi_D' => $row[11] ?? null,
                     'gambar_opsi_E' => $row[12] ?? null,
+                    'nilai_A' => $row[13]  ?? 0,
+                    'nilai_B' => $row[14]  ?? 0,
+                    'nilai_C' => $row[15] ?? 0,
+                    'nilai_D' => $row[16] ?? 0,
+                    'nilai_E' => $row[17] ?? 0,
                 ]);
             }
 

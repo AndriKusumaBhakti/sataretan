@@ -188,7 +188,7 @@ class Tryout extends BaseController
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }
-        
+
         $data['pilihan'] = $this->parameter->getValue($kategori);
         $data['filterProgram'] = $this->parameter->getValue("filter_program");
         $data['program'] = $this->parameter->getValue("program");
@@ -502,41 +502,71 @@ class Tryout extends BaseController
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
-        $jawaban = $this->tryoutjawabanModel
-            ->where('user_id', user_id())
-            ->where('tryout_id', $tryoutId)
-            ->findAll();
+        $soalList = $this->tryoutSoalModel->where('tryout_id', $tryoutId)->findAll();
 
-        $totalSoal = $this->tryoutSoalModel
-            ->where('tryout_id', $tryoutId)
-            ->countAllResults();
+        $totalSoal = count($soalList);
 
         $benar = 0;
         $detail = [];
-
-        foreach ($jawaban as $j) {
-            $soal = $this->tryoutSoalModel->find($j['soal_id']);
-
-            if (!$soal) {
-                continue;
+        $nilai = 0;
+        $allNilaiZero = true; // flag untuk cek semua nilai opsi = 0
+        foreach ($soalList as $soal) {
+            // cek semua nilai opsi
+            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+                if (($soal['nilai_' . $opsi] ?? 0) > 0) {
+                    $allNilaiZero = false;
+                    break 2; // langsung stop jika ada >0
+                }
             }
+        }
 
-            $isBenar = $soal['jawaban_benar'] === $j['jawaban'];
+        foreach ($soalList as $soal) {
+            $j = $this->tryoutjawabanModel
+                ->where('soal_id', $soal['id'])
+                ->where('user_id', user_id())
+                ->first();
+
+            $jawaban_user = $j['jawaban'] ?? null;
+
+            $isBenar = $jawaban_user === $soal['jawaban_benar'];
 
             if ($isBenar) {
                 $benar++;
             }
 
+            $nilai_soal = 0;
+            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+                $nilai_opsi = isset($soal['nilai_' . $opsi]) ? (float)$soal['nilai_' . $opsi] : 0;
+
+                if ($jawaban_user === strtoupper($opsi)) {
+                    $nilai_soal += $nilai_opsi;
+                }
+            }
+
+            $nilai += $nilai_soal;
+
             $detail[] = [
                 'pertanyaan' => $soal['pertanyaan'],
-                'jawaban_user' => $j['jawaban'],
+                'jawaban_user' => $jawaban_user,
                 'jawaban_benar' => $soal['jawaban_benar'],
-                'benar' => $isBenar
+                'benar' => $isBenar,
+                'opsi_a' => $soal['opsi_A'],
+                'opsi_b' => $soal['opsi_B'],
+                'opsi_c' => $soal['opsi_C'],
+                'opsi_d' => $soal['opsi_D'],
+                'opsi_e' => $soal['opsi_E'],
+                'nilai_a' => $soal['nilai_A'],
+                'nilai_b' => $soal['nilai_B'],
+                'nilai_c' => $soal['nilai_C'],
+                'nilai_d' => $soal['nilai_D'],
+                'nilai_e' => $soal['nilai_E'],
             ];
         }
 
         $salah = $totalSoal - $benar;
-        $nilai = round(($benar / $totalSoal) * 100, 2);
+        if ($allNilaiZero) {
+            $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 2) : 0;
+        }
 
         $data['tryout'] = $tryout;
         $data['total'] = $totalSoal;
