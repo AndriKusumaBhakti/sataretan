@@ -12,6 +12,7 @@ class TryoutModel extends Model
         'company_id',
         'judul',
         'program',
+        'ujian',
         'kategori',
         'jumlah_soal',
         'durasi',

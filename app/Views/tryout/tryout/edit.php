@@ -22,20 +22,24 @@
 
                         <?= csrf_field() ?>
 
-                        <!-- ================= PROGRAM ================= -->
                         <?php
+                        // Ambil program dari DB
                         $dbProgram = $tryout['program'] ?? [];
                         if (is_string($dbProgram)) {
                             $decoded = json_decode($dbProgram, true);
-                            $dbProgram = is_array($decoded) ? $decoded : [$dbProgram];
+                            $dbProgram = is_array($decoded) ? $decoded : [];
                         }
 
-                        $oldProgram = old('program');
-                        $programSelected = is_array($oldProgram)
-                            ? $oldProgram
-                            : ($oldProgram ? [$oldProgram] : $dbProgram);
+                        // Ambil pilihan ujian dari DB
+                        $dbPilihan = $tryout['ujian'] ?? [];
+                        if (is_string($dbPilihan)) {
+                            $decoded = json_decode($dbPilihan, true);
+                            $dbPilihan = is_array($decoded) ? $decoded : [];
+                        }
 
-                        $oldPilihan = old('pilihan') ?? [];
+                        // Prioritas old() > DB
+                        $programSelected = old('program') ?? $dbProgram;
+                        $pilihanSelected = old('pilihan') ?? $dbPilihan;
                         ?>
 
                         <!-- JUDUL -->
@@ -55,7 +59,6 @@
                             <label class="font-weight-semibold d-block mb-2">
                                 Program <span class="text-danger">*</span>
                             </label>
-
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($program as $p): ?>
                                     <label class="program-pill">
@@ -68,12 +71,11 @@
                                 <?php endforeach ?>
                             </div>
                         </div>
-                        <!-- ================= END PROGRAM ================= -->
 
                         <!-- PILIHAN UJIAN -->
                         <div class="form-group mb-3">
                             <label class="font-weight-semibold d-block mb-2">
-                                Pilihan Ujian *
+                                Pilihan Ujian <span class="text-danger">*</span>
                             </label>
 
                             <?php foreach ($filterProgram[$kategori] as $prog => $keys): ?>
@@ -92,8 +94,7 @@
                                                     <input type="radio"
                                                         name="pilihan[<?= $prog ?>]"
                                                         value="<?= $item['key'] ?>"
-                                                        <?= isset($oldPilihan[$prog]) && $oldPilihan[$prog] === $item['key']
-                                                            ? 'checked' : '' ?>>
+                                                        <?= isset($pilihanSelected[$prog]) && $pilihanSelected[$prog] === $item['key'] ? 'checked' : '' ?>>
                                                     <span><?= $item['value'] ?></span>
                                                 </label>
                                             <?php endif ?>
@@ -142,22 +143,17 @@
                                     <input type="date"
                                         name="tanggal_mulai"
                                         class="form-control rounded-pill px-4"
-                                        value="<?= old('tanggal_mulai')  ?? $tryout['tanggal_mulai'] ?>"
+                                        value="<?= old('tanggal_mulai') ?? $tryout['tanggal_mulai'] ?>"
                                         required>
                                 </div>
-
                                 <div class="col-md-6">
                                     <input type="date"
                                         name="tanggal_selesai"
                                         class="form-control rounded-pill px-4"
-                                        value="<?= old('tanggal_selesai')  ?? $tryout['tanggal_selesai'] ?>"
+                                        value="<?= old('tanggal_selesai') ?? $tryout['tanggal_selesai'] ?>"
                                         required>
                                 </div>
                             </div>
-
-                            <small class="text-muted">
-                                Try out hanya bisa diakses pada rentang tanggal ini
-                            </small>
                         </div>
 
                         <!-- ACTION -->
@@ -188,7 +184,7 @@
 <!-- ================= STYLE ================= -->
 <style>
     .tryout-card {
-        background: #ffffff;
+        background: #fff;
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
     }
@@ -197,7 +193,6 @@
         height: 46px;
     }
 
-    /* PROGRAM PILL */
     .program-pill {
         cursor: pointer;
     }
@@ -228,12 +223,9 @@
     const programCheckboxes = document.querySelectorAll('input[name="program[]"]');
     const ujianGroups = document.querySelectorAll('.ujian-group');
 
-    // update show/hide ujian per program
+    // SHOW/HIDE UJIAN PER PROGRAM
     function updatePilihan() {
-        const selected = Array.from(programCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
-
+        const selected = Array.from(programCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
         ujianGroups.forEach(group => {
             const prog = group.dataset.program;
             if (selected.includes(prog)) {
@@ -244,16 +236,13 @@
             }
         });
     }
-
     programCheckboxes.forEach(cb => cb.addEventListener('change', updatePilihan));
     updatePilihan();
 
-    // RADIO TOGGLE (klik ulang bisa uncheck)
+    // RADIO TOGGLE: klik ulang bisa uncheck
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
         radio.addEventListener('click', function() {
-            if (this.checkedAlready) {
-                this.checked = false;
-            }
+            if (this.checkedAlready) this.checked = false;
             document.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.checkedAlready = r.checked);
         });
     });
@@ -267,7 +256,7 @@
             return false;
         }
 
-        // validasi setiap program wajib pilih ujian
+        // tiap program wajib pilih ujian
         const programs = Array.from(checkedProgram).map(cb => cb.value);
         for (const prog of programs) {
             const ujianChecked = document.querySelector(`input[name="pilihan[${prog}]"]:checked`);
@@ -280,10 +269,7 @@
 
         const btn = document.getElementById('btn-update');
         btn.disabled = true;
-        btn.innerHTML = `
-            <span class="spinner-border spinner-border-sm mr-2"></span>
-            Mengupdate...
-        `;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm mr-2"></span>Mengupdate...`;
     });
 </script>
 

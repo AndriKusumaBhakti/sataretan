@@ -119,6 +119,7 @@ class Tryout extends BaseController
     {
         $rules = [
             'program' => 'required',
+            'pilihan'       => 'required',
             'judul'   => 'required|min_length[3]',
             'jumlah_soal'    => 'permit_empty|numeric',
             'durasi'  => 'permit_empty|numeric',
@@ -148,13 +149,17 @@ class Tryout extends BaseController
                 ->withInput();
         }
 
-        $programArray = $this->request->getPost('program'); // ['tni','polri']
+        $programArray = $this->request->getPost('program');
         $programJson  = json_encode($programArray);
+
+        $pilihanArray = $this->request->getPost('pilihan');
+        $pilihanJson  = json_encode($pilihanArray);
 
         $this->tryoutModel->insert([
             'company_id'   => companyId(),
             'kategori'     => $kategori,
             'program'  => $programJson,
+            'ujian'       => $pilihanJson,
             'judul'        => $this->request->getPost('judul'),
             'jumlah_soal'  => $this->request->getPost('jumlah_soal'),
             'durasi'       => $this->request->getPost('durasi'),
@@ -195,6 +200,7 @@ class Tryout extends BaseController
     {
         $rules = [
             'program' => 'required',
+            'pilihan'       => 'required',
             'judul'   => 'required|min_length[3]',
             'jumlah_soal'    => 'permit_empty|numeric',
             'durasi'  => 'permit_empty|numeric',
@@ -227,8 +233,13 @@ class Tryout extends BaseController
         $programArray = $this->request->getPost('program'); // ['tni','polri']
         $programJson  = json_encode($programArray);
 
+        $pilihanArray = $this->request->getPost('pilihan');
+        $pilihanJson  = json_encode($pilihanArray);
+
         $this->tryoutModel->update($id, [
+            'company_id'   => companyId(),
             'program'  => $programJson,
+            'ujian'       => $pilihanJson,
             'judul'       => $this->request->getPost('judul'),
             'jumlah_soal' => $this->request->getPost('jumlah_soal'),
             'durasi'      => $this->request->getPost('durasi'),
