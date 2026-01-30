@@ -15,6 +15,8 @@ class TryoutModel extends Model
         'kategori',
         'jumlah_soal',
         'durasi',
+        'tanggal_mulai',
+        'tanggal_selesai',
         'status'
     ];
     protected $useTimestamps    = false;
@@ -43,6 +45,8 @@ class TryoutModel extends Model
                 t.kategori,
                 t.jumlah_soal,
                 t.durasi,
+                t.tanggal_mulai,
+                t.tanggal_selesai,
                 t.status,
 
                 COUNT(DISTINCT a.user_id) AS peserta,
@@ -113,6 +117,8 @@ class TryoutModel extends Model
                 t.kategori,
                 t.jumlah_soal,
                 t.durasi,
+                t.tanggal_mulai,
+                t.tanggal_selesai,
                 t.status,
 
                 COUNT(DISTINCT a.user_id) AS peserta,

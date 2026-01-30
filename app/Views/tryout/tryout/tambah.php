@@ -34,13 +34,6 @@
                             : ($oldProgram ? [$oldProgram] : []);
                         ?>
 
-                        <!-- ERROR PROGRAM -->
-                        <?php if (session()->getFlashdata('errors')['program'] ?? false): ?>
-                            <small class="text-danger d-block mb-2">
-                                <?= session()->getFlashdata('errors')['program'] ?>
-                            </small>
-                        <?php endif; ?>
-
                         <!-- JUDUL -->
                         <div class="form-group">
                             <label class="font-weight-bold">
@@ -113,6 +106,35 @@
                                 value="<?= old('durasi') ?>"
                                 placeholder="Contoh: 120"
                                 required>
+                        </div>
+
+                        <!-- MASA BERLAKU -->
+                        <div class="form-group">
+                            <label class="font-weight-bold">
+                                Masa Berlaku Try Out <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-2 mb-md-0">
+                                    <input type="date"
+                                        name="tanggal_mulai"
+                                        class="form-control rounded-pill px-4"
+                                        value="<?= old('tanggal_mulai') ?>"
+                                        required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <input type="date"
+                                        name="tanggal_selesai"
+                                        class="form-control rounded-pill px-4"
+                                        value="<?= old('tanggal_selesai') ?>"
+                                        required>
+                                </div>
+                            </div>
+
+                            <small class="text-muted">
+                                Try out hanya bisa diakses pada rentang tanggal ini
+                            </small>
                         </div>
 
                         <!-- ACTION -->
@@ -195,6 +217,15 @@
         if (checkedProgram.length === 0) {
             e.preventDefault();
             alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
+            return false;
+        }
+
+        const mulai = document.querySelector('input[name="tanggal_mulai"]').value;
+        const selesai = document.querySelector('input[name="tanggal_selesai"]').value;
+
+        if (mulai && selesai && selesai < mulai) {
+            e.preventDefault();
+            alert('Tanggal selesai tidak boleh lebih awal dari tanggal mulai');
             return false;
         }
 

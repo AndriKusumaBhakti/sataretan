@@ -466,6 +466,7 @@ class TryoutSoal extends BaseController
             return redirect()->back()->with('errors', ['Gagal import soal']);
         }
 
+        $this->deleteDir($extractPath);
         return redirect()
             ->to(site_url("tryout/$kategori/start/$tryoutId"))
             ->with('success', 'Soal berhasil ditambahkan');

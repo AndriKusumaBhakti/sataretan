@@ -14,6 +14,13 @@
             </small>
         </div>
 
+        <small class="text-muted d-block">
+            Berlaku:
+            <?= date('d M Y', strtotime($tryout['tanggal_mulai'])) ?>
+            –
+            <?= date('d M Y', strtotime($tryout['tanggal_selesai'])) ?>
+        </small>
+
         <div class="timer-box">
             <i class="fas fa-clock mr-1"></i>
             <span id="timer"></span>
@@ -22,8 +29,7 @@
 
     <!-- ================= FORM ================= -->
     <form id="formTryout"
-        action="<?= site_url('tryout/' . $kategori . '/submit/' . $tryout['id']) ?>"
-        method="post">
+        action="<?= site_url('tryout/' . $kategori . '/submit/' . $tryout['id']) ?>">
 
         <?= csrf_field() ?>
 

@@ -39,6 +39,12 @@ class Tryout extends BaseController
         return $data;
     }
 
+    private function isValidDate($date)
+    {
+        $d = \DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') === $date;
+    }
+
     // halaman list try out
     public function index($kategori)
     {
@@ -107,7 +113,9 @@ class Tryout extends BaseController
             'program' => 'required',
             'judul'   => 'required|min_length[3]',
             'jumlah_soal'    => 'permit_empty|numeric',
-            'durasi'  => 'permit_empty|numeric'
+            'durasi'  => 'permit_empty|numeric',
+            'tanggal_mulai' => 'required',
+            'tanggal_selesai' => 'required',
         ];
 
         if (!$this->validate($rules)) {
@@ -115,6 +123,23 @@ class Tryout extends BaseController
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
         }
+
+        $tanggalMulai   = $this->request->getPost('tanggal_mulai');
+        $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+
+        if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
+            return redirect()->back()
+                ->with('errors', ['Format tanggal tidak valid'])
+                ->withInput();
+        }
+
+        // ❌ VALIDASI URUTAN TANGGAL
+        if ($tanggalSelesai < $tanggalMulai) {
+            return redirect()->back()
+                ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
+                ->withInput();
+        }
+
         $programArray = $this->request->getPost('program'); // ['tni','polri']
         $programJson  = json_encode($programArray);
 
@@ -125,6 +150,8 @@ class Tryout extends BaseController
             'judul'        => $this->request->getPost('judul'),
             'jumlah_soal'  => $this->request->getPost('jumlah_soal'),
             'durasi'       => $this->request->getPost('durasi'),
+            'tanggal_mulai'       => $tanggalMulai,
+            'tanggal_selesai'       => $tanggalSelesai,
             'status'       => 'draft',
         ]);
 
@@ -158,7 +185,9 @@ class Tryout extends BaseController
             'program' => 'required',
             'judul'   => 'required|min_length[3]',
             'jumlah_soal'    => 'permit_empty|numeric',
-            'durasi'  => 'permit_empty|numeric'
+            'durasi'  => 'permit_empty|numeric',
+            'tanggal_mulai' => 'required',
+            'tanggal_selesai' => 'required',
         ];
 
         if (!$this->validate($rules)) {
@@ -166,6 +195,23 @@ class Tryout extends BaseController
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
         }
+
+        $tanggalMulai   = $this->request->getPost('tanggal_mulai');
+        $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+
+        if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
+            return redirect()->back()
+                ->with('errors', ['Format tanggal tidak valid'])
+                ->withInput();
+        }
+
+        // ❌ VALIDASI URUTAN TANGGAL
+        if ($tanggalSelesai < $tanggalMulai) {
+            return redirect()->back()
+                ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
+                ->withInput();
+        }
+
         $programArray = $this->request->getPost('program'); // ['tni','polri']
         $programJson  = json_encode($programArray);
 
@@ -173,7 +219,9 @@ class Tryout extends BaseController
             'program'  => $programJson,
             'judul'       => $this->request->getPost('judul'),
             'jumlah_soal' => $this->request->getPost('jumlah_soal'),
-            'durasi'      => $this->request->getPost('durasi')
+            'durasi'      => $this->request->getPost('durasi'),
+            'tanggal_mulai'       => $tanggalMulai,
+            'tanggal_selesai'       => $tanggalSelesai,
         ]);
 
         return redirect()->to(site_url('tryout/' . $kategori));
@@ -244,6 +292,15 @@ class Tryout extends BaseController
 
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
+        }
+        $now = time();
+        $tanggalSelesai = strtotime($tryout['tanggal_selesai'] . ' 23:59:59');
+
+        if ($now > $tanggalSelesai) {
+            // paksa submit jawaban
+            return redirect()->to(
+                site_url('tryout/' . $kategori . '/submit/' . $tryoutId)
+            )->with('errors', 'Waktu try out telah berakhir');
         }
 
         $tryout_attempt = $this->tryoutattemptModel
@@ -486,6 +543,35 @@ class Tryout extends BaseController
         $this->tryoutModel->update($id, [
             'status' => 'draft' // atau 'nonaktif'
         ]);
+
+        $attempt = $this->tryoutattemptModel
+            ->where('tryout_id', $id)
+            ->where('status', 'ongoing')
+            ->findAll();
+
+        if ($attempt) {
+            foreach ($attempt as $a) {
+                $jawaban = $this->tryoutjawabanModel
+                    ->where('user_id', $a['user_id'])
+                    ->where('tryout_id', $id)
+                    ->findAll();
+
+                $skor = 0;
+
+                foreach ($jawaban as $j) {
+                    $soal = $this->tryoutSoalModel->find($j['soal_id']);
+                    if ($soal && $soal['jawaban_benar'] === $j['jawaban']) {
+                        $skor++;
+                    }
+                }
+
+                $this->tryoutattemptModel->update($a['id'], [
+                    'status'      => 'finished',
+                    'skor_akhir'  => $skor,
+                    'finished_at'  => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
 
         return redirect()->back()->with('success', 'Try out berhasil dinonaktifkan');
     }

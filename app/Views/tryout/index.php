@@ -120,6 +120,19 @@
                             <div>
                                 <i class="fas fa-clock"></i>
                                 <?= $t['durasi'] ?> Menit
+
+                                <?php if (!empty($t['tanggal_mulai']) && !empty($t['tanggal_selesai'])): ?>
+                                    <div class="tryout-meta">
+                                        <div>
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <?= date('d M Y', strtotime($t['tanggal_mulai'])) ?>
+                                        </div>
+                                        <div>
+                                            <i class="fas fa-calendar-check"></i>
+                                            <?= date('d M Y', strtotime($t['tanggal_selesai'])) ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
 

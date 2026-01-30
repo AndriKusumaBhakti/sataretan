@@ -60,7 +60,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)', 'Tryout::index/$1');
         $routes->get('(:segment)/start/(:num)', 'Tryout::start/$1/$2');
         $routes->get('(:segment)/pengerjaan/(:num)/(:num)', 'Tryout::pengerjaan/$1/$2/$3');
-        $routes->post('(:segment)/submit/(:num)', 'Tryout::submit/$1/$2');
+        $routes->get('(:segment)/submit/(:num)', 'Tryout::submit/$1/$2');
         $routes->get('(:segment)/hasil/(:num)', 'Tryout::hasil/$1/$2');
         $routes->post('save-jawaban', 'Tryout::saveJawaban');
 
