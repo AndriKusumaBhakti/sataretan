@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\TryoutModel;
 use App\Models\TryoutSoalModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class TryoutSoal extends BaseController
 {
@@ -96,7 +97,7 @@ class TryoutSoal extends BaseController
         }
 
         $tryout = $tryoutQuery->first();
-        
+
         $gambarSoal = null;
 
         if (!$tryout) {
@@ -196,7 +197,7 @@ class TryoutSoal extends BaseController
         }
 
         $tryout = $tryoutQuery->first();
-        
+
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }
@@ -303,5 +304,186 @@ class TryoutSoal extends BaseController
         }
 
         return redirect()->back()->with('success', 'Soal berhasil dihapus');
+    }
+
+    public function uploadExcel($kategori, $tryoutId)
+    {
+        $data = $this->baseData();
+        $data['kategori'] = $kategori;
+
+        $zipFile = $this->request->getFile('file_zip');
+
+        if (!$zipFile || !$zipFile->isValid() || $zipFile->getClientExtension() !== 'zip') {
+            $this->deleteDir($extractPath ?? null);
+            return redirect()->back()->with('errors', ['File harus ZIP']);
+        }
+
+        // ================= EXTRACT ZIP =================
+        $extractPath = WRITEPATH . 'uploads/file_soal/zip_' . time();
+        mkdir($extractPath, 0777, true);
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipFile->getTempName()) !== true) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', ['Gagal membuka ZIP']);
+        }
+        $zip->extractTo($extractPath);
+        $zip->close();
+
+        // ================= CARI EXCEL =================
+        $excelFiles = glob($extractPath . '/*.xls*');
+        if (empty($excelFiles)) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', ['Excel tidak ditemukan di ZIP']);
+        }
+
+        $tryoutQuery = $this->tryoutModel->where('id', $tryoutId);
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $tryout = $tryoutQuery->first();
+        if (!$tryout) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', ['Try Out tidak ditemukan']);
+        }
+
+        // ================= VALIDASI JUMLAH SOAL =================
+        $jumlahSoalSekarang = $this->tryoutSoalModel
+            ->where('tryout_id', $tryoutId)
+            ->countAllResults();
+
+        if ($jumlahSoalSekarang >= $tryout['jumlah_soal']) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', ['Jumlah soal sudah memenuhi batas']);
+        }
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($excelFiles[0]);
+        $rows = $spreadsheet->getActiveSheet()->toArray();
+        unset($rows[0]); // hapus header
+
+        $jumlahRowExcel = 0;
+        foreach ($rows as $row) {
+            if (!empty($row[0])) {
+                $jumlahRowExcel++;
+            }
+        }
+
+        $sisaSlot = $tryout['jumlah_soal'] - $jumlahSoalSekarang;
+        if ($jumlahRowExcel > $sisaSlot) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with(
+                'errors',
+                ["Jumlah soal di Excel ($jumlahRowExcel) melebihi sisa slot ($sisaSlot)"]
+            );
+        }
+
+        // ================= VALIDASI GAMBAR =================
+        $imgSource = $extractPath . '/gambar/';
+        $missingImages = [];
+        $rowNumber = 2; // excel mulai baris 2
+
+        foreach ($rows as $row) {
+            if (empty($row[0])) {
+                $rowNumber++;
+                continue;
+            }
+
+            $imageFields = [
+                $row[7]  ?? null,
+                $row[8]  ?? null,
+                $row[9]  ?? null,
+                $row[10] ?? null,
+                $row[11] ?? null,
+                $row[12] ?? null,
+            ];
+
+            foreach ($imageFields as $img) {
+                if ($img && (!is_dir($imgSource) || !file_exists($imgSource . $img))) {
+                    $missingImages[] = "Baris $rowNumber: gambar '$img' tidak ditemukan";
+                }
+            }
+
+            $rowNumber++;
+        }
+
+        if (!empty($missingImages)) {
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', $missingImages);
+        }
+
+        // ================= PINDAHKAN GAMBAR =================
+        $targetPath = WRITEPATH . 'uploads/soal/';
+        if (is_dir($imgSource)) {
+            if (!is_dir($targetPath)) {
+                mkdir($targetPath, 0777, true);
+            }
+
+            foreach (glob($imgSource . '*') as $img) {
+                rename($img, $targetPath . basename($img));
+            }
+        }
+
+        // ================= INSERT DB =================
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            foreach ($rows as $row) {
+
+                if (empty($row[0])) {
+                    continue;
+                }
+
+                $jawaban = strtoupper(trim($row[6]));
+                if (!in_array($jawaban, ['A', 'B', 'C', 'D', 'E'])) {
+                    continue;
+                }
+
+                $this->tryoutSoalModel->insert([
+                    'tryout_id'     => $tryoutId,
+                    'kategori'      => $kategori,
+                    'pertanyaan'    => $row[0],
+                    'opsi_A'        => $row[1],
+                    'opsi_B'        => $row[2],
+                    'opsi_C'        => $row[3],
+                    'opsi_D'        => $row[4],
+                    'opsi_E'        => $row[5],
+                    'jawaban_benar' => $jawaban,
+                    'gambar_soal'   => $row[7]  ?? null,
+                    'gambar_opsi_A' => $row[8]  ?? null,
+                    'gambar_opsi_B' => $row[9]  ?? null,
+                    'gambar_opsi_C' => $row[10] ?? null,
+                    'gambar_opsi_D' => $row[11] ?? null,
+                    'gambar_opsi_E' => $row[12] ?? null,
+                ]);
+            }
+
+            $db->transCommit();
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            $this->deleteDir($extractPath);
+            return redirect()->back()->with('errors', ['Gagal import soal']);
+        }
+
+        return redirect()
+            ->to(site_url("tryout/$kategori/start/$tryoutId"))
+            ->with('success', 'Soal berhasil ditambahkan');
+    }
+
+    private function deleteDir($dir)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = scandir($dir);
+        foreach ($files as $file) {
+            if ($file != '.' && $file != '..') {
+                $path = $dir . '/' . $file;
+                is_dir($path) ? $this->deleteDir($path) : unlink($path);
+            }
+        }
+        rmdir($dir);
     }
 }

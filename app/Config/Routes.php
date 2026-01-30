@@ -80,6 +80,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/(:num)/soal/edit/(:num)', 'TryoutSoal::edit/$1/$2/$3');
         $routes->post('(:segment)/(:num)/soal/update/(:num)', 'TryoutSoal::update/$1/$2/$3');
         $routes->get('(:segment)/(:num)/soal/hapus/(:num)', 'TryoutSoal::hapus/$1/$2/$3');
+        $routes->post('(:segment)/(:num)/soal/upload-excel', 'TryoutSoal::uploadExcel/$1/$2');
 
         //jasmani
         $routes->get('(:segment)/view', 'Jasmani::index/$1');

@@ -207,7 +207,7 @@ class Materi extends BaseController
             $db->transComplete();
 
             if ($db->transStatus() === false) {
-                throw new \Exception('Gagal menyimpan materi');
+                return redirect()->back()->with('errors', ['Gagal menyimpan materi']);
             }
 
             return redirect()->to(site_url('/materi/' . $this->request->getPost('kategori')))

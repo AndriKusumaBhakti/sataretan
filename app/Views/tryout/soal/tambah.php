@@ -3,7 +3,7 @@
 
 <div class="container-fluid">
 
-    <!-- HEADER -->
+    <!-- ================= HEADER ================= -->
     <div class="text-center mb-5">
         <span class="badge badge-success badge-pill px-4 py-2 mb-2">
             TAMBAH SOAL
@@ -16,13 +16,71 @@
         </small>
     </div>
 
+    <!-- ================= UPLOAD EXCEL ================= -->
+    <div class="mb-4 text-center">
+        <button type="button"
+            class="btn btn-outline-success rounded-pill px-4"
+            data-toggle="collapse"
+            data-target="#uploadExcelSoal">
+            <i class="fas fa-file-excel mr-2"></i>
+            Upload Soal via Excel
+        </button>
+    </div>
+
+    <div id="uploadExcelSoal" class="collapse mb-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+
+                <form action="<?= site_url('tryout/' . $kategori . '/' . $tryout['id'] . '/soal/upload-excel') ?>"
+                    method="post"
+                    enctype="multipart/form-data">
+
+                    <?= csrf_field() ?>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">
+                            File ZIP (Excel + Gambar)
+                        </label>
+
+                        <input type="file"
+                            name="file_zip"
+                            class="form-control-file"
+                            accept=".zip"
+                            required>
+
+                        <small class="text-muted d-block mt-2">
+                            Format ZIP berisi:
+                            <br>• 1 file Excel (.xls / .xlsx)
+                            <br>• Folder <strong>images/</strong> (opsional, untuk gambar)
+                            <br><br>
+                            Kolom wajib: pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban
+                            <br>
+                            Opsional: gambar_soal, gambar_opsi_a s/d gambar_opsi_e
+                        </small>
+                    </div>
+
+                    <div class="text-right">
+                        <button type="submit"
+                            class="btn btn-success rounded-pill px-4">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload ZIP
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= FORM MANUAL ================= -->
     <div class="row justify-content-center">
         <div class="col-lg-9">
 
             <div class="soal-card">
                 <div class="card-body p-4 p-lg-5">
 
-                    <!-- FORM -->
                     <form id="form-soal"
                         action="<?= site_url('tryout/' . $kategori . '/' . $tryout['id'] . '/soal/simpan') ?>"
                         method="post"
@@ -115,7 +173,6 @@
                         </div>
 
                     </form>
-                    <!-- END FORM -->
 
                 </div>
             </div>
@@ -207,19 +264,16 @@
     }
 </style>
 
-<!-- ================= SCRIPT (ANTI DOUBLE SUBMIT) ================= -->
+<!-- ================= SCRIPT ================= -->
 <script>
     document.getElementById('form-soal').addEventListener('submit', function() {
         const btn = document.getElementById('btn-submit');
-
-        // Disable tombol submit saja
         btn.disabled = true;
-
-        // Loading state
         btn.innerHTML = `
-        <span class="spinner-border spinner-border-sm mr-2"></span>
-        Menyimpan...
-    `;
+            <span class="spinner-border spinner-border-sm mr-2"></span>
+            Menyimpan...
+        `;
     });
 </script>
+
 <?= $this->endSection(); ?>
