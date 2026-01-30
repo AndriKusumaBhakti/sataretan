@@ -55,13 +55,13 @@ $oldProgram = old('program') ?? [];
                             </label>
 
                             <div class="d-flex flex-wrap gap-2">
-                                <?php foreach (['tni', 'polri', 'kedinasan'] as $p): ?>
+                                <?php foreach ($program as $p): ?>
                                     <label class="program-pill">
                                         <input type="checkbox"
                                             name="program[]"
-                                            value="<?= $p ?>"
-                                            <?= in_array($p, $oldProgram) ? 'checked' : '' ?>>
-                                        <span><?= strtoupper($p) ?></span>
+                                            value="<?= $p['key'] ?>"
+                                            <?= in_array($p['key'], $oldProgram) ? 'checked' : '' ?>>
+                                        <span><?= strtoupper($p['value']) ?></span>
                                     </label>
                                 <?php endforeach ?>
                             </div>
@@ -155,13 +155,7 @@ $oldProgram = old('program') ?? [];
     }
 
     .program-pill {
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid #ddd;
-        border-radius: 50px;
-        padding: 6px 14px;
         cursor: pointer;
-        background: #f8f9fa;
     }
 
     .program-pill input {
@@ -169,14 +163,18 @@ $oldProgram = old('program') ?? [];
     }
 
     .program-pill span {
-        font-size: 14px;
+        padding: 8px 18px;
+        border-radius: 999px;
+        border: 1px solid #d1d3e2;
+        background: #f8f9fc;
+        font-weight: 600;
+        transition: .2s ease;
     }
 
     .program-pill input:checked+span {
-        background: #28a745;
+        background: #1cc88a;
         color: #fff;
-        padding: 6px 14px;
-        border-radius: 50px;
+        border-color: #1cc88a;
     }
 </style>
 

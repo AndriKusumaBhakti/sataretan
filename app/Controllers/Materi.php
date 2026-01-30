@@ -6,6 +6,7 @@ use Config\Database;
 use App\Models\MateriModel;
 use App\Models\UserPaketModel;
 use App\Models\MateriDetailModel;
+use App\Models\ParameterModel;
 
 class Materi extends BaseController
 {
@@ -13,6 +14,7 @@ class Materi extends BaseController
     protected $materiModel;
     protected $userPaketModel;
     protected $materiDetailModel;
+    protected $parameter;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class Materi extends BaseController
         $this->materiModel = new MateriModel();
         $this->userPaketModel = new UserPaketModel();
         $this->materiDetailModel = new MateriDetailModel();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -101,6 +104,7 @@ class Materi extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
+        $data['program'] = $this->parameter->getValue("program");
         return view('materi/create_materi', $data);
     }
 
@@ -291,6 +295,7 @@ class Materi extends BaseController
         if (! $materi) {
             return redirect()->back()->with('errors', ['Materi tidak ditemukan']);
         }
+        $data['program'] = $this->parameter->getValue("program");
 
         $data['kategori'] = $kategori;
         $data['materi'] = $materi;

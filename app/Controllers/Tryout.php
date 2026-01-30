@@ -8,6 +8,7 @@ use App\Models\TryoutSoalModel;
 use App\Models\TryoutJawabanModel;
 use App\Models\TryoutAttemptModel;
 use App\Models\UserPaketModel;
+use App\Models\ParameterModel;
 
 class Tryout extends BaseController
 {
@@ -17,6 +18,7 @@ class Tryout extends BaseController
     protected $tryoutattemptModel;
     protected array $menuItems = [];
     protected $userPaketModel;
+    protected $parameter;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class Tryout extends BaseController
         $this->tryoutjawabanModel = new tryoutjawabanModel();
         $this->tryoutattemptModel  = new TryoutAttemptModel();
         $this->userPaketModel = new UserPaketModel();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -104,6 +107,11 @@ class Tryout extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
+
+        $data['pilihan'] = $this->parameter->getValue($kategori);
+        $data['filterProgram'] = $this->parameter->getValue("filter_program");
+        $data['program'] = $this->parameter->getValue("program");
+
         return view('tryout/tryout/tambah', $data);
     }
 
@@ -175,6 +183,10 @@ class Tryout extends BaseController
         if (!$tryout) {
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }
+        
+        $data['pilihan'] = $this->parameter->getValue($kategori);
+        $data['filterProgram'] = $this->parameter->getValue("filter_program");
+        $data['program'] = $this->parameter->getValue("program");
         $data['tryout'] = $tryout;
         return view('tryout/tryout/edit', $data);
     }

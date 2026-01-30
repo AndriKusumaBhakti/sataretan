@@ -56,13 +56,13 @@
                                     ? $oldProgram
                                     : ($oldProgram ? [$oldProgram] : []);
                                 ?>
-                                <?php foreach (['tni' => 'TNI', 'polri' => 'POLRI', 'kedinasan' => 'KEDINASAN'] as $k => $v): ?>
+                                <?php foreach ($program as $p): ?>
                                     <label class="program-pill">
                                         <input type="checkbox"
                                             name="program[]"
-                                            value="<?= $k ?>"
-                                            <?= in_array($k, $oldProgram) ? 'checked' : '' ?>>
-                                        <span><?= $v ?></span>
+                                            value="<?= $p['key'] ?>"
+                                            <?= in_array($p['key'], $oldProgram) ? 'checked' : '' ?>>
+                                        <span><?= strtoupper($p['value']) ?></span>
                                     </label>
                                 <?php endforeach ?>
                             </div>
@@ -168,8 +168,8 @@
     }
 
     /* PROGRAM PILL */
+    
     .program-pill {
-        position: relative;
         cursor: pointer;
     }
 
@@ -178,19 +178,18 @@
     }
 
     .program-pill span {
-        display: inline-block;
-        padding: 10px 22px;
+        padding: 8px 18px;
         border-radius: 999px;
-        border: 2px solid #ced4da;
+        border: 1px solid #d1d3e2;
+        background: #f8f9fc;
         font-weight: 600;
-        transition: .2s;
-        user-select: none;
+        transition: .2s ease;
     }
 
     .program-pill input:checked+span {
-        background: #198754;
-        border-color: #198754;
+        background: #1cc88a;
         color: #fff;
+        border-color: #1cc88a;
     }
 
     @media (max-width: 576px) {

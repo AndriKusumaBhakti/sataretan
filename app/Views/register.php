@@ -46,10 +46,12 @@
         <div class="form-group mb-3">
             <label>Program Tujuan</label>
             <select name="program" id="program" class="form-control select-paket" required>
-                <option value="">Pilih Program</option>
-                <option value="tni">TNI</option>
-                <option value="polri">POLRI</option>
-                <option value="kedinasan">Kedinasan</option>
+                <option value="">-- Pilih Program --</option>
+                <?php foreach ($program as $u): ?>
+                    <option value="<?= $u['key'] ?>">
+                        <?= esc($u['value']) ?>
+                    </option>
+                <?php endforeach ?>
             </select>
         </div>
 

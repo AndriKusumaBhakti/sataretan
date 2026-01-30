@@ -58,9 +58,12 @@
                                 <label>Program Tujuan</label>
                                 <select name="program" id="program" class="form-control select-paket" required>
                                     <option value="">Pilih Program</option>
-                                    <option value="tni" <?= $userPaket['program'] === 'tni' ? 'selected' : '' ?>>TNI</option>
-                                    <option value="polri" <?= $userPaket['program'] === 'polri' ? 'selected' : '' ?>>POLRI</option>
-                                    <option value="kedinasan" <?= $userPaket['program'] === 'kedinasan' ? 'selected' : '' ?>>Kedinasan</option>
+                                    <?php foreach ($program as $p): ?>
+                                        <option value="<?= $p['key'] ?>"
+                                            <?= isset($userPaket) && $userPaket['program'] == $p['key'] ? 'selected' : '' ?>>
+                                            <?= esc($p['value']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
 

@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use App\Models\UserPaketModel;
 use App\Models\PaketModel;
 use App\Models\PaketApproveHistory;
+use App\Models\ParameterModel;
 use DateTime;
 
 class User extends BaseController
@@ -17,6 +18,7 @@ class User extends BaseController
     protected $tryoutModel;
     protected $paketModel;
     protected $paketApproveHistory;
+    protected $parameter;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class User extends BaseController
         $this->userPaketModel = new UserPaketModel();
         $this->paketModel = new PaketModel();
         $this->paketApproveHistory = new PaketApproveHistory();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -120,6 +123,7 @@ class User extends BaseController
                 ->findAll();
             $data['paket'] = $paket;
         }
+        $data['program'] = $this->parameter->getValue("program");
         return view('master-data/create', $data);
     }
 
@@ -160,7 +164,6 @@ class User extends BaseController
                     'name'       => $this->request->getPost('name'),
                     'email'      => $this->request->getPost('email'),
                     'phone'      => $this->request->getPost('phone'),
-                    'program'   => md5($this->request->getPost('program')),
                     'password'   => md5($this->request->getPost('password')),
                     'photo'      => $photoName,
                     'role_id'       => 3,
@@ -174,6 +177,7 @@ class User extends BaseController
                 // INSERT USER_PAKET
                 $this->userPaketModel->insert([
                     'user_id'  => $userId,
+                    'program'   => $this->request->getPost('program'),
                     'paket_id' => $this->request->getPost('paket_id'),
                     'status'   => 'P',
                 ]);
@@ -265,6 +269,7 @@ class User extends BaseController
                 ->where('is_active', 1)
                 ->findAll();
         }
+        $data['program'] = $this->parameter->getValue("program");
 
         return view('master-data/edit', $data);
     }

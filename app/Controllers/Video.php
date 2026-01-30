@@ -4,12 +4,14 @@ namespace App\Controllers;
 
 use App\Models\MateriModel;
 use App\Models\UserPaketModel;
+use App\Models\ParameterModel;
 
 class Video extends BaseController
 {
     protected array $menuItems = [];
     protected $materiModel;
     protected $userPaketModel;
+    protected $parameter;
 
     public function __construct()
     {
@@ -18,6 +20,7 @@ class Video extends BaseController
         $this->menuItems = user_menu();
         $this->materiModel = new MateriModel();
         $this->userPaketModel = new UserPaketModel();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -96,6 +99,7 @@ class Video extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
+        $data['program'] = $this->parameter->getValue("program");
         return view('video/create', $data);
     }
 
@@ -214,6 +218,7 @@ class Video extends BaseController
         if (! $materi) {
             return redirect()->back()->with('errors', ['Video tidak ditemukan']);
         }
+        $data['program'] = $this->parameter->getValue("program");
 
         $data['kategori'] = $kategori;
         $data['video'] = $materi;

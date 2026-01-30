@@ -24,25 +24,19 @@
 
                         <!-- ================= PROGRAM ================= -->
                         <?php
-                        // Ambil program dari DB (json / array / string)
                         $dbProgram = $tryout['program'] ?? [];
                         if (is_string($dbProgram)) {
                             $decoded = json_decode($dbProgram, true);
                             $dbProgram = is_array($decoded) ? $decoded : [$dbProgram];
                         }
 
-                        // Prioritas: old() > DB
                         $oldProgram = old('program');
                         $programSelected = is_array($oldProgram)
                             ? $oldProgram
                             : ($oldProgram ? [$oldProgram] : $dbProgram);
-                        ?>
 
-                        <?php if (session()->getFlashdata('errors')['program'] ?? false): ?>
-                            <small class="text-danger d-block mb-2">
-                                <?= session()->getFlashdata('errors')['program'] ?>
-                            </small>
-                        <?php endif; ?>
+                        $oldPilihan = old('pilihan') ?? [];
+                        ?>
 
                         <!-- JUDUL -->
                         <div class="form-group">
@@ -63,34 +57,55 @@
                             </label>
 
                             <div class="d-flex flex-wrap gap-2">
-
-                                <label class="program-pill">
-                                    <input type="checkbox"
-                                        name="program[]"
-                                        value="tni"
-                                        <?= in_array('tni', $programSelected) ? 'checked' : '' ?>>
-                                    <span>TNI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox"
-                                        name="program[]"
-                                        value="polri"
-                                        <?= in_array('polri', $programSelected) ? 'checked' : '' ?>>
-                                    <span>POLRI</span>
-                                </label>
-
-                                <label class="program-pill">
-                                    <input type="checkbox"
-                                        name="program[]"
-                                        value="kedinasan"
-                                        <?= in_array('kedinasan', $programSelected) ? 'checked' : '' ?>>
-                                    <span>KEDINASAN</span>
-                                </label>
-
+                                <?php foreach ($program as $p): ?>
+                                    <label class="program-pill">
+                                        <input type="checkbox"
+                                            name="program[]"
+                                            value="<?= $p['key'] ?>"
+                                            <?= in_array($p['key'], $programSelected) ? 'checked' : '' ?>>
+                                        <span><?= strtoupper($p['value']) ?></span>
+                                    </label>
+                                <?php endforeach ?>
                             </div>
                         </div>
                         <!-- ================= END PROGRAM ================= -->
+
+                        <!-- PILIHAN UJIAN -->
+                        <div class="form-group mb-3">
+                            <label class="font-weight-semibold d-block mb-2">
+                                Pilihan Ujian *
+                            </label>
+
+                            <?php foreach ($filterProgram[$kategori] as $prog => $keys): ?>
+                                <div class="ujian-group mb-3"
+                                    data-program="<?= $prog ?>"
+                                    style="display:none">
+
+                                    <small class="text-muted font-weight-bold">
+                                        <?= strtoupper($prog) ?>
+                                    </small>
+
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <?php foreach ($pilihan as $item): ?>
+                                            <?php if (in_array($item['key'], $keys)): ?>
+                                                <label class="program-pill">
+                                                    <input type="radio"
+                                                        name="pilihan[<?= $prog ?>]"
+                                                        value="<?= $item['key'] ?>"
+                                                        <?= isset($oldPilihan[$prog]) && $oldPilihan[$prog] === $item['key']
+                                                            ? 'checked' : '' ?>>
+                                                    <span><?= $item['value'] ?></span>
+                                                </label>
+                                            <?php endif ?>
+                                        <?php endforeach ?>
+                                    </div>
+                                </div>
+                            <?php endforeach ?>
+
+                            <small class="text-muted">
+                                Pilih satu ujian untuk setiap program yang dipilih
+                            </small>
+                        </div>
 
                         <!-- JUMLAH SOAL -->
                         <div class="form-group">
@@ -184,7 +199,6 @@
 
     /* PROGRAM PILL */
     .program-pill {
-        position: relative;
         cursor: pointer;
     }
 
@@ -193,14 +207,12 @@
     }
 
     .program-pill span {
-        display: inline-block;
         padding: 8px 18px;
         border-radius: 999px;
         border: 1px solid #d1d3e2;
         background: #f8f9fc;
         font-weight: 600;
         transition: .2s ease;
-        user-select: none;
     }
 
     .program-pill input:checked+span {
@@ -213,17 +225,57 @@
 <!-- ================= SCRIPT ================= -->
 <script>
     const formEdit = document.getElementById('form-edit-tryout');
+    const programCheckboxes = document.querySelectorAll('input[name="program[]"]');
+    const ujianGroups = document.querySelectorAll('.ujian-group');
 
+    // update show/hide ujian per program
+    function updatePilihan() {
+        const selected = Array.from(programCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        ujianGroups.forEach(group => {
+            const prog = group.dataset.program;
+            if (selected.includes(prog)) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+                group.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
+            }
+        });
+    }
+
+    programCheckboxes.forEach(cb => cb.addEventListener('change', updatePilihan));
+    updatePilihan();
+
+    // RADIO TOGGLE (klik ulang bisa uncheck)
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('click', function() {
+            if (this.checkedAlready) {
+                this.checked = false;
+            }
+            document.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.checkedAlready = r.checked);
+        });
+    });
+
+    // SUBMIT VALIDASI
     formEdit.addEventListener('submit', function(e) {
-
-        const checkedProgram = document.querySelectorAll(
-            'input[name="program[]"]:checked'
-        );
-
+        const checkedProgram = document.querySelectorAll('input[name="program[]"]:checked');
         if (checkedProgram.length === 0) {
             e.preventDefault();
             alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
             return false;
+        }
+
+        // validasi setiap program wajib pilih ujian
+        const programs = Array.from(checkedProgram).map(cb => cb.value);
+        for (const prog of programs) {
+            const ujianChecked = document.querySelector(`input[name="pilihan[${prog}]"]:checked`);
+            if (!ujianChecked) {
+                e.preventDefault();
+                alert(`Pilih satu ujian untuk program ${prog.toUpperCase()}`);
+                return false;
+            }
         }
 
         const btn = document.getElementById('btn-update');

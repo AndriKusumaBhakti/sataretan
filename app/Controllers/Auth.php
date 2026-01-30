@@ -8,6 +8,7 @@ use App\Models\UserPaketModel;
 use App\Models\TryoutModel;
 use App\Models\PaketModel;
 use App\Models\CompanyModel;
+use App\Models\ParameterModel;
 use Google\Client as GoogleClient;
 
 class Auth extends BaseController
@@ -18,6 +19,7 @@ class Auth extends BaseController
     protected $tryoutModel;
     protected $paketModel;
     protected $company;
+    protected $parameter;
 
     public function __construct()
     {
@@ -29,6 +31,7 @@ class Auth extends BaseController
         $this->tryoutModel = new TryoutModel();
         $this->paketModel = new PaketModel();
         $this->company = new CompanyModel();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -118,6 +121,9 @@ class Auth extends BaseController
 
         $data['company'] = $this->company->where('status', 'active')->orderBy('id', 'ASC')
             ->findAll();
+
+            
+        $data['program'] = $this->parameter->getValue("program");
 
         return view('register', $data);
     }
