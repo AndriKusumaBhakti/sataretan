@@ -46,7 +46,7 @@
                             <br><br>
                             Kolom wajib: pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, opsi_e, jawaban
                             <br>
-                            Opsional: gambar_soal, gambar_opsi_a s/d gambar_opsi_e
+                            Opsional: gambar_soal, gambar_opsi_a s/d gambar_opsi_e, nilai_a s/d nilai_e
                         </small>
                     </div>
 
