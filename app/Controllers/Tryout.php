@@ -464,6 +464,7 @@ class Tryout extends BaseController
             $jawabanMap[$j['soal_id']] = $j['jawaban'];
         }
 
+        $data['listSoal']    = $allSoal; 
         $data['jawabanUser'] = $jawabanMap;
         $data['current'] = $nomor;
         $data['totalSoal'] = $totalSoal;

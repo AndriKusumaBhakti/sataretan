@@ -27,6 +27,25 @@
         </div>
     </div>
 
+    <!-- ================= NAVIGASI NOMOR SOAL ================= -->
+    <div class="card nav-soal-card mb-4">
+        <div class="card-body">
+            <div class="nav-soal-grid">
+                <?php for ($i = 1; $i <= $totalSoal; $i++): ?>
+                    <?php
+                    $answered = isset($jawabanUser[$listSoal[$i - 1]['id']]);
+                    ?>
+                    <a href="<?= site_url('tryout/' . $kategori . '/pengerjaan/' . $tryout['id'] . '/' . $i) ?>"
+                        class="nav-soal-item
+                        <?= $i == $current ? 'active' : '' ?>
+                        <?= $answered ? 'answered' : '' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= FORM ================= -->
     <form id="formTryout"
         action="<?= site_url('tryout/' . $kategori . '/submit/' . $tryout['id']) ?>">
@@ -284,6 +303,32 @@
         object-fit: contain;
         border-radius: 10px;
         box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+    }
+
+    .nav-soal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+        gap: 10px;
+    }
+
+    .nav-soal-item {
+        text-align: center;
+        padding: 10px 0;
+        border-radius: 10px;
+        background: #e9ecef;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .nav-soal-item.answered {
+        background: #28a745;
+        color: #fff;
+    }
+
+    .nav-soal-item.active {
+        background: #1e7e34;
+        color: #fff;
+        box-shadow: 0 0 0 2px #c3e6cb;
     }
 
     /* ========== MOBILE ========== */
