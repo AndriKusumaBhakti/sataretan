@@ -1,65 +1,61 @@
 <?= $this->extend('default/layout-template', get_defined_vars()); ?>
 <?= $this->section('content'); ?>
 
-<div class="container-fluid">
+<?php
+// Ambil program dari DB
+$dbProgram = $tryout['program'] ?? [];
+if (is_string($dbProgram)) {
+    $decoded = json_decode($dbProgram, true);
+    $dbProgram = is_array($decoded) ? $decoded : [];
+}
 
-    <div class="mb-5">
+// Ambil pilihan ujian dari DB
+$dbPilihan = $tryout['ujian'] ?? [];
+if (is_string($dbPilihan)) {
+    $decoded = json_decode($dbPilihan, true);
+    $dbPilihan = is_array($decoded) ? $decoded : [];
+}
+
+// Prioritas old() > DB
+$programSelected = old('program') ?? $dbProgram;
+$pilihanSelected = old('pilihan') ?? $dbPilihan;
+?>
+
+<div class="container-fluid container-tryout">
+    <div class="mb-4">
         <h1 class="h4 font-weight-bold text-gray-800 mb-1">
             Edit Try Out <?= strtoupper($kategori) ?>
         </h1>
+        <small class="text-muted">
+            Perbarui data try out untuk kategori <?= strtoupper($kategori) ?>
+        </small>
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-
+        <div class="col-12 col-md-10 col-lg-7 col-xl-6">
             <div class="tryout-card">
-                <div class="card-body">
+                <div class="card-body p-3 p-md-4">
 
-                    <!-- FORM -->
                     <form id="form-edit-tryout"
                         action="<?= site_url('tryout/' . $kategori . '/update/' . $tryout['id']) ?>"
                         method="post">
 
                         <?= csrf_field() ?>
 
-                        <?php
-                        // Ambil program dari DB
-                        $dbProgram = $tryout['program'] ?? [];
-                        if (is_string($dbProgram)) {
-                            $decoded = json_decode($dbProgram, true);
-                            $dbProgram = is_array($decoded) ? $decoded : [];
-                        }
-
-                        // Ambil pilihan ujian dari DB
-                        $dbPilihan = $tryout['ujian'] ?? [];
-                        if (is_string($dbPilihan)) {
-                            $decoded = json_decode($dbPilihan, true);
-                            $dbPilihan = is_array($decoded) ? $decoded : [];
-                        }
-
-                        // Prioritas old() > DB
-                        $programSelected = old('program') ?? $dbProgram;
-                        $pilihanSelected = old('pilihan') ?? $dbPilihan;
-                        ?>
-
                         <!-- JUDUL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">
-                                Judul Try Out <span class="text-danger">*</span>
-                            </label>
+                            <label class="font-weight-bold">Judul Try Out *</label>
                             <input type="text"
                                 name="judul"
-                                value="<?= old('judul') ?? esc($tryout['judul']) ?>"
                                 class="form-control rounded-pill px-4"
+                                value="<?= old('judul') ?? esc($tryout['judul']) ?>"
                                 required>
                         </div>
 
                         <!-- PROGRAM -->
-                        <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">
-                                Program <span class="text-danger">*</span>
-                            </label>
-                            <div class="d-flex flex-wrap gap-2">
+                        <div class="form-group">
+                            <label class="font-weight-semibold d-block mb-2">Program *</label>
+                            <div class="pill-grid">
                                 <?php foreach ($program as $p): ?>
                                     <label class="program-pill">
                                         <input type="checkbox"
@@ -73,29 +69,36 @@
                         </div>
 
                         <!-- PILIHAN UJIAN -->
-                        <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">
-                                Pilihan Ujian <span class="text-danger">*</span>
-                            </label>
+                        <div class="form-group">
+                            <label class="font-weight-semibold d-block mb-2">Pilihan Ujian *</label>
 
                             <?php foreach ($filterProgram[$kategori] as $prog => $keys): ?>
                                 <div class="ujian-group mb-3"
                                     data-program="<?= $prog ?>"
                                     style="display:none">
 
-                                    <small class="text-muted font-weight-bold">
+                                    <small class="text-muted font-weight-bold d-block mb-1">
                                         <?= strtoupper($prog) ?>
                                     </small>
 
-                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                    <div class="pill-grid">
                                         <?php foreach ($pilihan as $item): ?>
                                             <?php if (in_array($item['key'], $keys)): ?>
                                                 <label class="program-pill">
                                                     <input type="radio"
                                                         name="pilihan[<?= $prog ?>]"
                                                         value="<?= $item['key'] ?>"
-                                                        <?= isset($pilihanSelected[$prog]) && $pilihanSelected[$prog] === $item['key'] ? 'checked' : '' ?>>
-                                                    <span><?= $item['value'] ?></span>
+                                                        data-mode="<?= $item['mode'] ?>"
+                                                        <?= isset($pilihanSelected[$prog]) && $pilihanSelected[$prog] === $item['key']
+                                                            ? 'checked' : '' ?>>
+                                                    <span>
+                                                        <?= $item['value'] ?>
+                                                        <?php if ($item['mode'] === 'online'): ?>
+                                                            <small class="badge badge-success ml-1">ONLINE</small>
+                                                        <?php else: ?>
+                                                            <small class="badge badge-secondary ml-1">OFFLINE</small>
+                                                        <?php endif ?>
+                                                    </span>
                                                 </label>
                                             <?php endif ?>
                                         <?php endforeach ?>
@@ -103,51 +106,46 @@
                                 </div>
                             <?php endforeach ?>
 
-                            <small class="text-muted">
+                            <small class="text-muted d-block mt-2">
                                 Pilih satu ujian untuk setiap program yang dipilih
                             </small>
                         </div>
 
                         <!-- JUMLAH SOAL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">
-                                Jumlah Soal <span class="text-danger">*</span>
-                            </label>
+                            <label class="font-weight-bold">Jumlah Soal</label>
                             <input type="number"
+                                id="jumlah_soal"
                                 name="jumlah_soal"
-                                value="<?= old('jumlah_soal') ?? $tryout['jumlah_soal'] ?>"
                                 class="form-control rounded-pill px-4"
-                                required>
+                                value="<?= old('jumlah_soal') ?? $tryout['jumlah_soal'] ?>">
                         </div>
 
                         <!-- DURASI -->
                         <div class="form-group">
-                            <label class="font-weight-bold">
-                                Durasi (Menit) <span class="text-danger">*</span>
-                            </label>
+                            <label class="font-weight-bold">Durasi (Menit)</label>
                             <input type="number"
+                                id="durasi"
                                 name="durasi"
-                                value="<?= old('durasi') ?? $tryout['durasi'] ?>"
                                 class="form-control rounded-pill px-4"
-                                required>
+                                value="<?= old('durasi') ?? $tryout['durasi'] ?>">
                         </div>
 
                         <!-- MASA BERLAKU -->
                         <div class="form-group">
-                            <label class="font-weight-bold">
-                                Masa Berlaku Try Out <span class="text-danger">*</span>
-                            </label>
-
+                            <label class="font-weight-bold">Masa Berlaku *</label>
                             <div class="row">
-                                <div class="col-md-6 mb-2 mb-md-0">
+                                <div class="col-12 col-md-6 mb-2">
                                     <input type="date"
+                                        id="tanggal_mulai"
                                         name="tanggal_mulai"
                                         class="form-control rounded-pill px-4"
                                         value="<?= old('tanggal_mulai') ?? $tryout['tanggal_mulai'] ?>"
                                         required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <input type="date"
+                                        id="tanggal_selesai"
                                         name="tanggal_selesai"
                                         class="form-control rounded-pill px-4"
                                         value="<?= old('tanggal_selesai') ?? $tryout['tanggal_selesai'] ?>"
@@ -157,32 +155,32 @@
                         </div>
 
                         <!-- ACTION -->
-                        <div class="d-flex justify-content-end mt-4">
+                        <div class="action-bar">
                             <a href="<?= site_url('tryout/' . $kategori) ?>"
-                                class="btn btn-light rounded-pill px-4 mr-2">
+                                class="btn btn-light rounded-pill px-4">
                                 Batal
                             </a>
-
                             <button type="submit"
                                 id="btn-update"
                                 class="btn btn-success rounded-pill px-4">
-                                Update
+                                Update Try Out
                             </button>
                         </div>
 
                     </form>
-                    <!-- END FORM -->
 
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
 <style>
+    .container-tryout {
+        max-width: 100%;
+    }
+
     .tryout-card {
         background: #fff;
         border-radius: 16px;
@@ -191,6 +189,13 @@
 
     .form-control {
         height: 46px;
+    }
+
+    /* pill grid */
+    .pill-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
     }
 
     .program-pill {
@@ -202,12 +207,18 @@
     }
 
     .program-pill span {
-        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
         border-radius: 999px;
         border: 1px solid #d1d3e2;
         background: #f8f9fc;
         font-weight: 600;
+        font-size: 14px;
         transition: .2s ease;
+        text-align: center;
     }
 
     .program-pill input:checked+span {
@@ -215,61 +226,111 @@
         color: #fff;
         border-color: #1cc88a;
     }
+
+    /* action bar */
+    .action-bar {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+
+    @media (max-width: 576px) {
+        .form-control {
+            height: 42px;
+        }
+
+        .action-bar {
+            flex-direction: column;
+        }
+
+        .action-bar .btn {
+            width: 100%;
+        }
+    }
 </style>
 
 <!-- ================= SCRIPT ================= -->
 <script>
-    const formEdit = document.getElementById('form-edit-tryout');
     const programCheckboxes = document.querySelectorAll('input[name="program[]"]');
     const ujianGroups = document.querySelectorAll('.ujian-group');
+    const form = document.getElementById('form-edit-tryout');
 
-    // SHOW/HIDE UJIAN PER PROGRAM
     function updatePilihan() {
-        const selected = Array.from(programCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        const selected = [...programCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
+
         ujianGroups.forEach(group => {
             const prog = group.dataset.program;
             if (selected.includes(prog)) {
                 group.style.display = 'block';
             } else {
                 group.style.display = 'none';
-                group.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
+                group.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
             }
         });
+
+        updateModeUjian();
     }
+
+    function updateModeUjian() {
+        const radios = document.querySelectorAll('input[type="radio"]:checked');
+        let hasOnline = false;
+
+        radios.forEach(r => {
+            if (r.dataset.mode === 'online') hasOnline = true;
+        });
+
+        const jumlahSoal = document.getElementById('jumlah_soal');
+        const durasi = document.getElementById('durasi');
+        const tanggalMulai = document.getElementById('tanggal_mulai');
+        const tanggalSelesai = document.getElementById('tanggal_selesai');
+
+        if (hasOnline) {
+            jumlahSoal.disabled = false;
+            durasi.disabled = false;
+            tanggalMulai.disabled = false;
+            tanggalSelesai.disabled = false;
+            jumlahSoal.required = true;
+            durasi.required = true;
+            tanggalMulai.required = true;
+            tanggalSelesai.required = true;
+        } else {
+            jumlahSoal.disabled = true;
+            durasi.disabled = true;
+            tanggalMulai.disabled = true;
+            tanggalSelesai.disabled = true;
+            jumlahSoal.required = false;
+            durasi.required = false;
+            tanggalMulai.required = false;
+            tanggalSelesai.required = false;
+            jumlahSoal.value = '';
+            durasi.value = '';
+            tanggalMulai.value = '';
+            tanggalSelesai.value = '';
+        }
+    }
+
     programCheckboxes.forEach(cb => cb.addEventListener('change', updatePilihan));
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', updateModeUjian));
+
     updatePilihan();
 
-    // RADIO TOGGLE: klik ulang bisa uncheck
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('click', function() {
-            if (this.checkedAlready) this.checked = false;
-            document.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.checkedAlready = r.checked);
-        });
-    });
-
-    // SUBMIT VALIDASI
-    formEdit.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function(e) {
         const checkedProgram = document.querySelectorAll('input[name="program[]"]:checked');
-        if (checkedProgram.length === 0) {
+        if (!checkedProgram.length) {
             e.preventDefault();
-            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
-            return false;
+            alert('Pilih minimal satu program');
+            return;
         }
 
-        // tiap program wajib pilih ujian
-        const programs = Array.from(checkedProgram).map(cb => cb.value);
-        for (const prog of programs) {
-            const ujianChecked = document.querySelector(`input[name="pilihan[${prog}]"]:checked`);
-            if (!ujianChecked) {
+        for (const cb of checkedProgram) {
+            const prog = cb.value;
+            if (!document.querySelector(`input[name="pilihan[${prog}]"]:checked`)) {
                 e.preventDefault();
-                alert(`Pilih satu ujian untuk program ${prog.toUpperCase()}`);
-                return false;
+                alert(`Pilih ujian untuk program ${prog.toUpperCase()}`);
+                return;
             }
         }
-
-        const btn = document.getElementById('btn-update');
-        btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm mr-2"></span>Mengupdate...`;
     });
 </script>
 

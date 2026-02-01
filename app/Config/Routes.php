@@ -94,6 +94,8 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/nilai/detail/(:num)', 'TryoutNilai::detail/$1/$2');
         $routes->get('(:segment)/nilai/export-pdf/(:num)', 'TryoutNilai::exportPdf/$1/$2');
         $routes->get('(:segment)/nilai/export-excel/(:num)', 'TryoutNilai::exportExcel/$1/$2');
+        $routes->get('(:segment)/nilai/tambah/(:num)', 'TryoutNilaiManual::tambah/$1/$2');
+        $routes->post('(:segment)/nilai/simpan/(:num)', 'TryoutNilaiManual::simpan/$1/$2');
     });
 
     $routes->group('video', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {

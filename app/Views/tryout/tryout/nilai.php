@@ -11,6 +11,12 @@
         </div>
 
         <div class="header-actions">
+            <?php if (isset($hasOnline) && !$hasOnline): ?>
+                <a href="<?= site_url("tryout/" . $kategori . "/nilai/tambah/" . $tryoutId) ?>"
+                    class="btn btn-success rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-plus mr-1"></i> Tambah Nilai
+                </a>
+            <?php endif; ?>
             <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                     data-toggle="dropdown">

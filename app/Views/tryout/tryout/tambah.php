@@ -7,8 +7,8 @@ $oldProgram = old('program');
 $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram] : []);
 ?>
 
-<div class="container-fluid">
-    <div class="mb-5">
+<div class="container-fluid container-tryout">
+    <div class="mb-4">
         <h1 class="h4 font-weight-bold text-gray-800 mb-1">
             Tambah Try Out <?= strtoupper($kategori) ?>
         </h1>
@@ -18,9 +18,9 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-12 col-md-10 col-lg-7 col-xl-6">
             <div class="tryout-card">
-                <div class="card-body">
+                <div class="card-body p-3 p-md-4">
 
                     <form id="form-tryout"
                         action="<?= site_url('tryout/' . $kategori . '/simpan') ?>"
@@ -31,17 +31,17 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
                         <!-- JUDUL -->
                         <div class="form-group">
                             <label class="font-weight-bold">Judul Try Out *</label>
-                            <input type="text" name="judul"
+                            <input type="text"
+                                name="judul"
                                 class="form-control rounded-pill px-4"
-                                value="<?= old('judul') ?>" required>
+                                value="<?= old('judul') ?>"
+                                required>
                         </div>
 
                         <!-- PROGRAM -->
-                        <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">
-                                Program *
-                            </label>
-                            <div class="d-flex flex-wrap gap-2">
+                        <div class="form-group">
+                            <label class="font-weight-semibold d-block mb-2">Program *</label>
+                            <div class="pill-grid">
                                 <?php foreach ($program as $p): ?>
                                     <label class="program-pill">
                                         <input type="checkbox"
@@ -55,30 +55,36 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
                         </div>
 
                         <!-- PILIHAN UJIAN -->
-                        <div class="form-group mb-3">
-                            <label class="font-weight-semibold d-block mb-2">
-                                Pilihan Ujian *
-                            </label>
+                        <div class="form-group">
+                            <label class="font-weight-semibold d-block mb-2">Pilihan Ujian *</label>
 
                             <?php foreach ($filterProgram[$kategori] as $prog => $keys): ?>
                                 <div class="ujian-group mb-3"
                                     data-program="<?= $prog ?>"
                                     style="display:none">
 
-                                    <small class="text-muted font-weight-bold">
+                                    <small class="text-muted font-weight-bold d-block mb-1">
                                         <?= strtoupper($prog) ?>
                                     </small>
 
-                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                    <div class="pill-grid">
                                         <?php foreach ($pilihan as $item): ?>
                                             <?php if (in_array($item['key'], $keys)): ?>
                                                 <label class="program-pill">
                                                     <input type="radio"
                                                         name="pilihan[<?= $prog ?>]"
                                                         value="<?= $item['key'] ?>"
+                                                        data-mode="<?= $item['mode'] ?>"
                                                         <?= isset($oldPilihan[$prog]) && $oldPilihan[$prog] === $item['key']
                                                             ? 'checked' : '' ?>>
-                                                    <span><?= $item['value'] ?></span>
+                                                    <span>
+                                                        <?= $item['value'] ?>
+                                                        <?php if ($item['mode'] === 'online'): ?>
+                                                            <small class="badge badge-success ml-1">ONLINE</small>
+                                                        <?php else: ?>
+                                                            <small class="badge badge-secondary ml-1">OFFLINE</small>
+                                                        <?php endif ?>
+                                                    </span>
                                                 </label>
                                             <?php endif ?>
                                         <?php endforeach ?>
@@ -86,48 +92,60 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
                                 </div>
                             <?php endforeach ?>
 
-                            <small class="text-muted">
+                            <small class="text-muted d-block mt-2">
                                 Pilih satu ujian untuk setiap program yang dipilih
                             </small>
                         </div>
 
                         <!-- JUMLAH SOAL -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Jumlah Soal *</label>
-                            <input type="number" name="jumlah_soal"
+                            <label class="font-weight-bold">Jumlah Soal</label>
+                            <input type="number"
+                                id="jumlah_soal"
+                                name="jumlah_soal"
                                 class="form-control rounded-pill px-4"
-                                value="<?= old('jumlah_soal') ?>" required>
+                                value="<?= old('jumlah_soal') ?>">
                         </div>
 
                         <!-- DURASI -->
                         <div class="form-group">
-                            <label class="font-weight-bold">Durasi (Menit) *</label>
-                            <input type="number" name="durasi"
+                            <label class="font-weight-bold">Durasi (Menit)</label>
+                            <input type="number"
+                                id="durasi"
+                                name="durasi"
                                 class="form-control rounded-pill px-4"
-                                value="<?= old('durasi') ?>" required>
+                                value="<?= old('durasi') ?>">
                         </div>
 
                         <!-- MASA BERLAKU -->
                         <div class="form-group">
                             <label class="font-weight-bold">Masa Berlaku *</label>
                             <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <input type="date" name="tanggal_mulai"
+                                <div class="col-12 col-md-6 mb-2">
+                                    <input type="date"
+                                        id="tanggal_mulai"
+                                        name="tanggal_mulai"
                                         class="form-control rounded-pill px-4"
-                                        value="<?= old('tanggal_mulai') ?>" required>
+                                        value="<?= old('tanggal_mulai') ?>"
+                                        required>
                                 </div>
-                                <div class="col-md-6">
-                                    <input type="date" name="tanggal_selesai"
+                                <div class="col-12 col-md-6">
+                                    <input type="date"
+                                        id="tanggal_selesai"
+                                        name="tanggal_selesai"
                                         class="form-control rounded-pill px-4"
-                                        value="<?= old('tanggal_selesai') ?>" required>
+                                        value="<?= old('tanggal_selesai') ?>"
+                                        required>
                                 </div>
                             </div>
                         </div>
 
                         <!-- ACTION -->
-                        <div class="d-flex justify-content-end mt-4">
+                        <div class="action-bar">
                             <a href="<?= site_url('tryout/' . $kategori) ?>"
-                                class="btn btn-light rounded-pill px-4 mr-2">Batal</a>
+                                class="btn btn-light rounded-pill px-4">
+                                Batal
+                            </a>
                             <button type="submit"
                                 id="btn-submit"
                                 class="btn btn-success rounded-pill px-4">
@@ -145,22 +163,30 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
 
 <!-- ================= STYLE ================= -->
 <style>
+    .container-tryout {
+        max-width: 100%;
+    }
+
+    /* Card */
     .tryout-card {
         background: #fff;
         border-radius: 16px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
-        transition: .3s ease;
     }
 
-    .tryout-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 36px rgba(0, 0, 0, .15);
-    }
-
+    /* Input */
     .form-control {
         height: 46px;
     }
 
+    /* Pill grid responsive */
+    .pill-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    /* Pills */
     .program-pill {
         cursor: pointer;
     }
@@ -170,12 +196,18 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
     }
 
     .program-pill span {
-        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
         border-radius: 999px;
         border: 1px solid #d1d3e2;
         background: #f8f9fc;
         font-weight: 600;
+        font-size: 14px;
         transition: .2s ease;
+        text-align: center;
     }
 
     .program-pill input:checked+span {
@@ -183,49 +215,35 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
         color: #fff;
         border-color: #1cc88a;
     }
-</style>
 
+    /* Action bar */
+    .action-bar {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 576px) {
+        .form-control {
+            height: 42px;
+        }
+
+        .action-bar {
+            flex-direction: column;
+        }
+
+        .action-bar .btn {
+            width: 100%;
+        }
+    }
+</style>
 <!-- ================= SCRIPT ================= -->
 <script>
     const programCheckboxes = document.querySelectorAll('input[name="program[]"]');
     const ujianGroups = document.querySelectorAll('.ujian-group');
     const form = document.getElementById('form-tryout');
-
-    form.addEventListener('submit', function(e) {
-        const checkedProgram = document.querySelectorAll('input[name="program[]"]:checked');
-
-        if (checkedProgram.length === 0) {
-            e.preventDefault();
-            alert('Pilih minimal satu program (TNI / POLRI / KEDINASAN)');
-            return false;
-        }
-
-        // VALIDASI: setiap program wajib pilih 1 ujian
-        const programs = Array.from(checkedProgram).map(cb => cb.value);
-        for (const prog of programs) {
-            const ujianChecked = document.querySelector(`input[name="pilihan[${prog}]"]:checked`);
-            if (!ujianChecked) {
-                e.preventDefault();
-                alert(`Pilih salah satu ujian untuk program ${prog.toUpperCase()}`);
-                return false;
-            }
-        }
-
-        const mulai = document.querySelector('input[name="tanggal_mulai"]').value;
-        const selesai = document.querySelector('input[name="tanggal_selesai"]').value;
-        if (mulai && selesai && selesai < mulai) {
-            e.preventDefault();
-            alert('Tanggal selesai tidak boleh lebih awal dari tanggal mulai');
-            return false;
-        }
-
-        const btn = document.getElementById('btn-submit');
-        btn.disabled = true;
-        btn.innerHTML = `
-            <span class="spinner-border spinner-border-sm mr-2"></span>
-            Menyimpan...
-        `;
-    });
 
     function updatePilihan() {
         const selected = Array.from(programCheckboxes)
@@ -238,25 +256,72 @@ $oldProgram = is_array($oldProgram) ? $oldProgram : ($oldProgram ? [$oldProgram]
                 group.style.display = 'block';
             } else {
                 group.style.display = 'none';
-                group.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
+                group.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
             }
         });
+
+        updateModeUjian();
+    }
+
+    function updateModeUjian() {
+        const radios = document.querySelectorAll('input[type="radio"]:checked');
+        let hasOnline = false;
+
+        radios.forEach(r => {
+            if (r.dataset.mode === 'online') hasOnline = true;
+        });
+
+        const jumlahSoal = document.getElementById('jumlah_soal');
+        const durasi = document.getElementById('durasi');
+        const tanggalMulai = document.getElementById('tanggal_mulai');
+        const tanggalSelesai = document.getElementById('tanggal_selesai');
+
+        if (hasOnline) {
+            jumlahSoal.disabled = false;
+            durasi.disabled = false;
+            tanggalMulai.disabled = false;
+            tanggalSelesai.disabled = false;
+            jumlahSoal.required = true;
+            durasi.required = true;
+            tanggalMulai.required = true;
+            tanggalSelesai.required = true;
+        } else {
+            jumlahSoal.disabled = true;
+            durasi.disabled = true;
+            tanggalMulai.disabled = true;
+            tanggalSelesai.disabled = true;
+            jumlahSoal.required = false;
+            durasi.required = false;
+            tanggalMulai.required = false;
+            tanggalSelesai.required = false;
+            jumlahSoal.value = '';
+            durasi.value = '';
+            tanggalMulai.value = '';
+            tanggalSelesai.value = '';
+        }
     }
 
     programCheckboxes.forEach(cb => cb.addEventListener('change', updatePilihan));
+    document.querySelectorAll('input[type="radio"]').forEach(r => r.addEventListener('change', updateModeUjian));
+
     updatePilihan();
 
-    // =========================
-    // RADIO TOGGLE (klik ulang bisa uncheck)
-    // =========================
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('click', function(e) {
-            if (this.checkedAlready) {
-                this.checked = false;
+    form.addEventListener('submit', function(e) {
+        const checkedProgram = document.querySelectorAll('input[name="program[]"]:checked');
+        if (!checkedProgram.length) {
+            e.preventDefault();
+            alert('Pilih minimal satu program');
+            return;
+        }
+
+        for (const cb of checkedProgram) {
+            const prog = cb.value;
+            if (!document.querySelector(`input[name="pilihan[${prog}]"]:checked`)) {
+                e.preventDefault();
+                alert(`Pilih ujian untuk program ${prog.toUpperCase()}`);
+                return;
             }
-            // simpan status checked untuk semua radio di group
-            document.querySelectorAll(`input[name="${this.name}"]`).forEach(r => r.checkedAlready = r.checked);
-        });
+        }
     });
 </script>
 

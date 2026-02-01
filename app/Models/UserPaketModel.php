@@ -58,4 +58,35 @@ class UserPaketModel extends Model
             ->groupEnd()
             ->findAll();
     }
+
+    public function getAllUserAktifByProgram($program)
+    {
+        $builder = $this->select('users.*')
+            ->join('users', 'users.id = user_paket.user_id')
+            ->join('paket', 'paket.id = user_paket.paket_id')
+            ->where('user_paket.status', 'A')
+            ->where('paket.is_active', 1)
+            ->groupStart()
+            ->where('user_paket.expired_at', null)
+            ->orWhere('user_paket.expired_at >=', date('Y-m-d'))
+            ->groupEnd();
+
+        // 🔒 Filter company (non super admin)
+        if (!isSuperAdmin()) {
+            $builder->where('users.company_id', companyId());
+        }
+
+        // ⭐ FILTER PROGRAM (ARRAY / SINGLE)
+        if (!empty($program)) {
+            if (is_array($program)) {
+                $builder->whereIn('user_paket.program', $program);
+            } else {
+                $builder->where('user_paket.program', $program);
+            }
+        }
+
+        return $builder
+            ->groupBy('users.id')
+            ->findAll();
+    }
 }

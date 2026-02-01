@@ -8,6 +8,7 @@ use App\Models\TryoutSoalModel;
 use App\Models\TryoutJawabanModel;
 use App\Models\TryoutAttemptModel;
 use App\Models\UserPaketModel;
+use App\Models\ParameterModel;
 
 use Dompdf\Dompdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -21,6 +22,7 @@ class TryoutNilai extends BaseController
     protected $tryoutattemptModel;
     protected array $menuItems = [];
     protected $userPaketModel;
+    protected $parameter;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class TryoutNilai extends BaseController
         $this->tryoutjawabanModel = new tryoutjawabanModel();
         $this->tryoutattemptModel  = new TryoutAttemptModel();
         $this->userPaketModel = new UserPaketModel();
+        $this->parameter = new ParameterModel();
     }
 
     private function baseData(): array
@@ -78,41 +81,24 @@ class TryoutNilai extends BaseController
             }
         }
 
-        foreach ($attempts as &$row) {
-            // hitung skor akhir (AMAN)
-            $skor_akhir = 0;
-            if ($allNilaiZero) {
-                $skor_akhir = $totalSoal > 0
-                    ? round(($row['skor_akhir'] / $totalSoal) * 100, 2)
-                    : 0;
-            } else {
-                foreach ($soalList as $soal) {
-                    $j = $this->tryoutjawabanModel
-                        ->where('soal_id', $soal['id'])
-                        ->where('user_id', $row['user_id'])
-                        ->first();
-
-                    $jawaban_user = $j['jawaban'] ?? null;
-
-                    $nilai_soal = 0;
-                    foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-                        $nilai_opsi = isset($soal['nilai_' . $opsi]) ? (float)$soal['nilai_' . $opsi] : 0;
-
-                        if ($jawaban_user === strtoupper($opsi)) {
-                            $nilai_soal += $nilai_opsi;
-                        }
-                    }
-
-                    $skor_akhir += $nilai_soal;
+        $hasOnline = false;
+        $pilihanJson  = json_decode($tryout['ujian']);
+        $parameter = $this->parameter->getValue($kategori);
+        foreach ($pilihanJson as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
                 }
             }
-
-            // inject ke array buat view
-            $row['skor_akhir'] = $skor_akhir;
         }
 
         $data['tryoutId'] = $tryoutId;
         $data['nilai'] = $attempts;
+        $data['hasOnline'] = $hasOnline;
 
         return view('tryout/tryout/nilai', $data);
     }

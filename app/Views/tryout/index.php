@@ -114,12 +114,17 @@
                         <!-- META -->
                         <div class="tryout-meta">
                             <div>
-                                <i class="fas fa-list-ul"></i>
-                                <?= $t['jumlah_soal'] ?> Soal
+                                <?php if (!empty($t['jumlah_soal'])): ?>
+                                    
+                                    <i class="fas fa-list-ul"></i>
+                                    <?= $t['jumlah_soal'] ?> Soal
+                                <?php endif; ?>
                             </div>
                             <div>
-                                <i class="fas fa-clock"></i>
-                                <?= $t['durasi'] ?> Menit
+                                <?php if (!empty($t['durasi'])): ?>
+                                    <i class="fas fa-clock"></i>
+                                    <?= $t['durasi'] ?> Menit
+                                <?php endif; ?>
 
                                 <?php if (!empty($t['tanggal_mulai']) && !empty($t['tanggal_selesai'])): ?>
                                     <div class="tryout-meta">

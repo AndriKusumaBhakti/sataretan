@@ -121,10 +121,6 @@ class Tryout extends BaseController
             'program' => 'required',
             'pilihan'       => 'required',
             'judul'   => 'required|min_length[3]',
-            'jumlah_soal'    => 'permit_empty|numeric',
-            'durasi'  => 'permit_empty|numeric',
-            'tanggal_mulai' => 'required',
-            'tanggal_selesai' => 'required',
         ];
 
         if (!$this->validate($rules)) {
@@ -133,20 +129,20 @@ class Tryout extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        $tanggalMulai   = $this->request->getPost('tanggal_mulai');
-        $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+        $pilihanPost = $this->request->getPost('pilihan'); // array per program
+        $parameter = $this->parameter->getValue($kategori);
+        $hasOnline   = false;
 
-        if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
-            return redirect()->back()
-                ->with('errors', ['Format tanggal tidak valid'])
-                ->withInput();
-        }
-
-        // ❌ VALIDASI URUTAN TANGGAL
-        if ($tanggalSelesai < $tanggalMulai) {
-            return redirect()->back()
-                ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
-                ->withInput();
+        foreach ($pilihanPost as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
+                }
+            }
         }
 
         $programArray = $this->request->getPost('program');
@@ -155,18 +151,63 @@ class Tryout extends BaseController
         $pilihanArray = $this->request->getPost('pilihan');
         $pilihanJson  = json_encode($pilihanArray);
 
-        $this->tryoutModel->insert([
+        $tanggalMulai = null;
+        $tanggalSelesai = null;
+
+        if ($hasOnline) {
+
+            $rules = [
+                'jumlah_soal'    => 'permit_empty|numeric',
+                'durasi'  => 'permit_empty|numeric',
+                'tanggal_mulai' => 'required',
+                'tanggal_selesai' => 'required',
+            ];
+
+            if (!$this->validate($rules)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', $this->validator->getErrors());
+            }
+
+            $tanggalMulai   = $this->request->getPost('tanggal_mulai');
+            $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+
+            if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
+                return redirect()->back()
+                    ->with('errors', ['Format tanggal tidak valid'])
+                    ->withInput();
+            }
+
+            // ❌ VALIDASI URUTAN TANGGAL
+            if ($tanggalSelesai < $tanggalMulai) {
+                return redirect()->back()
+                    ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
+                    ->withInput();
+            }
+        }
+
+        $tryoutId = $this->tryoutModel->insert([
             'company_id'   => companyId(),
             'kategori'     => $kategori,
-            'program'  => $programJson,
+            'program'       => $programJson,
             'ujian'       => $pilihanJson,
             'judul'        => $this->request->getPost('judul'),
-            'jumlah_soal'  => $this->request->getPost('jumlah_soal'),
-            'durasi'       => $this->request->getPost('durasi'),
+            'jumlah_soal'  => $hasOnline ? $this->request->getPost('jumlah_soal') : null,
+            'durasi'       => $hasOnline ? $this->request->getPost('durasi') : null,
             'tanggal_mulai'       => $tanggalMulai,
             'tanggal_selesai'       => $tanggalSelesai,
             'status'       => 'draft',
-        ]);
+        ], true);
+
+        if (!$hasOnline) {
+
+            if (!$tryoutId) {
+                return redirect()->back()->with('errors', $this->tryoutModel->errors());
+            }
+
+            return redirect()->to(site_url('tryout/' . $kategori . '/nilai/' . $tryoutId))
+                ->with('success', 'Try Out berhasil ditambahkan, silakan input nilai');
+        }
 
         return redirect()->to(site_url('tryout/' . $kategori))->with('success', 'Try Out berhasil ditambahkan');
     }
@@ -198,14 +239,11 @@ class Tryout extends BaseController
 
     public function update($kategori, $id)
     {
+
         $rules = [
             'program' => 'required',
             'pilihan'       => 'required',
             'judul'   => 'required|min_length[3]',
-            'jumlah_soal'    => 'permit_empty|numeric',
-            'durasi'  => 'permit_empty|numeric',
-            'tanggal_mulai' => 'required',
-            'tanggal_selesai' => 'required',
         ];
 
         if (!$this->validate($rules)) {
@@ -214,20 +252,20 @@ class Tryout extends BaseController
                 ->with('errors', $this->validator->getErrors());
         }
 
-        $tanggalMulai   = $this->request->getPost('tanggal_mulai');
-        $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+        $pilihanPost = $this->request->getPost('pilihan'); // array per program
+        $parameter = $this->parameter->getValue($kategori);
+        $hasOnline   = false;
 
-        if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
-            return redirect()->back()
-                ->with('errors', ['Format tanggal tidak valid'])
-                ->withInput();
-        }
-
-        // ❌ VALIDASI URUTAN TANGGAL
-        if ($tanggalSelesai < $tanggalMulai) {
-            return redirect()->back()
-                ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
-                ->withInput();
+        foreach ($pilihanPost as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
+                }
+            }
         }
 
         $programArray = $this->request->getPost('program'); // ['tni','polri']
@@ -236,13 +274,47 @@ class Tryout extends BaseController
         $pilihanArray = $this->request->getPost('pilihan');
         $pilihanJson  = json_encode($pilihanArray);
 
+        $tanggalMulai = null;
+        $tanggalSelesai = null;
+
+        if ($hasOnline) {
+            $rules = [
+                'jumlah_soal'    => 'permit_empty|numeric',
+                'durasi'  => 'permit_empty|numeric',
+                'tanggal_mulai' => 'required',
+                'tanggal_selesai' => 'required',
+            ];
+
+            if (!$this->validate($rules)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('errors', $this->validator->getErrors());
+            }
+
+            $tanggalMulai   = $this->request->getPost('tanggal_mulai');
+            $tanggalSelesai = $this->request->getPost('tanggal_selesai');
+
+            if (!$this->isValidDate($tanggalMulai) || !$this->isValidDate($tanggalSelesai)) {
+                return redirect()->back()
+                    ->with('errors', ['Format tanggal tidak valid'])
+                    ->withInput();
+            }
+
+            // ❌ VALIDASI URUTAN TANGGAL
+            if ($tanggalSelesai < $tanggalMulai) {
+                return redirect()->back()
+                    ->with('errors', ['Tanggal selesai tidak boleh lebih awal dari tanggal mulai'])
+                    ->withInput();
+            }
+        }
+
         $this->tryoutModel->update($id, [
             'company_id'   => companyId(),
             'program'  => $programJson,
             'ujian'       => $pilihanJson,
             'judul'       => $this->request->getPost('judul'),
-            'jumlah_soal' => $this->request->getPost('jumlah_soal'),
-            'durasi'      => $this->request->getPost('durasi'),
+            'jumlah_soal' => $hasOnline ? $this->request->getPost('jumlah_soal') : null,
+            'durasi'      => $hasOnline ? $this->request->getPost('durasi') : null,
             'tanggal_mulai'       => $tanggalMulai,
             'tanggal_selesai'       => $tanggalSelesai,
         ]);
@@ -450,38 +522,137 @@ class Tryout extends BaseController
 
     public function submit($kategori, $tryoutId)
     {
-        $jawaban = $this->tryoutjawabanModel
-            ->where('user_id', user_id())
-            ->where('tryout_id', $tryoutId)
-            ->findAll();
+        $tryoutQuery = $this->tryoutModel
+            ->where('id', $tryoutId)
+            ->where('kategori', $kategori);
 
-        $skor = 0;
+        // validasi company untuk non super admin
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
 
-        foreach ($jawaban as $j) {
-            $soal = $this->tryoutSoalModel->find($j['soal_id']);
-            if ($soal && $soal['jawaban_benar'] === $j['jawaban']) {
-                $skor++;
-            }
+        $tryout = $tryoutQuery->first();
+
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
         $attempt = $this->tryoutattemptModel
             ->where('user_id', user_id())
             ->where('tryout_id', $tryoutId)
-            ->where('status', 'ongoing')
             ->first();
 
         if (!$attempt) {
             return redirect()->back()->with('errors', ['Session tryout tidak ditemukan']);
         }
 
+        $hasOnline = false;
+        $pilihanJson  = json_decode($tryout['ujian']);
+        $parameter = $this->parameter->getValue($kategori);
+
+        foreach ($pilihanJson as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
+                }
+            }
+        }
+
+        $skor = $attempt['skor_akhir'];
+
+        if ($hasOnline) {
+
+            $skor = 0;
+            $benar = 0;
+            $nilai_maksimal = 0;
+
+            $soalList = $this->tryoutSoalModel
+                ->where('tryout_id', $tryoutId)
+                ->findAll();
+
+            $totalSoal = count($soalList);
+
+            /* ================= CEK APAKAH SEMUA NILAI OPSI = 0 ================= */
+            $allNilaiZero = true;
+
+            foreach ($soalList as $soal) {
+                foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+                    if (($soal['nilai_' . $opsi] ?? 0) > 0) {
+                        $allNilaiZero = false;
+                        break 2;
+                    }
+                }
+            }
+
+            /* ================= HITUNG NILAI ================= */
+            foreach ($soalList as $soal) {
+
+                $j = $this->tryoutjawabanModel
+                    ->where('soal_id', $soal['id'])
+                    ->where('user_id', user_id())
+                    ->first();
+
+                $jawaban_user = $j['jawaban'] ?? null;
+
+                $isBenar = $jawaban_user === $soal['jawaban_benar'];
+
+                if ($isBenar) {
+                    $benar++;
+                }
+
+                $nilai_soal = 0;
+                $nilai_soal_maks = 0;
+
+                foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+
+                    $nilai_opsi = isset($soal['nilai_' . $opsi])
+                        ? (float) $soal['nilai_' . $opsi]
+                        : 0;
+
+                    // nilai maksimal per soal
+                    if ($nilai_opsi > $nilai_soal_maks) {
+                        $nilai_soal_maks = $nilai_opsi;
+                    }
+
+                    // nilai jawaban user
+                    if ($jawaban_user === $opsi) {
+                        $nilai_soal = $nilai_opsi;
+                    }
+                }
+
+                $skor += $nilai_soal;
+                $nilai_maksimal += $nilai_soal_maks;
+            }
+
+            /* ================= NORMALISASI ================= */
+            if ($allNilaiZero) {
+                // MODE LAMA: benar / salah
+                $skor = $totalSoal > 0
+                    ? round(($benar / $totalSoal) * 100, 2)
+                    : 0;
+            } else {
+                // MODE BARU: nilai berbobot
+                $skor = $nilai_maksimal > 0
+                    ? round(($skor / $nilai_maksimal) * 100, 2)
+                    : 0;
+            }
+        }
+
         $this->tryoutattemptModel->update($attempt['id'], [
-            'status'      => 'finished',
-            'skor_akhir'  => $skor,
+            'status'       => 'finished',
+            'skor_akhir'   => $skor,
             'finished_at'  => date('Y-m-d H:i:s')
         ]);
 
-        return redirect()->to(site_url('/tryout/' . $kategori . '/hasil/' . $tryoutId));
+        return redirect()->to(
+            site_url('/tryout/' . $kategori . '/hasil/' . $tryoutId)
+        );
     }
+
 
     public function hasil($kategori, $tryoutId)
     {
@@ -502,78 +673,87 @@ class Tryout extends BaseController
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
-        $soalList = $this->tryoutSoalModel->where('tryout_id', $tryoutId)->findAll();
-
-        $totalSoal = count($soalList);
-
-        $benar = 0;
-        $detail = [];
-        $nilai = 0;
-        $allNilaiZero = true; // flag untuk cek semua nilai opsi = 0
-        foreach ($soalList as $soal) {
-            // cek semua nilai opsi
-            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-                if (($soal['nilai_' . $opsi] ?? 0) > 0) {
-                    $allNilaiZero = false;
-                    break 2; // langsung stop jika ada >0
+        $hasOnline = false;
+        $pilihanJson  = json_decode($tryout['ujian']);
+        $parameter = $this->parameter->getValue($kategori);
+        foreach ($pilihanJson as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
                 }
             }
         }
 
-        foreach ($soalList as $soal) {
-            $j = $this->tryoutjawabanModel
-                ->where('soal_id', $soal['id'])
-                ->where('user_id', user_id())
-                ->first();
+        $data['hasOnline'] = $hasOnline;
 
-            $jawaban_user = $j['jawaban'] ?? null;
+        $attempt = $this->tryoutattemptModel
+            ->where('user_id', user_id())
+            ->where('tryout_id', $tryoutId)
+            ->first();
 
-            $isBenar = $jawaban_user === $soal['jawaban_benar'];
-
-            if ($isBenar) {
-                $benar++;
-            }
-
-            $nilai_soal = 0;
-            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-                $nilai_opsi = isset($soal['nilai_' . $opsi]) ? (float)$soal['nilai_' . $opsi] : 0;
-
-                if ($jawaban_user === strtoupper($opsi)) {
-                    $nilai_soal += $nilai_opsi;
-                }
-            }
-
-            $nilai += $nilai_soal;
-
-            $detail[] = [
-                'pertanyaan' => $soal['pertanyaan'],
-                'jawaban_user' => $jawaban_user,
-                'jawaban_benar' => $soal['jawaban_benar'],
-                'benar' => $isBenar,
-                'opsi_a' => $soal['opsi_A'],
-                'opsi_b' => $soal['opsi_B'],
-                'opsi_c' => $soal['opsi_C'],
-                'opsi_d' => $soal['opsi_D'],
-                'opsi_e' => $soal['opsi_E'],
-                'nilai_a' => $soal['nilai_A'],
-                'nilai_b' => $soal['nilai_B'],
-                'nilai_c' => $soal['nilai_C'],
-                'nilai_d' => $soal['nilai_D'],
-                'nilai_e' => $soal['nilai_E'],
-            ];
+        if (!$tryout) {
+            return redirect()->back()->with('errors', ['Session Tryout tidak ditemukan']);
         }
 
-        $salah = $totalSoal - $benar;
-        if ($allNilaiZero) {
-            $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 2) : 0;
+        if ($hasOnline) {
+            $soalList = $this->tryoutSoalModel->where('tryout_id', $tryoutId)->findAll();
+
+            $totalSoal = count($soalList);
+
+            $benar = 0;
+            $detail = [];
+            foreach ($soalList as $soal) {
+                $j = $this->tryoutjawabanModel
+                    ->where('soal_id', $soal['id'])
+                    ->where('user_id', user_id())
+                    ->first();
+
+                $jawaban_user = $j['jawaban'] ?? null;
+
+                $isBenar = $jawaban_user === $soal['jawaban_benar'];
+
+                if ($isBenar) {
+                    $benar++;
+                }
+
+                $detail[] = [
+                    'pertanyaan' => $soal['pertanyaan'],
+                    'jawaban_user' => $jawaban_user,
+                    'jawaban_benar' => $soal['jawaban_benar'],
+                    'benar' => $isBenar,
+                    'opsi_a' => $soal['opsi_A'],
+                    'opsi_b' => $soal['opsi_B'],
+                    'opsi_c' => $soal['opsi_C'],
+                    'opsi_d' => $soal['opsi_D'],
+                    'opsi_e' => $soal['opsi_E'],
+                    'nilai_a' => $soal['nilai_A'],
+                    'nilai_b' => $soal['nilai_B'],
+                    'nilai_c' => $soal['nilai_C'],
+                    'nilai_d' => $soal['nilai_D'],
+                    'nilai_e' => $soal['nilai_E'],
+                ];
+            }
+
+            $salah = $totalSoal - $benar;
+
+            $data['total'] = $totalSoal;
+            $data['benar'] = $benar;
+            $data['salah'] = $salah;
+            $data['nilai'] = $attempt['skor_akhir'];
+            $data['detail'] = $detail;
+        } else {
+            $data['total'] = 0;
+            $data['benar'] = 0;
+            $data['salah'] = 0;
+            $data['nilai'] = $attempt['skor_akhir'];
+            $data['detail'] = [];
         }
 
         $data['tryout'] = $tryout;
-        $data['total'] = $totalSoal;
-        $data['benar'] = $benar;
-        $data['salah'] = $salah;
-        $data['nilai'] = $nilai;
-        $data['detail'] = $detail;
 
         return view('tryout/hasil', $data);
     }
