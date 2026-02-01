@@ -1,21 +1,23 @@
 <?= $this->extend('default/layout-template', get_defined_vars()); ?>
 <?= $this->section('content'); ?>
 
-<div class="container-fluid">
+<div class="container-fluid px-3 px-md-4 pb-4">
 
     <!-- ================= HEADER ================= -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="h4 font-weight-bold text-gray-800 mb-1">
                 Materi <?= $kategori ? strtoupper($kategori) : '' ?>
             </h1>
-            <small class="text-muted">Kumpulan materi pembelajaran</small>
+            <p class="text-muted small mb-0">
+                Kumpulan materi pembelajaran
+            </p>
         </div>
 
         <?php if ($isGuruOrAdmin): ?>
             <a href="<?= base_url('materi/' . $kategori . '/create') ?>"
-                class="btn btn-success rounded-pill px-4 shadow-sm d-flex align-items-center gap-2">
-                <i class="fas fa-plus"></i> Add Materi
+                class="btn btn-success rounded-pill px-4 shadow-sm">
+                <i class="fas fa-plus mr-1"></i> Tambah Materi
             </a>
         <?php endif; ?>
     </div>
@@ -23,20 +25,19 @@
     <!-- ================= LOADING ================= -->
     <div id="page-loading">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Memuat data...</div>
+        <div class="text-muted mt-2 small">Memuat data...</div>
     </div>
 
     <!-- ================= CONTENT ================= -->
-    <div class="row d-none" id="materi-content">
+    <div class="row gx-3 gy-3 d-none" id="materi-content">
 
         <?php if (empty($materi)): ?>
 
-            <!-- ===== DATA NOT FOUND ===== -->
             <div class="col-12">
-                <div class="data-not-found">
-                    <i class="fas fa-folder-open"></i>
-                    <h5>Materi Tidak Ditemukan</h5>
-                    <p>Belum ada materi untuk kategori ini.</p>
+                <div class="empty-state">
+                    <i class="fas fa-folder-open fa-2x mb-3 text-success"></i>
+                    <h5 class="mb-1">Materi Tidak Ditemukan</h5>
+                    <p class="text-muted mb-0">Belum ada materi untuk kategori ini.</p>
                 </div>
             </div>
 
@@ -58,16 +59,17 @@
                 }
                 ?>
 
-                <div class="col-xl-3 col-lg-4 col-md-6 mb-4 d-flex">
-                    <div class="materi-card-binjas w-100">
+                <div class="col-xl-3 col-lg-4 col-md-6">
+
+                    <div class="materi-card h-100 position-relative">
 
                         <?php if ($isGuruOrAdmin): ?>
                             <div class="materi-actions">
-                                <a href="<?= base_url('materi/' . $m['kategori'] . '/edit/' . $m['id']) ?>">
+                                <a href="<?= base_url('materi/' . $m['kategori'] . '/edit/' . $m['id']) ?>" title="Edit">
                                     <i class="fas fa-pen"></i>
                                 </a>
                                 <a href="<?= base_url('materi/delete/' . $m['id']) ?>"
-                                    onclick="return confirm('Hapus materi ini?')">
+                                    onclick="return confirm('Hapus materi ini?')" title="Hapus">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>
@@ -77,7 +79,7 @@
                             <i class="fas <?= $icon ?>"></i>
                         </div>
 
-                        <span class="badge badge-soft-<?= $color ?> text-uppercase mb-2 align-self-start">
+                        <span class="badge badge-soft-<?= $color ?> mb-2 align-self-start">
                             <?= strtoupper($m['tipe']) ?>
                         </span>
 
@@ -85,9 +87,9 @@
                             <?= esc($m['judul']) ?>
                         </h6>
 
-                        <div class="mt-auto pt-3">
+                        <div class="materi-buttons mt-auto">
                             <a href="<?= site_url('materi/' . $m['kategori'] . '/' . $m['tipe'] . '/view/' . $m['id']) ?>"
-                                class="btn btn-outline-success btn-sm rounded-pill btn-block">
+                                class="btn btn-outline-success btn-sm rounded-pill w-100">
                                 <i class="fas fa-eye mr-1"></i> Lihat Materi
                             </a>
                         </div>
@@ -99,7 +101,6 @@
         <?php endif; ?>
 
     </div>
-
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -108,28 +109,21 @@
     #page-loading {
         position: fixed;
         inset: 0;
-        background: rgba(255, 255, 255, .96);
-        z-index: 9999;
+        background: #fff;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        z-index: 9999
     }
 
     .loading-spinner {
-        width: 48px;
-        height: 48px;
+        width: 42px;
+        height: 42px;
         border: 5px solid #e9ecef;
-        border-top: 5px solid #28a745;
+        border-top-color: #28a745;
         border-radius: 50%;
-        animation: spin .9s linear infinite;
-    }
-
-    .loading-text {
-        margin-top: 14px;
-        font-weight: 600;
-        color: #6c757d;
-        font-size: 14px;
+        animation: spin .8s linear infinite
     }
 
     @keyframes spin {
@@ -138,140 +132,135 @@
         }
     }
 
-    /* ===== DATA NOT FOUND ===== */
-    .data-not-found {
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
         background: #fff;
         border-radius: 24px;
-        padding: 80px 20px;
+        padding: 60px 20px;
         text-align: center;
-        box-shadow: 0 14px 34px rgba(0, 0, 0, .08);
-    }
-
-    .data-not-found i {
-        font-size: 60px;
-        color: #dee2e6;
-        margin-bottom: 18px;
-    }
-
-    .data-not-found h5 {
-        font-weight: 700;
-        color: #495057;
-        margin-bottom: 6px;
-    }
-
-    .data-not-found p {
-        color: #6c757d;
-        font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .08)
     }
 
     /* ===== CARD ===== */
-    .materi-card-binjas {
+    .materi-card {
         background: #fff;
-        border-radius: 20px;
-        padding: 22px;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, .08);
+        border-radius: 18px;
+        padding: 18px;
         display: flex;
         flex-direction: column;
-        position: relative;
-        transition: .3s ease;
-        min-height: 100%;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, .08);
+        transition: .25s ease
     }
 
-    .materi-card-binjas:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 46px rgba(0, 0, 0, .15);
+    .materi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, .14)
     }
 
     /* ===== ICON ===== */
     .materi-icon {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-size: 22px;
-        margin-bottom: 14px;
+        font-size: 20px;
+        margin-bottom: 12px
     }
 
     /* ===== TITLE ===== */
     .materi-title {
         font-weight: 700;
-        color: #343a40;
-        line-height: 1.4;
-        margin-bottom: 12px;
-        font-size: 15px;
+        font-size: .95rem;
+        line-height: 1.35;
+        margin-bottom: 14px;
+        min-height: 40px;
+        color: #343a40
     }
 
     /* ===== BADGE ===== */
-    .badge-soft-success {
-        background: rgba(40, 167, 69, .12);
-        color: #28a745;
+    .badge-soft-success,
+    .badge-soft-danger,
+    .badge-soft-primary {
         font-weight: 600;
         border-radius: 50px;
         padding: 6px 12px;
-        font-size: 11px;
+        font-size: 11px
+    }
+
+    .badge-soft-success {
+        background: rgba(40, 167, 69, .12);
+        color: #28a745
     }
 
     .badge-soft-danger {
         background: rgba(231, 74, 59, .12);
-        color: #e74a3b;
-        font-weight: 600;
-        border-radius: 50px;
-        padding: 6px 12px;
-        font-size: 11px;
+        color: #e74a3b
     }
 
     .badge-soft-primary {
         background: rgba(78, 115, 223, .12);
-        color: #4e73df;
-        font-weight: 600;
-        border-radius: 50px;
-        padding: 6px 12px;
-        font-size: 11px;
+        color: #4e73df
     }
 
     /* ===== ACTIONS ===== */
     .materi-actions {
         position: absolute;
-        top: 16px;
-        right: 16px;
+        top: 12px;
+        right: 12px;
         display: flex;
-        gap: 8px;
+        gap: 6px;
         opacity: 0;
-        transform: translateY(-6px);
-        transition: .25s ease;
+        transition: .2s
     }
 
-    .materi-card-binjas:hover .materi-actions {
-        opacity: 1;
-        transform: translateY(0);
+    .materi-card:hover .materi-actions {
+        opacity: 1
     }
 
     .materi-actions a {
-        width: 34px;
-        height: 34px;
-        background: #fff;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
+        background: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
         color: #555;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, .15);
-        font-size: 14px;
-        transition: .2s ease;
+        font-size: 13px
     }
 
     .materi-actions a:hover {
         background: #28a745;
-        color: #fff;
+        color: #fff
+    }
+
+    /* ===== BUTTON ===== */
+    .materi-buttons {
+        display: grid;
+        grid-template-columns: 1fr
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:575px) {
+        .materi-actions {
+            opacity: 1
+        }
+    }
+
+    @media(min-width:768px) {
+        #materi-content {
+            row-gap: 16px
+        }
     }
 </style>
 
 <!-- ================= SCRIPT ================= -->
 <script>
-    window.addEventListener('load', function() {
+    window.addEventListener('load', () => {
         document.getElementById('page-loading').style.display = 'none';
         document.getElementById('materi-content').classList.remove('d-none');
     });

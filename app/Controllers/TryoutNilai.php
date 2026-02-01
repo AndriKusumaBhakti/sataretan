@@ -147,48 +147,76 @@ class TryoutNilai extends BaseController
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
-        $jawaban = $this->tryoutjawabanModel
-            ->where('user_id', $attempts['user_id'])
-            ->where('tryout_id', $attempts['tryout_id'])
-            ->findAll();
-
-        $totalSoal = $this->tryoutSoalModel
-            ->where('tryout_id', $attempts['tryout_id'])
-            ->countAllResults();
-
-        $benar = 0;
-        $detail = [];
-
-        foreach ($jawaban as $j) {
-            $soal = $this->tryoutSoalModel->find($j['soal_id']);
-
-            if (!$soal) {
-                continue;
+        $hasOnline = false;
+        $pilihanJson  = json_decode($tryout['ujian']);
+        $parameter = $this->parameter->getValue($kategori);
+        foreach ($pilihanJson as $prog => $keyPilihan) {
+            foreach ($parameter as $item) {
+                if (
+                    $item['key'] === $keyPilihan &&
+                    $item['mode'] === 'online'
+                ) {
+                    $hasOnline = true;
+                    break 2;
+                }
             }
-
-            $isBenar = $soal['jawaban_benar'] === $j['jawaban'];
-
-            if ($isBenar) {
-                $benar++;
-            }
-
-            $detail[] = [
-                'pertanyaan' => $soal['pertanyaan'],
-                'jawaban_user' => $j['jawaban'],
-                'jawaban_benar' => $soal['jawaban_benar'],
-                'benar' => $isBenar
-            ];
         }
 
-        $salah = $totalSoal - $benar;
-        $nilai = round(($benar / $totalSoal) * 100, 2);
+        if ($hasOnline) {
+            $soalList = $this->tryoutSoalModel->where('tryout_id', $tryout['id'])->findAll();
 
+            $totalSoal = count($soalList);
+
+            $benar = 0;
+            $detail = [];
+            foreach ($soalList as $soal) {
+                $j = $this->tryoutjawabanModel
+                    ->where('soal_id', $soal['id'])
+                    ->where('user_id', user_id())
+                    ->first();
+
+                $jawaban_user = $j['jawaban'] ?? null;
+
+                $isBenar = $jawaban_user === $soal['jawaban_benar'];
+
+                if ($isBenar) {
+                    $benar++;
+                }
+
+                $detail[] = [
+                    'pertanyaan' => $soal['pertanyaan'],
+                    'jawaban_user' => $jawaban_user,
+                    'jawaban_benar' => $soal['jawaban_benar'],
+                    'benar' => $isBenar,
+                    'opsi_a' => $soal['opsi_A'],
+                    'opsi_b' => $soal['opsi_B'],
+                    'opsi_c' => $soal['opsi_C'],
+                    'opsi_d' => $soal['opsi_D'],
+                    'opsi_e' => $soal['opsi_E'],
+                    'nilai_a' => $soal['nilai_A'],
+                    'nilai_b' => $soal['nilai_B'],
+                    'nilai_c' => $soal['nilai_C'],
+                    'nilai_d' => $soal['nilai_D'],
+                    'nilai_e' => $soal['nilai_E'],
+                ];
+            }
+
+            $salah = $totalSoal - $benar;
+
+            $data['total'] = $totalSoal;
+            $data['benar'] = $benar;
+            $data['salah'] = $salah;
+            $data['nilai'] = $attempts['skor_akhir'];
+            $data['detail'] = $detail;
+        } else {
+            $data['total'] = 0;
+            $data['benar'] = 0;
+            $data['salah'] = 0;
+            $data['nilai'] = $attempts['skor_akhir'];
+            $data['detail'] = [];
+        }
+        $data['hasOnline'] = $hasOnline;
         $data['tryout'] = $tryout;
-        $data['total'] = $totalSoal;
-        $data['benar'] = $benar;
-        $data['salah'] = $salah;
-        $data['nilai'] = $nilai;
-        $data['detail'] = $detail;
 
         return view('tryout/tryout/detail-nilai', $data);
     }

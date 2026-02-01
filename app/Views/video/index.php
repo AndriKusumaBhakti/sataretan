@@ -4,9 +4,9 @@
 <div class="container-fluid">
 
     <!-- ================= HEADER ================= -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="h4 font-weight-bold text-gray-800 mb-0">
+            <h1 class="h4 font-weight-bold text-gray-800 mb-1">
                 Video Pembelajaran <?= $kategori ? strtoupper($kategori) : '' ?>
             </h1>
             <small class="text-muted">Kumpulan video pembelajaran</small>
@@ -27,11 +27,10 @@
     </div>
 
     <!-- ================= CONTENT ================= -->
-    <div class="row d-none" id="video-content">
+    <div class="row gx-3 gy-3 d-none" id="video-content">
 
         <?php if (empty($video)): ?>
 
-            <!-- ===== DATA NOT FOUND ===== -->
             <div class="col-12">
                 <div class="data-not-found">
                     <i class="fas fa-folder-open"></i>
@@ -48,8 +47,8 @@
                 $color = 'success';
                 ?>
 
-                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                    <div class="video-card-binjas">
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="video-card-binjas h-100">
 
                         <?php if ($isGuruOrAdmin): ?>
                             <div class="video-actions">
@@ -89,6 +88,7 @@
     </div>
 
 </div>
+
 <!-- ================= STYLE ================= -->
 <style>
     /* ===== LOADING ===== */
@@ -104,12 +104,12 @@
     }
 
     .loading-spinner {
-        width: 48px;
-        height: 48px;
-        border: 5px solid #e9ecef;
-        border-top: 5px solid #28a745;
+        width: 44px;
+        height: 44px;
+        border: 4px solid #e9ecef;
+        border-top: 4px solid #28a745;
         border-radius: 50%;
-        animation: spin .9s linear infinite;
+        animation: spin .8s linear infinite;
     }
 
     .loading-text {
@@ -128,79 +128,60 @@
     /* ===== DATA NOT FOUND ===== */
     .data-not-found {
         background: #fff;
-        border-radius: 22px;
-        padding: 70px 20px;
+        border-radius: 20px;
+        padding: 60px 20px;
         text-align: center;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, .08);
-    }
-
-    .data-not-found i {
-        font-size: 56px;
-        color: #dee2e6;
-        margin-bottom: 16px;
-    }
-
-    .data-not-found h5 {
-        font-weight: 700;
-        color: #495057;
-        margin-bottom: 6px;
-    }
-
-    .data-not-found p {
-        color: #6c757d;
-        font-size: 14px;
-        margin-bottom: 22px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
     }
 
     /* ===== CARD ===== */
     .video-card-binjas {
-        height: 100%;
         background: #fff;
         border-radius: 18px;
-        padding: 20px;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, .08);
+        padding: 18px;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .08);
         display: flex;
         flex-direction: column;
         position: relative;
-        transition: .3s ease;
+        transition: all .25s ease;
     }
 
     .video-card-binjas:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, .14);
+        transform: translateY(-4px);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, .14);
     }
 
     /* ===== ICON ===== */
     .video-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
         font-size: 22px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
     }
 
     /* ===== TITLE ===== */
     .video-title {
         font-weight: 700;
-        font-size: .95rem;
+        font-size: .92rem;
         line-height: 1.45em;
-        margin: 12px 0 16px;
-        min-height: 2.8em;
+        margin: 10px 0 14px;
+        min-height: 2.6em;
     }
 
     /* ===== ACTIONS ===== */
     .video-actions {
         position: absolute;
-        top: 14px;
-        right: 14px;
+        top: 12px;
+        right: 12px;
         display: flex;
         gap: 8px;
         opacity: 0;
-        transform: translateY(-5px);
+        transform: translateY(-6px);
         transition: .25s ease;
     }
 
@@ -210,16 +191,16 @@
     }
 
     .video-actions a {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         background: #fff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #555;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, .15);
-        font-size: 14px;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
+        font-size: 13px;
     }
 
     .video-actions a:hover {
@@ -231,6 +212,13 @@
     .btn-outline-success {
         font-weight: 600;
         border-width: 2px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 576px) {
+        .video-title {
+            min-height: auto;
+        }
     }
 </style>
 

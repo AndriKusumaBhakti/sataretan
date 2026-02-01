@@ -4,10 +4,10 @@
 <div class="container-fluid">
 
     <div class="row justify-content-center">
-        <div class="col-xl-5 col-lg-6 col-md-8">
+        <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10">
 
             <!-- ================= HEADER ================= -->
-            <div class="text-center mb-5">
+            <div class="text-center mb-4">
                 <span class="badge badge-success badge-pill px-4 py-2 mb-3 shadow-sm">
                     TRY OUT
                 </span>
@@ -23,10 +23,10 @@
 
             <!-- ================= CARD ================= -->
             <div class="tryout-detail-card">
-                <div class="card-body p-4">
+                <div class="card-body p-4 p-md-4">
 
                     <!-- INFO -->
-                    <div class="row text-center mb-4">
+                    <div class="row text-center gy-3 mb-4">
 
                         <div class="col-4">
                             <div class="stat-card">
@@ -120,32 +120,32 @@
     /* CARD */
     .tryout-detail-card {
         background: linear-gradient(180deg, #ffffff, #f9fbfd);
-        border-radius: 24px;
-        box-shadow: 0 14px 38px rgba(0, 0, 0, .08);
-        transition: .35s ease;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        transition: all .28s ease;
     }
 
     .tryout-detail-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 24px 55px rgba(0, 0, 0, .15);
+        transform: translateY(-4px);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, .14);
     }
 
     /* STAT */
     .stat-card {
-        padding: 14px 6px;
+        padding: 10px 4px;
     }
 
     .stat-icon {
-        width: 54px;
-        height: 54px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
-        margin: 0 auto 10px;
+        margin: 0 auto 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-size: 20px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, .18);
+        font-size: 18px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, .18);
     }
 
     .bg-gradient-success {
@@ -161,20 +161,20 @@
     }
 
     .stat-label {
-        font-size: 12px;
+        font-size: 11px;
         color: #6c757d;
     }
 
     .stat-value {
         font-weight: 700;
-        font-size: 16px;
+        font-size: 15px;
         color: #343a40;
     }
 
     /* STATUS */
     .status-box {
-        border-radius: 16px;
-        padding: 14px 18px;
+        border-radius: 14px;
+        padding: 12px 16px;
         font-size: 14px;
         text-align: center;
     }
@@ -193,16 +193,23 @@
     .btn-start {
         font-weight: 600;
         letter-spacing: .4px;
-        transition: .25s ease;
+        transition: all .25s ease;
     }
 
     .btn-start:hover {
         transform: translateY(-2px);
-        box-shadow: 0 14px 30px rgba(40, 167, 69, .35);
+        box-shadow: 0 12px 26px rgba(40, 167, 69, .35);
     }
 
     .btn-admin {
         font-weight: 500;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 576px) {
+        .stat-value {
+            font-size: 14px;
+        }
     }
 </style>
 
