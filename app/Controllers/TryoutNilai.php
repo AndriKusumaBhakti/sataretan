@@ -64,22 +64,8 @@ class TryoutNilai extends BaseController
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
-        $soalList = $this->tryoutSoalModel->where('tryout_id', $tryoutId)->findAll();
-
-        $totalSoal = count($soalList);
-
+        
         $attempts = $this->tryoutattemptModel->getDaftarNilai($tryoutId);
-
-        $allNilaiZero = true; // flag untuk cek semua nilai opsi = 0
-        foreach ($soalList as $soal) {
-            // cek semua nilai opsi
-            foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-                if (($soal['nilai_' . $opsi] ?? 0) > 0) {
-                    $allNilaiZero = false;
-                    break 2; // langsung stop jika ada >0
-                }
-            }
-        }
 
         $hasOnline = false;
         $pilihanJson  = json_decode($tryout['ujian']);
