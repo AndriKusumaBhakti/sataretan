@@ -47,6 +47,11 @@ class Jasmani extends BaseController
 
         $user = $this->userPaketModel->getAllUserAktif();
         $data['users'] = $user;
+        if (!isGuruOrAdmin()){
+            $data['currentUserProgram'] = $user[0]['program'];
+        } else {
+            $data['currentUserProgram'] = '';
+        }
 
         return view('tryout/jasmani/tambah', $data);
     }
@@ -96,6 +101,21 @@ class Jasmani extends BaseController
             ? $this->request->getPost('user_id')
             : user_id(); // helper user login
 
+        $bulan = date('m');   // bulan sekarang
+        $tahun = date('Y');   // tahun sekarang
+
+        $existing = $this->jasmani
+            ->where('user_id', $userId)
+            ->where('MONTH(created_at)', $bulan)
+            ->where('YEAR(created_at)', $tahun)
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', 'Data jasmani untuk bulan ini sudah diisi sebelumnya.');
+        }
+        
         $garjasB = null;
         if ($program === 'tni') {
             $garjasB = $this->hitungGarjasB($this->request->getPost(), $gender);
@@ -163,7 +183,7 @@ class Jasmani extends BaseController
         } else {
             $jasmani['total_nilai'] = $this->hitungTotalPolri($jasmani);
         }
-        
+
         $data['jasmani'] = $jasmani;
 
         return view('tryout/jasmani/detail', $data);

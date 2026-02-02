@@ -32,8 +32,8 @@
                     <label>Program</label>
                     <select id="program_display" name="program_display" class="form-control select-users" required disabled>
                         <option value="">-- Pilih Program --</option>
-                        <option value="tni">TNI</option>
-                        <option value="polri">POLRI</option>
+                        <option value="tni" <?= ($currentUserProgram == 'tni') ? 'selected' : '' ?>>TNI</option>
+                        <option value="polri" <?= ($currentUserProgram == 'polri') ? 'selected' : '' ?>>POLRI</option>
                     </select>
                     <input type="hidden" id="program" name="program" value="">
                 </div>
@@ -126,6 +126,7 @@
 <script>
     const form = document.getElementById('form-jasmani');
     const userSelect = document.getElementById('user_id');
+    const programDisplay = document.getElementById('program_display');
     const program = document.getElementById('program');
     const gender = document.getElementById('jenis_kelamin');
 
@@ -155,7 +156,7 @@
         }
     }
 
-    program.addEventListener('change', toggleForm);
+    programDisplay.addEventListener('change', toggleForm);
     gender.addEventListener('change', toggleForm);
 
     /* ================= AUTO SELECT PROGRAM BERDASARKAN USER ================= */
@@ -163,18 +164,25 @@
         userSelect.addEventListener('change', e => {
             const selected = e.target.selectedOptions[0];
             const userProgram = selected.dataset.program || '';
-            const display = document.getElementById('program_display');
-            const hidden = document.getElementById('program');
             if (userProgram) {
-                display.value = userProgram; // untuk tampil di UI
-                hidden.value = userProgram;  // untuk dikirim ke controller
+                programDisplay.value = userProgram; // tampil di UI
+                program.value = userProgram; // untuk dikirim
             } else {
-                display.value = '';
-                hidden.value = '';
+                programDisplay.value = '';
+                program.value = '';
             }
             toggleForm();
         });
     }
+
+    /* ================= AUTO SET PROGRAM UNTUK NON-GURU/ADMIN ================= */
+    document.addEventListener('DOMContentLoaded', () => {
+        <?php if (!$isGuruOrAdmin): ?>
+            program.value = "<?= esc($currentUserProgram) ?>";
+            programDisplay.value = "<?= esc($currentUserProgram) ?>";
+        <?php endif ?>
+        toggleForm(); // tampilkan field jika gender sudah dipilih
+    });
 
     function getActive() {
         return document.querySelector('.jasmani-field:not(.d-none)');
@@ -201,10 +209,7 @@
         if (!active) return;
 
         /* ================= BMI (REALTIME) ================= */
-        if (
-            e.target.classList.contains('tinggi') ||
-            e.target.classList.contains('berat')
-        ) {
+        if (e.target.classList.contains('tinggi') || e.target.classList.contains('berat')) {
             const tinggi = active.querySelector('.tinggi')?.value;
             const berat = active.querySelector('.berat')?.value;
             if (!tinggi || !berat) return;
@@ -235,7 +240,6 @@
         if (!e.target.dataset.type) return;
 
         clearTimeout(hitungTimer);
-
         hitungTimer = setTimeout(() => {
             const current = getActive();
             if (!current) return;
@@ -256,14 +260,10 @@
                 })
                 .then(r => r.json())
                 .then(r => {
-                    const n = current.querySelector(
-                        `[data-nilai="${e.target.dataset.type}"]`
-                    );
+                    const n = current.querySelector(`[data-nilai="${e.target.dataset.type}"]`);
                     if (n) n.value = r.nilai ?? '';
-
                     csrfHash = r.csrfHash ?? csrfHash;
                 });
-
         }, HITUNG_DELAY);
     });
 
@@ -271,10 +271,7 @@
     form.addEventListener('submit', e => {
         let valid = true;
 
-        // reset error
-        document.querySelectorAll('.is-invalid').forEach(el => {
-            el.classList.remove('is-invalid');
-        });
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
 
         if (!program.value) {
             program.classList.add('is-invalid');
