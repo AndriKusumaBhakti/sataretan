@@ -44,7 +44,7 @@ class UserPaketModel extends Model
 
     public function getAllUserAktif()
     {
-        return $this->select('users.*')
+        return $this->select('users.*, user_paket.program as program')
             ->join('users', 'users.id = user_paket.user_id')
             ->join('paket', 'paket.id = user_paket.paket_id')
             ->when(!isSuperAdmin(), function ($query) {
@@ -52,6 +52,7 @@ class UserPaketModel extends Model
             })
             ->where('user_paket.status', 'A')
             ->where('paket.is_active', 1)
+            ->whereIn('user_paket.program', ['tni', 'polri'])
             ->groupStart()
             ->where('user_paket.expired_at', null) // IS NULL
             ->orWhere('user_paket.expired_at >=', date('Y-m-d'))

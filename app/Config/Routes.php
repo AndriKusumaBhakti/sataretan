@@ -118,6 +118,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/edit/(:num)', 'User::edit/$1/$2');
         $routes->post('(:segment)/update/(:num)', 'User::update/$1/$2');
         $routes->post('(:segment)/delete/(:num)', 'User::delete/$1/$2');
+        $routes->post('siswa/nilai/export', 'NilaiSiswa::export');
 
         $routes->get('(:segment)/export-excel', 'TryoutNilai::exportExcelRekap/$1');
     });

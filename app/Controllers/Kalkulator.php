@@ -136,9 +136,9 @@ class Kalkulator extends BaseController
                     $value = 15;
                 }
                 $hasil = floor(($value / $nilai) * 100);
-                // if ($hasil > 100) {
-                //     $hasil = 100;
-                // }
+                if ($hasil > 100) {
+                    $hasil = 100;
+                }
                 break;
             case 'renang':
                 $value = 0;
@@ -148,9 +148,9 @@ class Kalkulator extends BaseController
                     $value = 14;
                 }
                 $hasil = floor(($value / $nilai) * 100);
-                // if ($hasil > 100) {
-                //     $hasil = 100;
-                // }
+                if ($hasil > 100) {
+                    $hasil = 100;
+                }
                 break;
 
             default:

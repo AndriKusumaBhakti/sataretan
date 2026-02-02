@@ -17,10 +17,10 @@
                 <?php if ($isGuruOrAdmin): ?>
                     <div class="form-group">
                         <label>Pilih User</label>
-                        <select name="user_id" class="form-control select-users" required>
+                        <select id="user_id" name="user_id" class="form-control select-users" required>
                             <option value="">-- Pilih User --</option>
                             <?php foreach ($users as $u): ?>
-                                <option value="<?= $u['id'] ?>">
+                                <option value="<?= $u['id'] ?>" data-program="<?= esc($u['program']) ?>">
                                     <?= esc($u['name']) ?> (<?= esc($u['email']) ?>)
                                 </option>
                             <?php endforeach ?>
@@ -30,11 +30,12 @@
 
                 <div class="form-group">
                     <label>Program</label>
-                    <select id="program" name="program" class="form-control select-users" required>
+                    <select id="program_display" name="program_display" class="form-control select-users" required disabled>
                         <option value="">-- Pilih Program --</option>
                         <option value="tni">TNI</option>
                         <option value="polri">POLRI</option>
                     </select>
+                    <input type="hidden" id="program" name="program" value="">
                 </div>
 
                 <div class="form-group">
@@ -124,6 +125,7 @@
 
 <script>
     const form = document.getElementById('form-jasmani');
+    const userSelect = document.getElementById('user_id');
     const program = document.getElementById('program');
     const gender = document.getElementById('jenis_kelamin');
 
@@ -155,6 +157,24 @@
 
     program.addEventListener('change', toggleForm);
     gender.addEventListener('change', toggleForm);
+
+    /* ================= AUTO SELECT PROGRAM BERDASARKAN USER ================= */
+    if (userSelect) {
+        userSelect.addEventListener('change', e => {
+            const selected = e.target.selectedOptions[0];
+            const userProgram = selected.dataset.program || '';
+            const display = document.getElementById('program_display');
+            const hidden = document.getElementById('program');
+            if (userProgram) {
+                display.value = userProgram; // untuk tampil di UI
+                hidden.value = userProgram;  // untuk dikirim ke controller
+            } else {
+                display.value = '';
+                hidden.value = '';
+            }
+            toggleForm();
+        });
+    }
 
     function getActive() {
         return document.querySelector('.jasmani-field:not(.d-none)');
