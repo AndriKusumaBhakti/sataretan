@@ -137,13 +137,6 @@
                                 class="btn btn-success rounded-pill px-4">
                                 <i class="fas fa-file-excel mr-2"></i> Excel
                             </button>
-
-                            <button type="submit"
-                                name="format"
-                                value="pdf"
-                                class="btn btn-danger rounded-pill px-4">
-                                <i class="fas fa-file-pdf mr-2"></i> PDF
-                            </button>
                         </div>
                     </form>
 
@@ -199,6 +192,20 @@
                                                 <span class="badge badge-soft-success">Aktif</span>
                                             <?php elseif ($u['paket_status'] === 'P'): ?>
                                                 <span class="badge badge-soft-warning">Pending</span>
+                                                <!-- APPROVE (KHUSUS SISWA PENDING) -->
+                                                <?php if (($isAdmin || $isSuperAdmin) && $u['paket_status'] === 'P'): ?>
+                                                    <form action="<?= base_url('master-data/siswa/approve/' . $u['id']) ?>"
+                                                        method="post"
+                                                        class="d-inline">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-success"
+                                                            onclick="return confirm('Approve siswa ini?')"
+                                                            title="Approve">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 <span class="badge badge-soft-danger">Tidak Aktif</span>
                                             <?php endif; ?>

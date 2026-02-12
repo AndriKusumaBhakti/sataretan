@@ -300,8 +300,23 @@ class NilaiSiswa extends BaseController
                 $sheet->getColumnDimension($c)->setAutoSize(true);
             }
         }
+        $namaBulan = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ];
 
-        $filename = "Rekap_Nilai_{$bulan}_{$tahun}.xlsx";
+        $bulanNama = $namaBulan[$bulan];
+        $filename = "Rekap_Nilai_{$bulanNama}_{$tahun}.xlsx";
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$filename\"");
         (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet))->save('php://output');
