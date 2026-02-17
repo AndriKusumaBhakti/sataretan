@@ -82,6 +82,22 @@
   </section>
 
   <!-- ================= PROGRAM ================= -->
+
+  <!-- ================= GRAFIK PERKEMBANGAN ================= -->
+  <section id="grafik" class="bg-black px-6 py-20 border-t border-red-900">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-3xl font-extrabold text-center mb-4">
+        Grafik Perkembangan Nilai Siswa
+      </h2>
+      <p class="text-center text-gray-400 mb-10">
+        Perbandingan setiap Company & Kategori tiap bulan
+      </p>
+
+      <div class="bg-zinc-900 border border-red-900 rounded-2xl p-6">
+        <canvas id="chartPerkembangan" height="120"></canvas>
+      </div>
+    </div>
+  </section>
   <!-- ================= PROGRAM UNGGULAN ================= -->
   <section id="informasi" class="max-w-7xl mx-auto px-6 py-20">
     <h2 class="text-3xl font-extrabold text-center mb-4">
@@ -379,9 +395,126 @@
   <footer class="bg-black text-center py-6 text-gray-400">
     © <?= date('Y') ?> SATARETAN Akademi · All Rights Reserved
   </footer>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- ================= PAGINATION SCRIPT ================= -->
   <script>
+    const rawGrafik = <?= json_encode($grafik_bulanan_company ?? []) ?>;
+
+    (function() {
+
+      if (!rawGrafik || rawGrafik.length === 0) return;
+
+      // ================= KUMPULKAN BULAN =================
+      const labels = [...new Set(rawGrafik.map(r => r.bulan))].sort();
+
+      // ================= GROUP: BULAN > COMPANY > KATEGORI =================
+      const grouped = {};
+
+      rawGrafik.forEach(r => {
+        if (!grouped[r.company]) grouped[r.company] = {};
+        if (!grouped[r.company][r.bulan]) grouped[r.company][r.bulan] = {};
+
+        grouped[r.company][r.bulan][r.kategori] = Number(r.rata_nilai);
+      });
+
+      // ================= DATASET PER COMPANY =================
+      const datasets = [];
+
+      const palette = [
+        '#facc15', '#22c55e', '#38bdf8', '#f87171',
+        '#a78bfa', '#fb923c', '#14b8a6'
+      ];
+
+      let colorIndex = 0;
+
+      Object.keys(grouped).forEach(company => {
+
+        const data = labels.map(bulan => {
+          const kategoriData = grouped[company][bulan];
+
+          if (!kategoriData) return null;
+
+          // 👉 OPSI: rata-rata dari semua kategori
+          const values = Object.values(kategoriData);
+          const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+          return avg.toFixed(1);
+        });
+
+        datasets.push({
+          label: company,
+          data: data,
+          borderColor: palette[colorIndex % palette.length],
+          backgroundColor: palette[colorIndex % palette.length] + '20',
+          borderWidth: 3,
+          tension: 0.35,
+          spanGaps: true,
+          pointRadius: 4
+        });
+
+        colorIndex++;
+      });
+
+      // ================= RENDER CHART =================
+      new Chart(document.getElementById('chartPerkembangan'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#fff'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  const company = ctx.dataset.label;
+                  const bulan = ctx.label;
+
+                  const detail = grouped[company]?.[bulan];
+                  if (!detail) return `${company}: ${ctx.raw}`;
+
+                  return Object.entries(detail)
+                    .map(([k, v]) => `${company} - ${k}: ${v}`)
+                    .join(' | ');
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: '#333'
+              }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              ticks: {
+                color: '#fff'
+              },
+              grid: {
+                color: '#333'
+              }
+            }
+          }
+        }
+      });
+
+    })();
     const alumniItems = document.querySelectorAll('.alumni-item');
     const perPage = 20;
     let page = 1;

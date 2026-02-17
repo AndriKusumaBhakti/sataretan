@@ -171,4 +171,35 @@ class TryoutModel extends Model
 
         return $this->db->query($sql)->getResultArray();
     }
+
+    public function getGrafikBulananCompanyKategori()
+    {
+        $sql = "
+    SELECT
+        best.bulan,
+        c.name AS company,
+        t.kategori,
+        ROUND(AVG(best.nilai),1) AS rata_nilai
+    FROM tryout t
+    JOIN company c ON c.id = t.company_id
+    JOIN (
+        SELECT
+            ta.user_id,
+            ta.tryout_id,
+            DATE_FORMAT(ta.started_at,'%Y-%m') AS bulan,
+            MAX(ta.skor_akhir) AS nilai
+        FROM tryout_attempts ta
+        JOIN tryout tr ON tr.id = ta.tryout_id
+        WHERE ta.started_at IS NOT NULL
+        GROUP BY ta.user_id, ta.tryout_id, bulan
+    ) best ON best.tryout_id = t.id
+    WHERE 1=1
+    ";
+        $sql .= "
+        GROUP BY best.bulan, t.company_id, t.kategori
+        ORDER BY best.bulan ASC
+    ";
+
+        return $this->db->query($sql)->getResultArray();
+    }
 }
