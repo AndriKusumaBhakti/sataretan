@@ -172,7 +172,7 @@ class TryoutNilai extends BaseController
             foreach ($soalList as $soal) {
                 $j = $this->tryoutjawabanModel
                     ->where('soal_id', $soal['id'])
-                    ->where('user_id', user_id())
+                    ->where('user_id', $attempts['user_id'])
                     ->first();
 
                 $jawaban_user = $j['jawaban'] ?? null;

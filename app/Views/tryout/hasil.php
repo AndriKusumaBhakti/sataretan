@@ -49,58 +49,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ================= REVIEW ================= -->
-        <div class="card soal-card mb-4">
-            <div class="card-body">
-
-                <h6 class="font-weight-bold mb-4 text-gray-800">
-                    Review Jawaban
-                </h6>
-
-                <?php foreach ($detail as $i => $d): ?>
-                    <div class="review-item mb-3">
-                        <div class="d-flex align-items-start gap-3">
-
-                            <span class="soal-number"><?= $i + 1 ?></span>
-
-                            <div class="flex-grow-1">
-                                <small class="d-block">
-                                    Jawaban Kamu:
-                                    <b><?= $d['jawaban_user'] ?: '-' ?></b>
-                                </small>
-
-                                <small class="d-block mb-3">
-                                    Kunci Jawaban:
-                                    <b><?= $d['jawaban_benar'] ?></b>
-                                </small>
-
-                                <div class="opsi-review">
-                                    <?php foreach (['A', 'B', 'C', 'D', 'E'] as $opsi):
-                                        $nilai_opsi = isset($d['nilai_' . strtolower($opsi)]) ? $d['nilai_' . strtolower($opsi)] : 0;
-                                        $is_user = $d['jawaban_user'] === $opsi;
-                                        $is_benar = $d['jawaban_benar'] === $opsi;
-                                    ?>
-                                        <div class="opsi-item <?= $is_benar ? 'opsi-benar' : '' ?> <?= $is_user ? 'opsi-user' : '' ?>">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="opsi-label"><?= $opsi ?></span>
-                                                <span class="opsi-nilai"><?= $nilai_opsi > 0 ? $nilai_opsi : '' ?></span>
-                                            </div>
-                                            <div class="opsi-text">
-                                                <?= esc($d['opsi_' . strtolower($opsi)]) ?>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-
-            </div>
-        </div>
-
     <?php endif; ?>
 
     <!-- ================= BUTTON ================= -->
