@@ -79,12 +79,18 @@ class NilaiSiswa extends BaseController
         $finalBobot = ['akademik' => 30, 'psikolog' => 35, 'jasmani' => 35];
 
         /* ================= SISWA ================= */
-        $siswa = $db->table('users u')
+        $query = $db->table('users u')
             ->select('u.id, u.name, up.program')
-            ->join('user_paket up', 'up.user_id=u.id')
-            ->where('up.status', 'A')
-            ->orderBy('u.name', 'ASC')
-            ->get()->getResultArray();
+            ->join('user_paket up', 'up.user_id = u.id')
+            ->where('up.status', 'A');
+
+        if (!isSuperAdmin()) {
+            $query->where('u.company_id', companyId());
+        }
+
+        $siswa = $query->orderBy('u.name', 'ASC')
+            ->get()
+            ->getResultArray();
 
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
