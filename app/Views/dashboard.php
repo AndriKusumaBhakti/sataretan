@@ -6,16 +6,12 @@
     <!-- ================= HEADER ================= -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h4 font-weight-bold text-dark mb-1">
-                Dashboard
-            </h1>
-            <p class="text-muted small mb-0">
-                Ringkasan performa dan statistik try out
-            </p>
+            <h1 class="h4 font-weight-bold text-dark mb-1">Dashboard</h1>
+            <p class="text-muted small mb-0">Ringkasan performa dan statistik try out</p>
         </div>
     </div>
 
-    <!-- ================= STATISTIK CARDS ================= -->
+    <!-- ================= STAT CARDS ================= -->
     <div class="row">
 
         <div class="col-xl-3 col-md-6 mb-4">
@@ -60,28 +56,28 @@
 
     </div>
 
-    <!-- ================= GRAFIK ================= -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-xl">
-                <div class="card-header bg-white py-3 d-flex align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        Statistik Try Out per Kategori
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="grafikTryoutKategori" height="120"></canvas>
-                </div>
+    <!-- ================= CHART ================= -->
+    <div class="card shadow-sm border-0 rounded-xl">
+        <div class="card-header bg-white py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Grafik Performa Nilai per Kategori
+            </h6>
+            <small class="text-muted">Akademik • Psikolog • Jasmani tiap bulan</small>
+        </div>
+
+        <div class="card-body">
+            <div class="chart-wrapper">
+                <canvas id="chartBulanan"></canvas>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- ================= STYLE (VISUAL ONLY) ================= -->
+<!-- ================= STYLE ================= -->
 <style>
     .stat-card {
-        border-radius: 16px;
+        border-radius: 20px;
         color: #fff;
         position: relative;
         overflow: hidden;
@@ -89,46 +85,60 @@
     }
 
     .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 32px rgba(0, 0, 0, .15);
+        transform: translateY(-6px);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, .15);
     }
 
     .stat-title {
-        font-size: 11px;
-        letter-spacing: .8px;
+        font-size: 12px;
+        letter-spacing: .7px;
         text-transform: uppercase;
         opacity: .85;
-        margin-bottom: 6px;
     }
 
     .stat-value {
-        font-size: 30px;
+        font-size: 34px;
         font-weight: 800;
-        line-height: 1;
     }
 
     .stat-icon {
         position: absolute;
         right: 18px;
-        bottom: 16px;
-        font-size: 44px;
-        opacity: .25;
+        bottom: 14px;
+        font-size: 48px;
+        opacity: .18;
     }
 
     .stat-primary {
-        background: linear-gradient(135deg, #4e73df, #224abe);
+        background: linear-gradient(135deg, #5b8cff, #1c54e8);
     }
 
     .stat-success {
-        background: linear-gradient(135deg, #1cc88a, #13855c);
+        background: linear-gradient(135deg, #22c55e, #15803d);
     }
 
     .stat-warning {
-        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        background: linear-gradient(135deg, #fbbf24, #d97706);
     }
 
     .stat-info {
-        background: linear-gradient(135deg, #36b9cc, #258391);
+        background: linear-gradient(135deg, #22d3ee, #0e7490);
+    }
+
+    .rounded-xl {
+        border-radius: 20px !important;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        width: 100%;
+        height: 420px;
+    }
+
+    @media(max-width:768px) {
+        .chart-wrapper {
+            height: 460px;
+        }
     }
 </style>
 
@@ -136,69 +146,121 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const grafikData = <?= json_encode($tryout_grafik) ?>;
+    const raw = <?= json_encode($grafik_bulanan) ?>;
 
-    const labels = grafikData.map(item => item.kategori);
-    const peserta = grafikData.map(item => item.peserta);
-    const attempt = grafikData.map(item => item.attempt);
-    const rataNilai = grafikData.map(item => item.rata_nilai);
+    /* ===== NORMALISASI ===== */
+    const bulanSet = [...new Set(raw.map(x => x.bulan))].sort();
 
-    const ctx = document.getElementById('grafikTryoutKategori').getContext('2d');
+    function formatBulan(b) {
+        const [y, m] = b.split('-');
+        return new Date(y, m - 1).toLocaleDateString('id-ID', {
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+    const labels = bulanSet.map(formatBulan);
 
+    function dataKategori(nama) {
+        return bulanSet.map(b => {
+            const f = raw.find(x => x.bulan === b && x.kategori === nama);
+            return f ? Number(f.rata_nilai) : null;
+        });
+    }
+
+    /* ===== GRADIENT ===== */
+    const ctx = document.getElementById('chartBulanan').getContext('2d');
+
+    function gradient(color) {
+        const g = ctx.createLinearGradient(0, 0, 0, 420);
+        g.addColorStop(0, color.replace('1)', '0.35)'));
+        g.addColorStop(1, color.replace('1)', '0.02)'));
+        return g;
+    }
+
+    /* ===== CHART ===== */
     new Chart(ctx, {
+        type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                    type: 'bar',
-                    label: 'Peserta',
-                    data: peserta,
-                    backgroundColor: 'rgba(28, 200, 138, 0.75)',
-                    borderRadius: 6
+                    label: 'Akademik',
+                    data: dataKategori('akademik'),
+                    borderColor: 'rgba(91,140,255,1)',
+                    backgroundColor: gradient('rgba(91,140,255,1)'),
+                    fill: true,
+                    tension: .4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 },
                 {
-                    type: 'bar',
-                    label: 'Attempt',
-                    data: attempt,
-                    backgroundColor: 'rgba(246, 194, 62, 0.75)',
-                    borderRadius: 6
+                    label: 'Psikolog',
+                    data: dataKategori('psikolog'),
+                    borderColor: 'rgba(34,197,94,1)',
+                    backgroundColor: gradient('rgba(34,197,94,1)'),
+                    fill: true,
+                    tension: .4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 },
                 {
-                    type: 'line',
-                    label: 'Rata-rata Nilai',
-                    data: rataNilai,
-                    borderColor: '#4e73df',
-                    backgroundColor: '#4e73df',
-                    borderWidth: 3,
-                    fill: false,
-                    tension: .35,
-                    yAxisID: 'y1'
+                    label: 'Jasmani',
+                    data: dataKategori('jasmani'),
+                    borderColor: 'rgba(251,191,36,1)',
+                    backgroundColor: gradient('rgba(251,191,36,1)'),
+                    fill: true,
+                    tension: .4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
                 }
             ]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            animation: {
+                duration: 1200,
+                easing: 'easeOutQuart'
+            },
+
             plugins: {
                 legend: {
-                    position: 'bottom'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Jumlah'
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 18
                     }
                 },
-                y1: {
-                    beginAtZero: true,
-                    position: 'right',
+                tooltip: {
+                    backgroundColor: '#111827',
+                    padding: 12,
+                    cornerRadius: 10,
+                    callbacks: {
+                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw ?? '-'}`
+                    }
+                }
+            },
+
+            scales: {
+                x: {
                     grid: {
-                        drawOnChartArea: false
+                        display: false
                     },
-                    title: {
-                        display: true,
-                        text: 'Nilai'
+                    ticks: {
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        callback: (v) => v + ''
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,.06)'
                     }
                 }
             }

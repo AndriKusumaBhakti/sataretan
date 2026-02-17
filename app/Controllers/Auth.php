@@ -48,7 +48,34 @@ class Auth extends BaseController
         }
         $data = $this->baseData();
         $data['tryout'] = $this->tryoutModel->getStatistikGlobal(isGuruOrAdmin());
-        $data['tryout_grafik'] = $this->tryoutModel->getGrafikPerKategori(false);
+        $data['tryout_grafik'] = $this->tryoutModel->getGrafikPerKategori(false); // ================= DUMMY DATA GRAFIK =================
+        // $grafik_bulanan = [
+        //     ['bulan' => '2025-01', 'kategori' => 'akademik', 'rata_nilai' => 72.4],
+        //     ['bulan' => '2025-01', 'kategori' => 'psikolog', 'rata_nilai' => 68.2],
+        //     ['bulan' => '2025-01', 'kategori' => 'jasmani', 'rata_nilai' => 75.1],
+
+        //     ['bulan' => '2025-02', 'kategori' => 'akademik', 'rata_nilai' => 74.6],
+        //     ['bulan' => '2025-02', 'kategori' => 'psikolog', 'rata_nilai' => 70.5],
+        //     ['bulan' => '2025-02', 'kategori' => 'jasmani', 'rata_nilai' => 77.8],
+
+        //     ['bulan' => '2025-03', 'kategori' => 'akademik', 'rata_nilai' => 76.2],
+        //     ['bulan' => '2025-03', 'kategori' => 'psikolog', 'rata_nilai' => 73.4],
+        //     ['bulan' => '2025-03', 'kategori' => 'jasmani', 'rata_nilai' => 79.2],
+
+        //     ['bulan' => '2025-04', 'kategori' => 'akademik', 'rata_nilai' => 78.8],
+        //     ['bulan' => '2025-04', 'kategori' => 'psikolog', 'rata_nilai' => 74.9],
+        //     ['bulan' => '2025-04', 'kategori' => 'jasmani', 'rata_nilai' => 81.5],
+
+        //     ['bulan' => '2025-05', 'kategori' => 'akademik', 'rata_nilai' => 80.3],
+        //     ['bulan' => '2025-05', 'kategori' => 'psikolog', 'rata_nilai' => 76.1],
+        //     ['bulan' => '2025-05', 'kategori' => 'jasmani', 'rata_nilai' => 83.2],
+
+        //     ['bulan' => '2025-06', 'kategori' => 'akademik', 'rata_nilai' => 82.7],
+        //     ['bulan' => '2025-06', 'kategori' => 'psikolog', 'rata_nilai' => 78.4],
+        //     ['bulan' => '2025-06', 'kategori' => 'jasmani', 'rata_nilai' => 85.0],
+        // ];
+
+        $data['grafik_bulanan'] = $this->tryoutModel->getGrafikBulananKategori();
         return view('dashboard', $data);
     }
 
@@ -122,7 +149,7 @@ class Auth extends BaseController
         $data['company'] = $this->company->where('status', 'active')->orderBy('id', 'ASC')
             ->findAll();
 
-            
+
         $data['program'] = $this->parameter->getValue("program");
 
         return view('register', $data);

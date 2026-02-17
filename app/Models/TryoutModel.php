@@ -52,7 +52,7 @@ class TryoutModel extends Model
 
                 COUNT(DISTINCT a.user_id) AS peserta,
                 COUNT(a.id) AS attempt,
-                COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
+                COALESCE(ROUND(AVG(a.skor_akhir), 1), 0) AS rata_nilai
             ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
             ->when(!isSuperAdmin(), function ($query) {
@@ -72,7 +72,7 @@ class TryoutModel extends Model
                 COUNT(DISTINCT t.id) AS total_tryout,
                 COUNT(DISTINCT a.user_id) AS total_peserta,
                 COUNT(a.id) AS total_attempt,
-                COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
+                COALESCE(ROUND(AVG(a.skor_akhir), 1), 0) AS rata_nilai
             ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
             ->when(!isSuperAdmin(), function ($query) {
@@ -93,7 +93,7 @@ class TryoutModel extends Model
             t.kategori,
             COUNT(DISTINCT a.user_id) AS peserta,
             COUNT(a.id) AS attempt,
-            COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100),1), 0) AS rata_nilai
+            COALESCE(ROUND(AVG(a.skor_akhir),1), 0) AS rata_nilai
         ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
             ->when(!isSuperAdmin(), function ($query) {
@@ -124,7 +124,7 @@ class TryoutModel extends Model
 
                 COUNT(DISTINCT a.user_id) AS peserta,
                 COUNT(a.id) AS attempt,
-                COALESCE(ROUND(AVG((a.skor_akhir / t.jumlah_soal) * 100), 1), 0) AS rata_nilai
+                COALESCE(ROUND(AVG(a.skor_akhir), 1), 0) AS rata_nilai
             ")
             ->join('tryout_attempts a', 'a.tryout_id = t.id', 'left')
             ->when(!isSuperAdmin(), function ($query) {
@@ -137,5 +137,38 @@ class TryoutModel extends Model
             ->orderBy('t.created_at', 'DESC')
             ->get()
             ->getResultArray();
+    }
+
+    public function getGrafikBulananKategori()
+    {
+        $sql = "
+    SELECT
+        best.bulan,
+        t.kategori,
+        ROUND(AVG(best.nilai),1) AS rata_nilai
+    FROM tryout t
+    JOIN (
+        SELECT
+            ta.user_id,
+            ta.tryout_id,
+            DATE_FORMAT(ta.started_at,'%Y-%m') AS bulan,
+            MAX(ta.skor_akhir) AS nilai
+        FROM tryout_attempts ta
+        JOIN tryout tr ON tr.id = ta.tryout_id
+        WHERE ta.started_at IS NOT NULL
+        GROUP BY ta.user_id, ta.tryout_id, bulan
+    ) best ON best.tryout_id = t.id
+    WHERE 1=1
+    ";
+
+        if (!isSuperAdmin())
+            $sql .= " AND t.company_id=" . companyId();
+
+        $sql .= "
+        GROUP BY best.bulan, t.kategori
+        ORDER BY best.bulan ASC
+    ";
+
+        return $this->db->query($sql)->getResultArray();
     }
 }
