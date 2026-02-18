@@ -75,10 +75,13 @@
                                     <?php endif; ?>
                                     <input type="file" name="gambar_opsi_<?= $opsi ?>" class="form-control-file mb-2"
                                         accept="image/*">
-                                    <input type="number" name="nilai_<?= $opsi ?>" class="form-control"
-                                        placeholder="Nilai <?= $opsi ?>"
-                                        value="<?= isset($soal['nilai_' . $opsi]) ? esc($soal['nilai_' . $opsi]) : 0 ?>"
-                                        min="0" required>
+
+                                    <?php if ($formTkp): ?>
+                                        <input type="number" name="nilai_<?= $opsi ?>" class="form-control"
+                                            placeholder="Nilai <?= $opsi ?>"
+                                            value="<?= isset($soal['nilai_' . $opsi]) ? esc($soal['nilai_' . $opsi]) : 0 ?>"
+                                            min="0" required>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

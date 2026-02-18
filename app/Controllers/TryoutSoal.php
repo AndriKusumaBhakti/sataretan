@@ -78,6 +78,19 @@ class TryoutSoal extends BaseController
         }
         $data['tryout'] = $tryout;
 
+        $dbPilihan = $tryout['ujian'] ?? [];
+        if (is_string($dbPilihan)) {
+            $decoded = json_decode($dbPilihan, true);
+            $dbPilihan = is_array($decoded) ? $decoded : [];
+        }
+        $formTkp = false;
+        foreach ($dbPilihan  as $prog => $keys):
+            if ($keys == 'kprd' || $keys == 'tkp') {
+                $formTkp = true;
+                continue;
+            }
+        endforeach;
+        $data['formTkp'] = $formTkp;
         return view('tryout/soal/tambah', $data);
     }
 
@@ -108,7 +121,8 @@ class TryoutSoal extends BaseController
             ->countAllResults();
 
         if ($jumlahSoalSekarang >= $tryout['jumlah_soal']) {
-            return redirect()->to(site_url('tryout/' . $kategori . '/' . $tryoutId . '/soal'))->with('errors', 'Jumlah soal sudah memenuhi batas');
+            return redirect()->to(site_url('tryout/' . $kategori . '/start/' . $tryoutId))
+                ->with('errors', 'Jumlah soal sudah memenuhi batas');
         }
 
         /* ================================
@@ -142,36 +156,38 @@ class TryoutSoal extends BaseController
            UPLOAD GAMBAR
         ================================= */
         $fileSoal = $this->request->getFile('gambar_soal');
+        $path = WRITEPATH . 'uploads/soal';
 
         if ($fileSoal && $fileSoal->isValid() && !$fileSoal->hasMoved()) {
+            // hapus gambar lama
             $gambarSoal = $fileSoal->getRandomName();
-            $path = WRITEPATH . 'uploads/soal';
+            if ($gambarSoal && file_exists($path . $gambarSoal)) {
+                unlink($path . $gambarSoal);
+            }
+            $fileSoal->move($path, $gambarSoal);
             $insertdata['gambar_soal'] = $gambarSoal;
         }
 
         foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-            $insertdata['opsi_'.$opsi] = $this->request->getPost('opsi_'.$opsi);
-            $insertdata['nilai_'.$opsi] = (int) $this->request->getPost('nilai_'.$opsi);
+            $insertdata['opsi_' . $opsi] = $this->request->getPost('opsi_' . $opsi);
+            $insertdata['nilai_' . $opsi] = (int) $this->request->getPost('nilai_' . $opsi);
 
             $file = $this->request->getFile('gambar_opsi_' . $opsi);
             $gambarOpsi[$opsi] = null;
 
             if ($file && $file->isValid() && !$file->hasMoved()) {
                 $namaFile = $file->getRandomName();
-                $path = WRITEPATH . 'uploads/soal';
                 $file->move($path, $namaFile);
                 $gambarOpsi[$opsi] = $namaFile;
-                $insertdata['gambar_opsi_'.$opsi] = $namaFile;
+                $insertdata['gambar_opsi_' . $opsi] = $namaFile;
             }
         }
-
         /* ================================
            SIMPAN DATABASE
         ================================= */
         $this->tryoutSoalModel->insert($insertdata);
-
-        return redirect()->to(site_url('tryout/' . $kategori . '/start/' . $tryoutId))
-            ->with('success', 'Soal berhasil ditambahkan');
+        return redirect()->to(site_url('tryout/' . $kategori . '/' . $tryoutId . '/soal'))
+                    ->with('success', 'Soal berhasil ditambahkan');
     }
 
     public function edit($kategori, $tryoutId, $soalId)
@@ -199,6 +215,19 @@ class TryoutSoal extends BaseController
             return redirect()->back()->with('errors', 'Soal tidak ditemukan');
         }
         $data['soal'] = $soal;
+        $dbPilihan = $tryout['ujian'] ?? [];
+        if (is_string($dbPilihan)) {
+            $decoded = json_decode($dbPilihan, true);
+            $dbPilihan = is_array($decoded) ? $decoded : [];
+        }
+        $formTkp = false;
+        foreach ($dbPilihan  as $prog => $keys):
+            if ($keys == 'kprd' || $keys == 'tkp') {
+                $formTkp = true;
+                continue;
+            }
+        endforeach;
+        $data['formTkp'] = $formTkp;
 
         return view('tryout/soal/edit', $data);
     }
@@ -217,7 +246,7 @@ class TryoutSoal extends BaseController
             'pertanyaan' => $this->request->getPost('pertanyaan'),
             'jawaban_benar' => $this->request->getPost('jawaban_benar'),
         ];
-        
+
         /* ================= GAMBAR SOAL ================= */
         $fileSoal = $this->request->getFile('gambar_soal');
         $gambarSoal = $soal['gambar_soal']; // default lama
@@ -238,8 +267,8 @@ class TryoutSoal extends BaseController
         $gambarOpsi = [];
 
         foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-            $updatedata['opsi_'.$opsi] = $this->request->getPost('opsi_'.$opsi);
-            $updatedata['nilai_'.$opsi] = (int) $this->request->getPost('nilai_'.$opsi);
+            $updatedata['opsi_' . $opsi] = $this->request->getPost('opsi_' . $opsi);
+            $updatedata['nilai_' . $opsi] = (int) $this->request->getPost('nilai_' . $opsi);
 
             $file = $this->request->getFile('gambar_opsi_' . $opsi);
             $gambarOpsi[$opsi] = $soal['gambar_opsi_' . $opsi]; // default lama
@@ -253,7 +282,7 @@ class TryoutSoal extends BaseController
                 $namaFile = $file->getRandomName();
                 $file->move($path, $namaFile);
                 $gambarOpsi[$opsi] = $namaFile;
-                $updatedata['gambar_opsi_'.$opsi] = $namaFile;
+                $updatedata['gambar_opsi_' . $opsi] = $namaFile;
             }
         }
 

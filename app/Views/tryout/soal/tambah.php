@@ -107,8 +107,10 @@
                                 <div class="col-md-3 col-12">
                                     <input type="file" name="gambar_opsi_<?= $opsi ?>" class="form-control-file mb-2"
                                         accept="image/*">
-                                    <input type="number" name="nilai_<?= $opsi ?>" class="form-control"
-                                        placeholder="Nilai <?= $opsi ?>" value="0" min="0" required>
+                                    <?php if ($formTkp): ?>
+                                        <input type="number" name="nilai_<?= $opsi ?>" class="form-control"
+                                            placeholder="Nilai <?= $opsi ?>" value="0" min="0" required>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
