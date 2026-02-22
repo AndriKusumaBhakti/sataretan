@@ -110,6 +110,7 @@ class Auth extends BaseController
             'Authorization' => $token,
             'name' => $user['name'],
             'photo' => $user['photo'],
+            'isLoggedIn'    => true
         ]);
         last_time_activity_session('renew');
 
