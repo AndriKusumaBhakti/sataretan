@@ -22,9 +22,17 @@
     <!-- ALERT ERROR -->
     <?php if (session()->getFlashdata('errors')): ?>
         <div class="alert alert-danger auto-close show">
-            <?php foreach (session()->getFlashdata('errors') as $err): ?>
-                <div><?= esc($err) ?></div>
-            <?php endforeach ?>
+            <?php if ($errors = session()->getFlashdata('errors')): ?>
+                    <?php
+                    if (is_array($errors) || is_object($errors)) {
+                        foreach ($errors as $err) {
+                            echo '<div>' . esc($err) . '</div>';
+                        }
+                    } else {
+                        echo '<div>' . esc($errors) . '</div>';
+                    }
+                    ?>
+            <?php endif ?>
         </div>
     <?php endif ?>
 

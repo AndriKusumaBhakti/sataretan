@@ -46,7 +46,7 @@ class Auth extends BaseController
         if (empty(user_id())) {
             $data = $this->baseData();
             $data['grafik_bulanan_company'] = $this->tryoutModel->getGrafikBulananCompanyKategori();
-            
+
             return view('index', $data);
         }
         $data = $this->baseData();
@@ -214,10 +214,21 @@ class Auth extends BaseController
     public function google()
     {
         $client = new GoogleClient();
-        $client->setClientId(getenv('GOOGLE_CLIENT_ID'));
-        $client->setClientSecret(getenv('GOOGLE_CLIENT_SECRET'));
+
+        $client->setClientId(env('GOOGLE_CLIENT_ID'));
+        $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
         $client->setRedirectUri(base_url('auth/googleCallback'));
-        $client->addScope(['email', 'profile']);
+
+        $client->addScope('email');
+        $client->addScope('profile');
+
+        $client->setAccessType('offline');
+        $client->setPrompt('select_account');
+
+        // Simpan state untuk keamanan (CSRF protection)
+        $state = bin2hex(random_bytes(16));
+        session()->set('oauth2state', $state);
+        $client->setState($state);
 
         return redirect()->to($client->createAuthUrl());
     }
@@ -225,61 +236,73 @@ class Auth extends BaseController
     public function googleCallback()
     {
         $client = new GoogleClient();
-        $client->setClientId(getenv('GOOGLE_CLIENT_ID'));
-        $client->setClientSecret(getenv('GOOGLE_CLIENT_SECRET'));
-        $client->setRedirectUri(base_url('auth/googleCallback'));
 
-        if (!$this->request->getGet('code')) {
-            return redirect()->to('/login');
+        $client->setClientId(env('GOOGLE_CLIENT_ID'));
+        $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
+        $client->setRedirectUri(site_url('auth/googleCallback'));
+
+        // 🔐 Validasi state (WAJIB kalau sebelumnya diset)
+        if ($this->request->getGet('state') !== session()->get('oauth2state')) {
+            return redirect()->to('/login')->with('errors', 'Invalid OAuth state');
         }
 
-        $token = $client->fetchAccessTokenWithAuthCode(
-            $this->request->getGet('code')
-        );
+        $code = $this->request->getGet('code');
 
-        if (isset($token['error'])) {
-            return redirect()->to('/login');
+        if (!$code) {
+            return redirect()->to('/login')->with('errors', 'Authorization code tidak ditemukan');
         }
 
-        $client->setAccessToken($token['access_token']);
+        $accessToken = $client->fetchAccessTokenWithAuthCode($code);
+
+        if (isset($accessToken['error'])) {
+            return redirect()->to('/login')->with('errors', 'Gagal mengambil access token');
+        }
+
+        $client->setAccessToken($accessToken['access_token']);
+
         $googleService = new \Google\Service\Oauth2($client);
         $googleUser = $googleService->userinfo->get();
 
-        $userModel = new UserModel();
+        $user = $this->userModel
+            ->withRole()
+            ->where('email', $googleUser->email)
+            ->first();
 
-        $user = $userModel->where('email', $googleUser->email)->first();
-
+        // cek user
         if (!$user) {
-            return redirect()->back()->with('error', 'User tidak ditemukan');
+            return redirect()->back()->with('errors', ['Email atau password salah']);
         }
         $paket = "";
         if (!validasiRole($user['role'])) {
             // Ambil paket aktif user
             $paket = $this->userPaketModel->getActivePaketUser($user['id']);
             if (!$paket) {
-                return redirect()->back()->with('errors', ['Status user tidak aktif']);
+                return redirect()->back()->with('errors', ['Menunggu verifikasi admin']);
             }
         }
-        // TODO: Tambahkan proses autentikasi (cek username/password)
-        $token = generateJWT([
-            'user_id'       => $user['id'],
-            'name'          => $user['name'],
-            'email'         => $user['email'],
-            'phone'         => $user['phone'],
-            'role'          => $user['role'],
-            'companyid'    => $user['company_id'],
-            'photo'         => $user['photo'],
-            'paket'         => $paket,
-            'logged'        => true
+
+        // 🎟 Generate JWT (jangan override access token Google)
+        $jwtToken = generateJWT([
+            'user_id'    => $user['id'],
+            'name'       => $user['name'],
+            'email'      => $user['email'],
+            'phone'      => $user['phone'],
+            'role'       => $user['role'],
+            'companyid'  => $user['company_id'],
+            'photo'      => $user['photo'],
+            'paket'      => $paket,
+            'logged'     => true
         ]);
 
         session()->set([
-            'Authorization' => $token,
-            'name' => $user['name'],
-            'photo' => $user['photo'],
+            'Authorization' => $jwtToken,
+            'name'          => $user['name'],
+            'photo'         => $user['photo'],
+            'isLoggedIn'    => true
         ]);
+
         last_time_activity_session('renew');
 
-        return redirect()->to('/dashboard');
+        return redirect()->to(site_url('/dashboard'));
     }
 }
