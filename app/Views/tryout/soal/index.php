@@ -73,11 +73,6 @@
                     </div>
 
                     <div class="card-body pt-3">
-
-                        <div class="soal-text mb-3">
-                            <?= esc($soal['pertanyaan']) ?>
-                        </div>
-
                         <?php if (!empty($soal['gambar_soal'])): ?>
                             <div class="soal-image-wrapper">
                                 <img class="img-fluid soal-image"

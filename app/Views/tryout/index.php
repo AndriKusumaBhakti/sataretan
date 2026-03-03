@@ -51,6 +51,7 @@
                         <!-- ADMIN ACTION -->
                         <?php if ($isGuruOrAdmin): ?>
                             <div class="tryout-actions">
+
                                 <?php if ($t['status'] === 'draft'): ?>
                                     <form action="<?= site_url('tryout/' . $kategori . '/publish/' . $t['id']) ?>" method="post">
                                         <?= csrf_field() ?>
@@ -65,6 +66,14 @@
                                     </form>
                                 <?php endif; ?>
 
+                                <!-- DUPLICATE BUTTON (BARU) -->
+                                <form action="<?= site_url('tryout/' . $kategori . '/duplicate/' . $t['id']) ?>" method="post">
+                                    <?= csrf_field() ?>
+                                    <button title="Duplicate">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </form>
+
                                 <a href="<?= site_url('tryout/' . $kategori . '/edit/' . $t['id']) ?>" title="Edit">
                                     <i class="fas fa-pen"></i>
                                 </a>
@@ -73,6 +82,7 @@
                                     <?= csrf_field() ?>
                                     <button title="Hapus"><i class="fas fa-trash"></i></button>
                                 </form>
+
                             </div>
                         <?php endif; ?>
 
@@ -135,7 +145,7 @@
 
 <!-- ================= STYLE ================= -->
 <style>
-    /* ===== LOADING ===== */
+    /* (SEMUA STYLE TETAP SAMA, TIDAK DIUBAH) */
     #page-loading {
         position: fixed;
         inset: 0;
@@ -162,7 +172,6 @@
         }
     }
 
-    /* ===== CARD ===== */
     .tryout-card {
         background: #fff;
         border-radius: 18px;
@@ -178,7 +187,6 @@
         box-shadow: 0 18px 40px rgba(0, 0, 0, .14)
     }
 
-    /* ===== ICON ===== */
     .tryout-icon {
         width: 52px;
         height: 52px;
@@ -192,7 +200,6 @@
         margin-bottom: 12px
     }
 
-    /* ===== TITLE ===== */
     .tryout-title {
         font-size: .95rem;
         font-weight: 700;
@@ -201,7 +208,6 @@
         min-height: 40px
     }
 
-    /* ===== META ===== */
     .tryout-meta {
         font-size: 13px;
         color: #6c757d;
@@ -219,7 +225,6 @@
         color: #28a745
     }
 
-    /* ===== STAT ===== */
     .tryout-stat {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -242,7 +247,6 @@
         color: #28a745
     }
 
-    /* ===== ACTIONS ===== */
     .tryout-actions {
         position: absolute;
         top: 12px;
@@ -271,14 +275,12 @@
         font-size: 13px
     }
 
-    /* ===== BUTTONS ===== */
     .tryout-buttons {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px
     }
 
-    /* ===== EMPTY ===== */
     .empty-state {
         background: #fff;
         border-radius: 24px;
@@ -287,7 +289,6 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, .08)
     }
 
-    /* ===== RESPONSIVE ===== */
     @media(max-width:575px) {
         .tryout-buttons {
             grid-template-columns: 1fr

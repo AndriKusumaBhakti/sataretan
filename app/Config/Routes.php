@@ -96,6 +96,8 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('(:segment)/nilai/export-excel/(:num)', 'TryoutNilai::exportExcel/$1/$2');
         $routes->get('(:segment)/nilai/tambah/(:num)', 'TryoutNilaiManual::tambah/$1/$2');
         $routes->post('(:segment)/nilai/simpan/(:num)', 'TryoutNilaiManual::simpan/$1/$2');
+
+        $routes->post('(:segment)/duplicate/(:num)', 'Tryout::duplicate/$1/$2');
     });
 
     $routes->group('video', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
@@ -128,5 +130,5 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('hitung', 'Kalkulator::hitung');
     });
 
-    $routes->get('uu/kepolisian', 'Materi::uu', ['filter' => 'role:super_admin,guru,siswa']);
+    $routes->get('uu/kepolisian', 'Materi::uu', ['filter' => 'role:super_admin,admin,guru,siswa']);
 });

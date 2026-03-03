@@ -464,7 +464,7 @@ class Tryout extends BaseController
             $jawabanMap[$j['soal_id']] = $j['jawaban'];
         }
 
-        $data['listSoal']    = $allSoal; 
+        $data['listSoal']    = $allSoal;
         $data['jawabanUser'] = $jawabanMap;
         $data['current'] = $nomor;
         $data['totalSoal'] = $totalSoal;
@@ -808,5 +808,52 @@ class Tryout extends BaseController
         }
 
         return redirect()->back()->with('success', 'Try out berhasil dinonaktifkan');
+    }
+
+    public function duplicate($kategori, $id)
+    {
+        $old = $this->tryoutModel
+            ->where('company_id', companyId())
+            ->find($id);
+
+        if (!$old) {
+            return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
+        }
+
+        $data = [
+            'company_id'      => companyId(),
+            'kategori'        => $old['kategori'],
+            'program'         => $old['program'],   // sudah JSON
+            'ujian'           => $old['ujian'],     // sudah JSON
+            'judul'           => $old['judul'] . ' (Copy)',
+            'jumlah_soal'     => $old['jumlah_soal'],
+            'durasi'          => $old['durasi'],
+            'tanggal_mulai'   => $old['tanggal_mulai'],
+            'tanggal_selesai' => $old['tanggal_selesai'],
+            'status'          => 'draft', // selalu jadi draft
+        ];
+
+        $newTryoutId = $this->tryoutModel->insert($data, true);
+
+        if (!$newTryoutId) {
+            return redirect()->back()
+                ->with('errors', 'Gagal duplicate try out');
+        }
+
+        $soalList = $this->tryoutSoalModel
+            ->where('tryout_id', $id)
+            ->findAll();
+
+        foreach ($soalList as $soal) {
+            unset($soal['id']);
+
+            $soal['tryout_id'] = $newTryoutId;
+
+            $this->tryoutSoalModel->insert($soal);
+        }
+
+        return redirect()
+            ->to(site_url('tryout/' . $kategori))
+            ->with('success', 'Try Out berhasil diduplikasi');
     }
 }
