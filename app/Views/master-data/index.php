@@ -220,6 +220,18 @@
                                             class="btn btn-sm btn-light border rounded-circle mr-1">
                                             <i class="fas fa-edit text-warning"></i>
                                         </a>
+
+                                        <form action="<?= base_url('master-data/' . $kategori . '/reset-password/' . $u['id']) ?>"
+                                            method="post"
+                                            class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <button type="submit"
+                                                class="btn btn-sm btn-light border rounded-circle mr-1"
+                                                onclick="return confirm('Reset password user ini ke default (123456)?')"
+                                                title="Reset Password">
+                                                <i class="fas fa-key text-primary"></i>
+                                            </button>
+                                        </form>
                                         <form action="<?= base_url('master-data/' . $kategori . '/delete/' . $u['id']) ?>"
                                             method="post" class="d-inline">
                                             <?= csrf_field() ?>

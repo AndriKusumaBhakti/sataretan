@@ -381,4 +381,23 @@ class User extends BaseController
         return redirect()->to(base_url('master-data/' . $kategori))
             ->with('success', 'Data berhasil diperbarui');
     }
+
+    public function resetPassword($kategori, $id)
+    {
+        // Optional: batasi hanya admin/superadmin
+        if (!isAdmin() || !isSuperAdmin()) {
+            return redirect()->back()->with('error', 'Akses ditolak.');
+        }
+
+        $defaultPassword = '123456';
+
+        $this->userModel->update($id, [
+            'password'       => md5($defaultPassword),
+            'reset_token'    => null,
+            'reset_expired'  => null,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Password berhasil direset ke default (123456)');
+    }
 }

@@ -126,6 +126,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->post('siswa/nilai/export', 'NilaiSiswa::export');
 
         $routes->get('(:segment)/export-excel', 'TryoutNilai::exportExcelRekap/$1');
+        $routes->get('(:segment)/reset-password/(:num)', 'User::resetPassword/$1/$2');
     });
 
     $routes->group('kalkulator', ['filter' => 'role:super_admin,admin,guru,siswa'], function ($routes) {
