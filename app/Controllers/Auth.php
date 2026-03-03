@@ -204,6 +204,114 @@ class Auth extends BaseController
         return view('forgot-password', $this->baseData());
     }
 
+    public function forgotPassword()
+    {
+        $rules = [
+            'email' => 'required|valid_email'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $email = $this->request->getPost('email');
+
+        $user = $this->userModel
+            ->where('email', $email)
+            ->first();
+
+        // Jangan beri tahu apakah email terdaftar atau tidak
+        if (!$user) {
+            return redirect()->back()
+                ->with('success', 'Email tidak ditemukan');
+        }
+
+        $token   = bin2hex(random_bytes(32));
+        $expired = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        $this->userModel->update($user['id'], [
+            'reset_token'   => $token,
+            'reset_expired' => $expired
+        ]);
+
+        $resetLink = base_url('reset-password/' . $token);
+
+        $emailService = \Config\Services::email();
+
+        $emailService->setFrom(env('email.fromEmail'), env('email.fromName'));
+        $emailService->setTo($email);
+        $emailService->setSubject('Reset Password');
+        $emailService->setMessage("
+    <h3>Reset Password</h3>
+    <p>Klik link berikut untuk reset password:</p>
+    <a href='{$resetLink}'>{$resetLink}</a>
+    <p>Link berlaku 1 jam.</p>
+");
+
+        if (!$emailService->send()) {
+            dd($emailService->printDebugger(['headers']));
+        }
+
+        return redirect()->back()
+            ->with('success', 'Link reset sudah dikirim ke email anda.');
+    }
+
+    public function formReset($token)
+    {
+        $user = $this->userModel
+            ->where('reset_token', $token)
+            ->where('reset_expired >=', date('Y-m-d H:i:s'))
+            ->first();
+
+        if (!$user) {
+            return redirect()->to('/login')
+                ->with('errors', ['Token tidak valid atau sudah kadaluarsa']);
+        }
+
+        return view('reset-password', [
+            'token' => $token
+        ]);
+    }
+
+    public function resetPassword()
+    {
+        $rules = [
+            'token' => 'required',
+            'password' => 'required|min_length[6]',
+            'password_confirm' => 'required|matches[password]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $token = $this->request->getPost('token');
+
+        $user = $this->userModel
+            ->where('reset_token', $token)
+            ->where('reset_expired >=', date('Y-m-d H:i:s'))
+            ->first();
+
+        if (!$user) {
+            return redirect()->to('/login')
+                ->with('errors', ['Token tidak valid atau sudah kadaluarsa']);
+        }
+
+        $this->userModel->update($user['id'], [
+            'password'       => md5($this->request->getPost('password')),
+            'reset_token'    => null,
+            'reset_expired'  => null,
+            'updated_at'     => date('Y-m-d H:i:s')
+        ]);
+
+        return redirect()->to('/login')
+            ->with('success', 'Password berhasil diperbarui, silakan login.');
+    }
+
     public function logout()
     {
         session()->remove(array_keys(session()->get()));

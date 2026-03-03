@@ -13,6 +13,8 @@ class UserModel extends Model
         'email',
         'phone',
         'password',
+        'reset_token',
+        'reset_expired',
         'role_id',
         'photo',
         'created_at',

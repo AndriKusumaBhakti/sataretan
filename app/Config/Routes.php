@@ -25,6 +25,9 @@ $routes->get('logout', 'Auth::logout');
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::save');
 $routes->get('forgot-password', 'Auth::forgot');
+$routes->post('forgot-password', 'Auth::forgotPassword');
+$routes->get('reset-password/(:any)', 'Auth::formReset/$1');
+$routes->post('reset-password', 'Auth::resetPassword');
 $routes->get('file/(:segment)/(:any)', 'FileController::show/$1/$2');
 $routes->get('file-sub/(:segment)/(:any)', 'FileController::showSub/$1/$2');
 $routes->group('/', ['filter' => 'jwt'], function ($routes) {
