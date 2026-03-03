@@ -191,6 +191,42 @@
                 });
         });
     });
+
+    /* =========================================
+       🔒 FULL LOCK MODE (NAVIGASI TETAP AKTIF)
+    ========================================= */
+
+    history.pushState(null, null, location.href);
+    window.onpopstate = function() {
+        history.go(1);
+    };
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    document.addEventListener('keydown', function(e) {
+
+        if (e.key === "F12") e.preventDefault();
+
+        if (e.ctrlKey && ['U', 'T', 'N', 'W', 'R', 'P', 'S'].includes(e.key.toUpperCase()))
+            e.preventDefault();
+
+        if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase()))
+            e.preventDefault();
+    });
+
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden && !submitted) {
+            submitted = true;
+            form.submit();
+        }
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (!submitted) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 </script>
 
 <!-- ================= STYLE ================= -->
