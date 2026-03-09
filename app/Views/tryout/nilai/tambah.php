@@ -68,8 +68,17 @@
                                 min="0"
                                 max="100"
                                 step="0.01"
-                                placeholder="Masukkan nilai peserta"
-                                required>
+                                placeholder="Kosongkan jika menggunakan deskripsi">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="small font-weight-bold text-muted">
+                                Deskripsi Nilai
+                            </label>
+                            <input type="text"
+                                name="deskripsi_nilai"
+                                class="form-control form-control-lg"
+                                placeholder="Contoh: Lulus / Remedial / Tidak Hadir">
                         </div>
 
                         <div class="alert alert-info small mt-4">

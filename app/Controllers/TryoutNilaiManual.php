@@ -70,11 +70,21 @@ class TryoutNilaiManual extends BaseController
 
     public function simpan($kategori, $tryoutId)
     {
-        $data = $this->request->getPost();
+        $userId     = $this->request->getPost('user_id');
+        $skor       = $this->request->getPost('skor_akhir');
+        $deskripsi  = $this->request->getPost('deskripsi_nilai');
 
+        // Validasi user wajib ada
+        if (!$userId) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', 'Peserta wajib dipilih');
+        }
+
+        // Cek apakah sudah ada nilai
         $exists = $this->tryoutattemptModel
             ->where('tryout_id', $tryoutId)
-            ->where('user_id', $data['user_id'])
+            ->where('user_id', $userId)
             ->first();
 
         if ($exists) {
@@ -83,13 +93,25 @@ class TryoutNilaiManual extends BaseController
                 ->with('errors', 'Peserta sudah memiliki nilai untuk tryout ini');
         }
 
+        // Normalisasi nilai kosong jadi NULL
+        $skor = ($skor !== '' && $skor !== null) ? $skor : null;
+        $deskripsi = ($deskripsi !== '' && $deskripsi !== null) ? $deskripsi : null;
+
+        if (is_null($skor) && is_null($deskripsi)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', 'Isi skor atau deskripsi minimal salah satu.');
+        }
+
+        // Insert data
         $this->tryoutattemptModel->insert([
-            'tryout_id'   => $tryoutId,
-            'user_id'        => $data['user_id'],
-            'skor_akhir'  => $data['skor_akhir'],
-            'status'      => 'finished',
-            'started_at'  => date('Y-m-d H:i:s'),
-            'finished_at' => date('Y-m-d H:i:s'),
+            'tryout_id'        => $tryoutId,
+            'user_id'          => $userId,
+            'skor_akhir'       => $skor,
+            'deskripsi_nilai'  => $deskripsi,
+            'status'           => 'finished',
+            'started_at'       => date('Y-m-d H:i:s'),
+            'finished_at'      => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()
