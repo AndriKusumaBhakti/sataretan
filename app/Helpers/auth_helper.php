@@ -250,5 +250,25 @@ function user_menu(): array
         }
     }
 
+    if ($role === 'super_admin') {
+        $menu['maintenance'] = [
+            'title'   => 'Maintenance',
+            'icon'    => 'fas fa-tools',
+            'segment' => 'maintenance',
+            'url'     => null,
+            'submenu' => [
+                [
+                    'title'      => 'Parameter',
+                    'url'        => base_url('maintenance/parameter'),
+                    'subsegment' => 'parameter'
+                ],
+                [
+                    'title'      => 'Kategori Tryout',
+                    'url'        => base_url('maintenance/kategori-tryout'),
+                    'subsegment' => 'kategori-tryout'
+                ],
+            ]
+        ];
+    }
     return array_values(array_filter($menu, fn($m) => !empty($m)));
 }

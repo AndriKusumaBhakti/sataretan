@@ -41,6 +41,25 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
     $routes->get('settings', 'Profile::settings'); // optional
     $routes->get('logout', 'Auth::logout');
 
+    $routes->group('maintenance', ['filter' => 'role:super_admin'], function ($routes) {
+        // PARAMETER
+        $routes->get('parameter', 'Parameter::index');
+
+        $routes->get('parameter/create', 'Parameter::create');
+        $routes->post('parameter/store', 'Parameter::store');
+
+        $routes->get('parameter/edit/(:num)', 'Parameter::edit/$1');
+        $routes->post('parameter/update/(:num)', 'Parameter::update/$1');
+
+        $routes->get('parameter/delete/(:num)', 'Parameter::delete/$1');
+
+
+        // TRYOUT CATEGORY
+        $routes->get('kategori-tryout', 'KategoryTryout::index');
+        $routes->post('kategori-tryout/get-by-cabang', 'KategoryTryout::getByCabang');
+        $routes->post('kategori-tryout/save', 'KategoryTryout::save');
+    });
+
     /* =====================
      *  MATERI (GURU & SISWA)
      * ===================== */

@@ -1,0 +1,172 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\ParameterModel;
+
+class Parameter extends BaseController
+{
+    protected array $menuItems = [];
+    protected $parameterModel;
+
+    public function __construct()
+    {
+        helper('auth');
+
+        $this->menuItems = user_menu();
+        $this->parameterModel = new ParameterModel();
+    }
+
+    private function baseData(): array
+    {
+        $this->checkDatabase();
+
+        $data = default_parser_item([]);
+        $data['menuItems'] = $this->menuItems;
+        $data['base_url']  = base_url('/');
+
+        return $data;
+    }
+
+    public function index()
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $data = $this->baseData();
+
+        $data['params'] = $this->parameterModel
+            ->orderBy('id', 'ASC')
+            ->findAll();
+
+        return view('parameter/index', $data);
+    }
+
+    public function create()
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $data = $this->baseData();
+
+        return view('parameter/create', $data);
+    }
+
+    public function store()
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $rules = [
+            'code'  => 'required|min_length[3]|is_unique[parameter.code]',
+            'value' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $value = $this->request->getPost('value');
+
+        // Validasi JSON
+        json_decode($value);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', ['Value harus berupa JSON valid']);
+        }
+
+        $this->parameterModel->insert([
+            'code'  => $this->request->getPost('code'),
+            'value' => $value
+        ]);
+
+        return redirect()->to(site_url('/maintenance/parameter'))
+            ->with('success', 'Parameter berhasil ditambahkan');
+    }
+
+    public function edit($id)
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $data = $this->baseData();
+
+        $param = $this->parameterModel->find($id);
+
+        if (!$param) {
+            return redirect()->back()->with('errors', ['Parameter tidak ditemukan']);
+        }
+
+        $data['param'] = $param;
+
+        return view('parameter/edit', $data);
+    }
+
+    public function update($id)
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $param = $this->parameterModel->find($id);
+
+        if (!$param) {
+            return redirect()->back()->with('errors', ['Parameter tidak ditemukan']);
+        }
+
+        $rules = [
+            'code'  => "required|min_length[3]|is_unique[parameter.code,id,$id]",
+            'value' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+
+        $value = $this->request->getPost('value');
+
+        // Validasi JSON
+        json_decode($value);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return redirect()->back()
+                ->withInput()
+                ->with('errors', ['Value harus berupa JSON valid']);
+        }
+
+        $this->parameterModel->update($id, [
+            'code'  => $this->request->getPost('code'),
+            'value' => $value
+        ]);
+
+        return redirect()->to(site_url('/maintenance/parameter'))
+            ->with('success', 'Parameter berhasil diperbarui');
+    }
+
+    public function delete($id)
+    {
+        if (!isSuperAdmin()) {
+            return redirect()->back()->with('errors', ['Akses ditolak']);
+        }
+
+        $param = $this->parameterModel->find($id);
+
+        if (!$param) {
+            return redirect()->back()->with('errors', ['Parameter tidak ditemukan']);
+        }
+
+        $this->parameterModel->delete($id);
+
+        return redirect()->to(site_url('/maintenance/parameter'))
+            ->with('success', 'Parameter berhasil dihapus');
+    }
+}
