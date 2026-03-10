@@ -46,10 +46,9 @@ class TryoutNilaiManual extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryoutQuery = $this->tryoutModel
-            ->where('id', $tryoutId);
 
-        // validasi company untuk non super admin
+        $tryoutQuery = $this->tryoutModel->where('id', $tryoutId);
+
         if (!isSuperAdmin()) {
             $tryoutQuery->where('company_id', companyId());
         }
@@ -60,10 +59,54 @@ class TryoutNilaiManual extends BaseController
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
-        $user = $this->userPaketModel->getAllUserAktifByProgram(json_decode($tryout['program']));
+        // program tryout
+        $program = json_decode($tryout['program'], true) ?? [];
+
+        // ujian yang dipakai
+        $ujianTryout = json_decode($tryout['ujian'], true) ?? [];
+
+        // ======================
+        // ambil tryout_cabang
+        // ======================
+        $builder = $this->db->table('tryout_cabang');
+
+        if (!isSuperAdmin()) {
+            $tryoutQuery->where('company_id', companyId());
+        }
+
+        $rows = $builder
+            ->where('category', $kategori)
+            ->whereIn('key', $ujianTryout)
+            ->get()
+            ->getResultArray();
+
+        // ======================
+        // tentukan jenis penilaian
+        // ======================
+        $modes = [];
+
+        foreach ($rows as $r) {
+            $modes[] = $r['penilaian_type'];
+        }
+
+        $modes = array_unique($modes);
+
+        if (count($modes) === 1) {
+            $jenisPenilaian = $modes[0]; // angka atau pernyataan
+        } else {
+            $jenisPenilaian = 'keduanya';
+        }
+
+        // ======================
+        // user peserta
+        // ======================
+        $user = $this->userPaketModel
+            ->getAllUserAktifByProgram($program);
+
         $data['users'] = $user;
         $data['tryout'] = $tryout;
         $data['tryoutId'] = $tryoutId;
+        $data['jenisPenilaian'] = $jenisPenilaian;
 
         return view('tryout/nilai/tambah', $data);
     }

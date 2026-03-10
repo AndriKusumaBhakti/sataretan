@@ -58,28 +58,19 @@
                             <span>2</span> Nilai Akhir
                         </div>
 
-                        <div class="form-group">
-                            <label class="small font-weight-bold text-muted">
-                                Skor (0 – 100)
-                            </label>
-                            <input type="number"
-                                name="skor_akhir"
-                                class="form-control form-control-lg"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                                placeholder="Kosongkan jika menggunakan deskripsi">
-                        </div>
+                        <?php if ($jenisPenilaian === 'angka' || $jenisPenilaian === 'keduanya'): ?>
+                            <div class="form-group">
+                                <label>Skor</label>
+                                <input type="number" name="skor_akhir" class="form-control">
+                            </div>
+                        <?php endif; ?>
 
-                        <div class="form-group">
-                            <label class="small font-weight-bold text-muted">
-                                Deskripsi Nilai
-                            </label>
-                            <input type="text"
-                                name="deskripsi_nilai"
-                                class="form-control form-control-lg"
-                                placeholder="Contoh: Lulus / Remedial / Tidak Hadir">
-                        </div>
+                        <?php if ($jenisPenilaian === 'pernyataan' || $jenisPenilaian === 'keduanya'): ?>
+                            <div class="form-group">
+                                <label>Deskripsi</label>
+                                <input type="text" name="deskripsi_nilai" class="form-control">
+                            </div>
+                        <?php endif; ?>
 
                         <div class="alert alert-info small mt-4">
                             <i class="fas fa-info-circle mr-1"></i>

@@ -15,6 +15,7 @@ class TryoutAttemptModel extends Model
         'started_at',
         'finished_at',
         'skor_akhir',
+        'deskripsi_nilai',
         'status'
     ];
 
@@ -28,6 +29,7 @@ class TryoutAttemptModel extends Model
                 a.started_at,
                 a.finished_at,
                 a.skor_akhir,
+                a.deskripsi_nilai,
                 a.status
             ')
             ->join('users u', 'u.id = a.user_id')
