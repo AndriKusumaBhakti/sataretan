@@ -108,8 +108,49 @@ class Tryout extends BaseController
         $data = $this->baseData();
         $data['kategori'] = $kategori;
 
-        $data['pilihan'] = $this->parameter->getValue($kategori);
-        $data['filterProgram'] = $this->parameter->getValue("filter_program");
+        $builder = $this->db->table('tryout_cabang');
+
+        if (!isSuperAdmin()) {
+            $builder->where('company_id', companyId());
+        }
+
+        $rows = $builder
+            ->where('category', $kategori)
+            ->orderBy('id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $pilihan = [];
+        $filterProgram = [];
+        $program = [];
+
+        foreach ($rows as $r) {
+
+            $programs = json_decode($r['program'], true);
+
+            // pilihan ujian
+            $pilihan[] = [
+                'key' => $r['key'],
+                'value' => $r['value'],
+                'persen' => $r['persen'],
+                'mode' => $r['mode']
+            ];
+
+            foreach ($programs as $prog) {
+
+                // filter program
+                $filterProgram[$r['category']][$prog][] = $r['key'];
+
+                // list program
+                $program[$prog] = [
+                    'key' => $prog,
+                    'value' => strtoupper($prog)
+                ];
+            }
+        }
+
+        $data['pilihan'] = $pilihan;
+        $data['filterProgram'] = $filterProgram;
         $data['program'] = $this->parameter->getValue("program");
 
         return view('tryout/tryout/tambah', $data);
@@ -216,10 +257,12 @@ class Tryout extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryoutQuery = $this->tryoutModel
-            ->where('id', $id);
 
-        // validasi company untuk non super admin
+        // =========================
+        // Ambil tryout
+        // =========================
+        $tryoutQuery = $this->tryoutModel->where('id', $id);
+
         if (!isSuperAdmin()) {
             $tryoutQuery->where('company_id', companyId());
         }
@@ -230,10 +273,55 @@ class Tryout extends BaseController
             return redirect()->back()->with('errors', 'Try Out tidak ditemukan');
         }
 
-        $data['pilihan'] = $this->parameter->getValue($kategori);
-        $data['filterProgram'] = $this->parameter->getValue("filter_program");
+        // =========================
+        // Ambil tryout_cabang
+        // =========================
+        $builder = $this->db->table('tryout_cabang');
+
+        if (!isSuperAdmin()) {
+            $builder->where('company_id', companyId());
+        }
+
+        $rows = $builder
+            ->where('category', $kategori)
+            ->orderBy('id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        $pilihan = [];
+        $filterProgram = [];
+        $program = [];
+
+        foreach ($rows as $r) {
+
+            $programs = json_decode($r['program'], true);
+
+            // pilihan ujian
+            $pilihan[] = [
+                'key' => $r['key'],
+                'value' => $r['value'],
+                'persen' => $r['persen'],
+                'mode' => $r['mode']
+            ];
+
+            foreach ($programs as $prog) {
+
+                // filter program
+                $filterProgram[$kategori][$prog][] = $r['key'];
+
+                // list program
+                $program[$prog] = [
+                    'key' => $prog,
+                    'value' => strtoupper($prog)
+                ];
+            }
+        }
+
+        $data['pilihan'] = $pilihan;
+        $data['filterProgram'] = $filterProgram;
         $data['program'] = $this->parameter->getValue("program");
         $data['tryout'] = $tryout;
+
         return view('tryout/tryout/edit', $data);
     }
 
