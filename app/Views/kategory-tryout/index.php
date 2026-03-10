@@ -11,8 +11,9 @@
 
                 <div class="card-body p-4">
 
-                    <div class="mb-4">
+                    <!-- ================= HEADER ================= -->
 
+                    <div class="mb-4">
                         <h4 class="font-weight-bold mb-1">
                             Pengaturan Tryout Cabang
                         </h4>
@@ -20,9 +21,10 @@
                         <small class="text-muted">
                             Pilih cabang tryout yang akan diaktifkan
                         </small>
-
                     </div>
 
+
+                    <!-- ================= FORM ================= -->
 
                     <form
                         id="form-tryout"
@@ -46,7 +48,9 @@
                                 name="cabang_id"
                                 class="form-control select-paket">
 
-                                <option value="">-- Pilih Cabang --</option>
+                                <option value="">
+                                    -- Pilih Cabang --
+                                </option>
 
                                 <?php foreach ($cabang as $c): ?>
 
@@ -62,7 +66,7 @@
 
 
 
-                        <!-- ================= AKADEMIK ================= -->
+                        <!-- ================= TRYOUT AKADEMIK ================= -->
 
                         <div class="mb-4">
 
@@ -77,7 +81,7 @@
 
 
 
-                        <!-- ================= PSIKOLOG ================= -->
+                        <!-- ================= TRYOUT PSIKOLOG ================= -->
 
                         <div class="mb-4">
 
@@ -91,6 +95,8 @@
                         </div>
 
 
+
+                        <!-- ================= BUTTON ================= -->
 
                         <div class="d-flex justify-content-end">
 
@@ -116,6 +122,8 @@
 </div>
 
 
+
+<!-- ================= STYLE ================= -->
 
 <style>
     .video-form-binjas {
@@ -143,14 +151,20 @@
     .select-paket {
         height: 48px;
     }
+
+    .program-box label {
+        margin-right: 10px;
+        font-size: 13px;
+    }
 </style>
 
 
 
-<script>
-    let csrfName = '<?= csrf_token() ?>';
-    let csrfHash = '<?= csrf_hash() ?>';
+<!-- ================= SCRIPT ================= -->
 
+<script>
+    let csrfName = '<?= csrf_token() ?>'
+    let csrfHash = '<?= csrf_hash() ?>'
 
 
     /* ================= LOAD CABANG ================= */
@@ -159,14 +173,13 @@
         .getElementById('cabang-select')
         .addEventListener('change', function() {
 
-            const cabangId = this.value;
+            const cabangId = this.value
 
             if (!cabangId) {
 
-                document.getElementById('akademik-container').innerHTML = '';
-                document.getElementById('psikolog-container').innerHTML = '';
-
-                return;
+                document.getElementById('akademik-container').innerHTML = ''
+                document.getElementById('psikolog-container').innerHTML = ''
+                return
 
             }
 
@@ -189,28 +202,27 @@
                 .then(res => {
 
                     if (res.csrfHash) {
-                        csrfHash = res.csrfHash;
+                        csrfHash = res.csrfHash
                     }
 
-                    renderTryout(res);
+                    renderTryout(res)
 
-                });
+                })
 
-        });
+        })
 
 
-
-    /* ================= ENABLE / DISABLE INPUT ================= */
+    /* ================= ENABLE INPUT ================= */
 
     function toggleInput(checkbox) {
 
-        const box = checkbox.closest('.tryout-box');
+        const box = checkbox.closest('.tryout-box')
 
-        const persen = box.querySelector('.persen-input');
-        const mode = box.querySelector('.mode-select');
+        const persen = box.querySelector('.persen-input')
+        const mode = box.querySelector('.mode-select')
 
-        persen.disabled = !checkbox.checked;
-        mode.disabled = !checkbox.checked;
+        persen.disabled = !checkbox.checked
+        mode.disabled = !checkbox.checked
 
     }
 
@@ -220,32 +232,30 @@
 
     function togglePenilaian(select) {
 
-        const box = select.closest('.tryout-box');
-        const penilaian = box.querySelector('.penilaian-box');
+        const box = select.closest('.tryout-box')
+        const penilaian = box.querySelector('.penilaian-box')
 
         if (select.value === 'offline') {
-
-            penilaian.style.display = 'block';
-
+            penilaian.style.display = 'block'
         } else {
-
-            penilaian.style.display = 'none';
-
+            penilaian.style.display = 'none'
         }
 
     }
 
 
 
-    /* ================= TEMPLATE ITEM ================= */
+    /* ================= TEMPLATE TRYOUT ================= */
 
     function templateTryout(category, item, selected) {
 
-        const checked = selected?.checked ?? false;
-        const persen = selected?.persen ?? '';
-        const mode = selected?.mode ?? '';
-        const penilaian_type = selected?.penilaian_type ?? '';
-        console.log(penilaian_type);
+        const checked = selected?.checked ?? false
+        const persen = selected?.persen ?? ''
+        const mode = selected?.mode ?? ''
+        const penilaian = selected?.penilaian_type ?? ''
+        const programs = selected?.program ?? []
+
+        const checkProgram = (p) => programs.includes(p) ? 'checked' : ''
 
         return `
 
@@ -260,7 +270,7 @@
                     class="form-check-input"
                     name="${category}[]"
                     value="${item.key}"
-                    ${checked ? 'checked' : ''}
+                    ${checked?'checked':''}
                     onchange="toggleInput(this)"
                 >
 
@@ -269,7 +279,6 @@
                 </label>
 
             </div>
-
 
             <div class="row">
 
@@ -285,7 +294,7 @@
                         name="persen_${category}[${item.key}]"
                         placeholder="0-100"
                         value="${persen}"
-                        ${checked ? '' : 'disabled'}
+                        ${checked?'':'disabled'}
                     >
 
                 </div>
@@ -301,16 +310,16 @@
                         class="form-control select-paket mode-select"
                         name="mode_${category}[${item.key}]"
                         onchange="togglePenilaian(this)"
-                        ${checked ? '' : 'disabled'}
+                        ${checked?'':'disabled'}
                     >
 
                         <option value="">Pilih</option>
 
-                        <option value="online" ${mode === 'online' ? 'selected' : ''}>
+                        <option value="online" ${mode==='online'?'selected':''}>
                             Online
                         </option>
 
-                        <option value="offline" ${mode === 'offline' ? 'selected' : ''}>
+                        <option value="offline" ${mode==='offline'?'selected':''}>
                             Offline
                         </option>
 
@@ -318,9 +327,11 @@
 
                 </div>
 
+
+
                 <div
                     class="col-12 mt-2 penilaian-box"
-                    style="display:${mode === 'offline' ? 'block' : 'none'}"
+                    style="display:${mode==='offline'?'block':'none'}"
                 >
 
                     <label class="small text-muted">
@@ -328,25 +339,66 @@
                     </label>
 
                     <select
-                        class="form-control select-paket mode-select"
+                        class="form-control select-paket"
                         name="penilaian_${category}[${item.key}]"
                     >
 
                         <option value="">Pilih</option>
 
-                        <option value="pernyataan" ${penilaian_type === 'pernyataan' ? 'selected' : ''}>
+                        <option value="pernyataan" ${penilaian==='pernyataan'?'selected':''}>
                             Pernyataan
                         </option>
 
-                        <option value="angka" ${penilaian_type === 'angka' ? 'selected' : ''}>
+                        <option value="angka" ${penilaian==='angka'?'selected':''}>
                             Angka
                         </option>
 
-                        <option value="keduanya" ${penilaian_type === 'keduanya' ? 'selected' : ''}>
+                        <option value="keduanya" ${penilaian==='keduanya'?'selected':''}>
                             Pernyataan + Angka
                         </option>
 
                     </select>
+
+                </div>
+
+
+
+                <div class="col-12 mt-3 program-box">
+
+                    <label class="small text-muted">
+                        Program
+                    </label>
+
+                    <div>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="program_${category}[${item.key}][]"
+                                value="polri"
+                                ${checkProgram('polri')}
+                            > POLRI
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="program_${category}[${item.key}][]"
+                                value="kedinasan"
+                                ${checkProgram('kedinasan')}
+                            > Kedinasan
+                        </label>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="program_${category}[${item.key}][]"
+                                value="tni"
+                                ${checkProgram('tni')}
+                            > TNI
+                        </label>
+
+                    </div>
 
                 </div>
 
@@ -356,8 +408,7 @@
 
     </div>
 
-    `;
-
+    `
     }
 
 
@@ -366,72 +417,70 @@
 
     function renderTryout(data) {
 
-        const akademikBox = document.getElementById('akademik-container');
-        const psikologBox = document.getElementById('psikolog-container');
+        const akademikBox = document.getElementById('akademik-container')
+        const psikologBox = document.getElementById('psikolog-container')
 
-        akademikBox.innerHTML = '';
-        psikologBox.innerHTML = '';
-
+        akademikBox.innerHTML = ''
+        psikologBox.innerHTML = ''
 
 
         data.pilihan_akademik.forEach(item => {
 
-            const selected = data.akademik.find(x => x.key === item.key) || null;
+            const selected = data.akademik.find(x => x.key === item.key) || null
 
             akademikBox.innerHTML += templateTryout(
                 'akademik',
                 item,
                 selected
-            );
+            )
 
-        });
-
+        })
 
 
         data.pilihan_psikolog.forEach(item => {
 
-            const selected = data.psikolog.find(x => x.key === item.key) || null;
+            const selected = data.psikolog.find(x => x.key === item.key) || null
 
             psikologBox.innerHTML += templateTryout(
                 'psikolog',
                 item,
                 selected
-            );
+            )
 
-        });
+        })
 
     }
 
 
 
-    /* ================= SUBMIT BUTTON ================= */
+    /* ================= SUBMIT ================= */
 
     document
         .getElementById('form-tryout')
         .addEventListener('submit', function() {
 
-            const btn = document.getElementById('btn-submit');
+            const btn = document.getElementById('btn-submit')
 
-            btn.disabled = true;
-            btn.innerHTML = 'Menyimpan...';
+            btn.disabled = true
+            btn.innerHTML = 'Menyimpan...'
 
-        });
-
+        })
 
 
     <?php if (!empty($selected_cabang)) : ?>
 
         document.addEventListener("DOMContentLoaded", function() {
 
-            const select = document.getElementById("cabang-select");
+            const select = document.getElementById("cabang-select")
 
-            select.value = "<?= $selected_cabang ?>";
+            select.value = "<?= $selected_cabang ?>"
 
-            select.dispatchEvent(new Event('change'));
+            select.dispatchEvent(new Event('change'))
 
-        });
+        })
 
     <?php endif; ?>
 </script>
+
 
 <?= $this->endSection(); ?>

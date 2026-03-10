@@ -50,7 +50,6 @@ class KategoryTryout extends BaseController
 
     public function save()
     {
-
         if (!isSuperAdmin()) {
             return redirect()->back()->with('errors', ['Akses ditolak']);
         }
@@ -61,26 +60,31 @@ class KategoryTryout extends BaseController
             return redirect()->back()->with('errors', ['Cabang harus dipilih']);
         }
 
-        $akademik = $this->request->getPost('akademik') ?? [];
-        $psikolog = $this->request->getPost('psikolog') ?? [];
-        var_dump($akademik);
-        echo '<br>';
-        var_dump($psikolog);
 
+        /* ================= POST DATA ================= */
 
-        $persenAkademik = $this->request->getPost('persen_akademik') ?? [];
-        $modeAkademik   = $this->request->getPost('mode_akademik') ?? [];
+        $akademik  = $this->request->getPost('akademik') ?? [];
+        $psikolog  = $this->request->getPost('psikolog') ?? [];
+
+        $persenAkademik    = $this->request->getPost('persen_akademik') ?? [];
+        $modeAkademik      = $this->request->getPost('mode_akademik') ?? [];
         $penilaianAkademik = $this->request->getPost('penilaian_akademik') ?? [];
+        $programAkademik   = $this->request->getPost('program_akademik') ?? [];
 
-        $persenPsikolog = $this->request->getPost('persen_psikolog') ?? [];
-        $modePsikolog   = $this->request->getPost('mode_psikolog') ?? [];
+        $persenPsikolog    = $this->request->getPost('persen_psikolog') ?? [];
+        $modePsikolog      = $this->request->getPost('mode_psikolog') ?? [];
         $penilaianPsikolog = $this->request->getPost('penilaian_psikolog') ?? [];
+        $programPsikolog   = $this->request->getPost('program_psikolog') ?? [];
+
+
+        /* ================= DELETE DATA LAMA ================= */
 
         $this->tryoutCabangModel
             ->where('company_id', $company_id)
             ->delete();
 
-        $insertData = [];
+
+        /* ================= PARAMETER MASTER ================= */
 
         $paramAkademik = $this->parameter->getValue('akademik');
         $paramPsikolog = $this->parameter->getValue('psikolog');
@@ -95,53 +99,77 @@ class KategoryTryout extends BaseController
             $mapPsikolog[$p['key']] = $p['value'];
         }
 
+
+        $insertData = [];
+
+
+        /* ================= SIMPAN AKADEMIK ================= */
+
         foreach ($akademik as $key) {
+
             $mode = $modeAkademik[$key] ?? null;
 
-            // jika online maka penilaian null
             $penilaian = 'angka';
+
             if ($mode === 'offline') {
-                $penilaian = $penilaianAkademik[$key] ?? null;
+                $penilaian = $penilaianAkademik[$key] ?? 'angka';
             }
 
+            $program = $programAkademik[$key] ?? [];
+
             $insertData[] = [
-                'company_id' => $company_id,
-                'category'   => 'akademik',
-                'key'        => $key,
-                'value'      => $mapAkademik[$key] ?? '',
-                'mode'       => $mode,
-                'persen'     => $persenAkademik[$key] ?? 0,
-                'penilaian_type'  => $penilaian
+                'company_id'      => $company_id,
+                'category'        => 'akademik',
+                'key'             => $key,
+                'value'           => $mapAkademik[$key] ?? '',
+                'mode'            => $mode,
+                'persen'          => $persenAkademik[$key] ?? 0,
+                'penilaian_type'  => $penilaian,
+                'program'         => !empty($program) ? json_encode($program) : null
             ];
         }
 
+
+        /* ================= SIMPAN PSIKOLOG ================= */
+
         foreach ($psikolog as $key) {
+
             $mode = $modePsikolog[$key] ?? null;
 
             $penilaian = 'angka';
+
             if ($mode === 'offline') {
-                $penilaian = $penilaianPsikolog[$key] ?? null;
+                $penilaian = $penilaianPsikolog[$key] ?? 'angka';
             }
 
+            $program = $programPsikolog[$key] ?? [];
+
             $insertData[] = [
-                'company_id' => $company_id,
-                'category'   => 'psikolog',
-                'key'        => $key,
-                'value'      => $mapPsikolog[$key] ?? '',
-                'mode'       => $mode,
-                'persen'     => $persenPsikolog[$key] ?? 0,
-                'penilaian_type'  => $penilaian
+                'company_id'      => $company_id,
+                'category'        => 'psikolog',
+                'key'             => $key,
+                'value'           => $mapPsikolog[$key] ?? '',
+                'mode'            => $mode,
+                'persen'          => $persenPsikolog[$key] ?? 0,
+                'penilaian_type'  => $penilaian,
+                'program'         => !empty($program) ? json_encode($program) : null
             ];
         }
+
+
+        /* ================= INSERT DATA ================= */
 
         if (!empty($insertData)) {
             $this->tryoutCabangModel->insertBatch($insertData);
         }
 
+
+        /* ================= REDIRECT ================= */
+
         return redirect()
             ->to(site_url('/maintenance/kategori-tryout'))
             ->with('success', 'Pengaturan tryout berhasil disimpan')
-            ->with('selected_cabang', $company_id); // 🔥 ini penting
+            ->with('selected_cabang', $company_id);
     }
 
     public function getByCabang()
@@ -183,7 +211,8 @@ class KategoryTryout extends BaseController
             $map[$row['category']][$row['key']] = [
                 'persen' => $row['persen'],
                 'mode'   => $row['mode'],
-                'penilaian_type'   => $row['penilaian_type']
+                'penilaian_type'   => $row['penilaian_type'],
+                'program' => $row['program'] ? json_decode($row['program'], true) : []
             ];
         }
 
@@ -203,6 +232,7 @@ class KategoryTryout extends BaseController
                 'persen' => $saved['persen'] ?? '',
                 'mode' => $saved['mode'] ?? '',
                 'penilaian_type' => $saved['penilaian_type'] ?? '',
+                'program' => $saved['program'] ?? [],
                 'checked' => $saved ? true : false
             ];
         }
@@ -223,6 +253,7 @@ class KategoryTryout extends BaseController
                 'persen' => $saved['persen'] ?? '',
                 'mode' => $saved['mode'] ?? '',
                 'penilaian_type' => $saved['penilaian_type'] ?? '',
+                'program' => $saved['program'] ?? [],
                 'checked' => $saved ? true : false
             ];
         }

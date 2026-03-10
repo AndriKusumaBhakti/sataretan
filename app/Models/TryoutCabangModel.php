@@ -16,7 +16,8 @@ class TryoutCabangModel extends Model
         'value',
         'mode',
         'persen',
-        'penilaian_type'
+        'penilaian_type',
+        'program'
     ];
 
     protected $useTimestamps = false;
