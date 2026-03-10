@@ -3,8 +3,13 @@
 
 <div class="container-fluid">
 
+    <?php
+    $deskripsiJson = json_decode($deskripsi ?? '', true);
+    ?>
+
     <!-- ================= HEADER ================= -->
     <div class="cbt-header mb-4">
+
         <div>
             <h5 class="font-weight-bold mb-1 text-gray-800">
                 <?= esc($tryout['judul']) ?>
@@ -14,14 +19,18 @@
 
         <div class="score-box">
             <small>Nilai Akhir</small>
-            <span><?= $nilai ?></span>
+            <span><?= $nilai ?: '-' ?></span>
         </div>
+
     </div>
 
+
+    <!-- ================= TRYOUT ONLINE ================= -->
     <?php if (!empty($hasOnline) && $hasOnline): ?>
 
         <!-- ================= RINGKASAN ================= -->
         <div class="row mb-4">
+
             <div class="col-md-4 mb-3 mb-md-0">
                 <div class="card hasil-card text-center">
                     <div class="card-body">
@@ -48,7 +57,9 @@
                     </div>
                 </div>
             </div>
+
         </div>
+
 
         <!-- ================= REVIEW ================= -->
         <div class="card soal-card mb-4">
@@ -59,43 +70,70 @@
                 </h6>
 
                 <?php foreach ($detail as $i => $d): ?>
+
                     <div class="review-item mb-3">
+
                         <div class="d-flex align-items-start gap-3">
 
-                            <span class="soal-number"><?= $i + 1 ?></span>
+                            <span class="soal-number">
+                                <?= $i + 1 ?>
+                            </span>
 
                             <div class="flex-grow-1">
+
                                 <small class="d-block">
-                                    Jawaban Kamu:
+                                    Jawaban Kamu :
                                     <b><?= $d['jawaban_user'] ?: '-' ?></b>
                                 </small>
 
                                 <small class="d-block mb-3">
-                                    Kunci Jawaban:
+                                    Kunci Jawaban :
                                     <b><?= $d['jawaban_benar'] ?></b>
                                 </small>
 
+
                                 <div class="opsi-review">
+
                                     <?php foreach (['A', 'B', 'C', 'D', 'E'] as $opsi):
-                                        $nilai_opsi = isset($d['nilai_' . strtolower($opsi)]) ? $d['nilai_' . strtolower($opsi)] : 0;
-                                        $is_user = $d['jawaban_user'] === $opsi;
-                                        $is_benar = $d['jawaban_benar'] === $opsi;
+
+                                        $nilai_opsi = $d['nilai_' . strtolower($opsi)] ?? 0;
+                                        $is_user    = $d['jawaban_user'] === $opsi;
+                                        $is_benar   = $d['jawaban_benar'] === $opsi;
+
                                     ?>
-                                        <div class="opsi-item <?= $is_benar ? 'opsi-benar' : '' ?> <?= $is_user ? 'opsi-user' : '' ?>">
+
+                                        <div class="opsi-item 
+                                            <?= $is_benar ? 'opsi-benar' : '' ?> 
+                                            <?= $is_user ? 'opsi-user' : '' ?>">
+
                                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="opsi-label"><?= $opsi ?></span>
-                                                <span class="opsi-nilai"><?= $nilai_opsi > 0 ? $nilai_opsi : '' ?></span>
+
+                                                <span class="opsi-label">
+                                                    <?= $opsi ?>
+                                                </span>
+
+                                                <span class="opsi-nilai">
+                                                    <?= $nilai_opsi > 0 ? $nilai_opsi : '' ?>
+                                                </span>
+
                                             </div>
+
                                             <div class="opsi-text">
                                                 <?= esc($d['opsi_' . strtolower($opsi)]) ?>
                                             </div>
+
                                         </div>
+
                                     <?php endforeach; ?>
+
                                 </div>
+
                             </div>
 
                         </div>
+
                     </div>
+
                 <?php endforeach; ?>
 
             </div>
@@ -103,12 +141,70 @@
 
     <?php endif; ?>
 
+
+
+    <!-- ================= TRYOUT OFFLINE ================= -->
+    <?php if (empty($hasOnline)): ?>
+
+        <div class="card soal-card mb-4">
+            <div class="card-body">
+
+                <h6 class="font-weight-bold mb-4 text-gray-800">
+                    Detail Penilaian
+                </h6>
+
+
+                <?php if (is_array($deskripsiJson)): ?>
+
+                    <div class="row">
+
+                        <?php foreach ($deskripsiJson as $k => $v): ?>
+
+                            <div class="col-md-4 mb-3">
+
+                                <div class="review-item text-center">
+
+                                    <small class="text-muted d-block mb-1">
+                                        <?= ucwords(str_replace('_', ' ', $k)) ?>
+                                    </small>
+
+                                    <h5 class="font-weight-bold mb-0">
+                                        <?= esc($v) ?>
+                                    </h5>
+
+                                </div>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                    </div>
+
+                <?php else: ?>
+
+                    <div class="review-item text-center">
+                        <?= esc($deskripsi ?? '-') ?>
+                    </div>
+
+                <?php endif; ?>
+
+            </div>
+        </div>
+
+    <?php endif; ?>
+
+
+
     <!-- ================= BUTTON ================= -->
     <div class="text-center mb-4">
-        <a href="<?= site_url('tryout/' . $kategori . "/nilai/" .$tryout['id']) ?>"
+
+        <a href="<?= site_url('tryout/' . $kategori . "/nilai/" . $tryout['id']) ?>"
             class="btn btn-binjas rounded-pill px-5">
+
             Kembali
+
         </a>
+
     </div>
 
 </div>

@@ -183,23 +183,6 @@ class TryoutNilai extends BaseController
                     $benar++;
                 }
 
-                foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
-
-                    $nilai_opsi = isset($soal['nilai_' . $opsi])
-                        ? (float) $soal['nilai_' . $opsi]
-                        : 0;
-
-                    // nilai maksimal per soal
-                    if ($nilai_opsi > $nilai_soal_maks) {
-                        $nilai_soal_maks = $nilai_opsi;
-                    }
-
-                    // nilai jawaban user
-                    if ($jawaban_user === $opsi) {
-                        $nilai_soal = $nilai_opsi;
-                    }
-                }
-
                 $detail[] = [
                     'pertanyaan' => $soal['pertanyaan'],
                     'jawaban_user' => $jawaban_user,
@@ -229,7 +212,8 @@ class TryoutNilai extends BaseController
             $data['total'] = 0;
             $data['benar'] = 0;
             $data['salah'] = 0;
-            $data['nilai'] = $attempts['skor_akhir'];
+            $data['nilai'] = $attempts['skor_akhir'];// tambahkan ini
+            $data['deskripsi'] = $attempts['deskripsi_nilai'];
             $data['detail'] = [];
         }
         $data['hasOnline'] = $hasOnline;
