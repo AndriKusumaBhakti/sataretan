@@ -62,7 +62,7 @@ class TryoutNilaiManual extends BaseController
         // program tryout
         $program = json_decode($tryout['program'], true) ?? [];
 
-        // ujian yang dipakai
+        // ujian tryout
         $ujianTryout = json_decode($tryout['ujian'], true) ?? [];
 
         // ======================
@@ -83,18 +83,23 @@ class TryoutNilaiManual extends BaseController
         // ======================
         // tentukan jenis penilaian
         // ======================
-        $modes = [];
+        $jenisPenilaian = 'angka'; // default
 
-        foreach ($rows as $r) {
-            $modes[] = $r['penilaian_type'];
-        }
+        if (!empty($rows)) {
 
-        $modes = array_unique($modes);
+            $modes = [];
 
-        if (count($modes) === 1) {
-            $jenisPenilaian = $modes[0]; // angka atau pernyataan
-        } else {
-            $jenisPenilaian = 'keduanya';
+            foreach ($rows as $r) {
+                $modes[] = $r['penilaian_type'];
+            }
+
+            $modes = array_unique($modes);
+
+            if (count($modes) === 1) {
+                $jenisPenilaian = $modes[0];
+            } else {
+                $jenisPenilaian = 'keduanya';
+            }
         }
 
         // ======================
@@ -107,24 +112,27 @@ class TryoutNilaiManual extends BaseController
         $data['tryout'] = $tryout;
         $data['tryoutId'] = $tryoutId;
         $data['jenisPenilaian'] = $jenisPenilaian;
+        $data['ujianTryout'] = $ujianTryout;
 
         return view('tryout/nilai/tambah', $data);
     }
 
     public function simpan($kategori, $tryoutId)
     {
-        $userId     = $this->request->getPost('user_id');
-        $skor       = $this->request->getPost('skor_akhir');
-        $deskripsi  = $this->request->getPost('deskripsi_nilai');
+        $userId = $this->request->getPost('user_id');
 
-        // Validasi user wajib ada
+        // ======================
+        // VALIDASI USER
+        // ======================
         if (!$userId) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', 'Peserta wajib dipilih');
         }
 
-        // Cek apakah sudah ada nilai
+        // ======================
+        // CEK DUPLIKASI NILAI
+        // ======================
         $exists = $this->tryoutattemptModel
             ->where('tryout_id', $tryoutId)
             ->where('user_id', $userId)
@@ -136,7 +144,65 @@ class TryoutNilaiManual extends BaseController
                 ->with('errors', 'Peserta sudah memiliki nilai untuk tryout ini');
         }
 
-        // Normalisasi nilai kosong jadi NULL
+        // ======================
+        // AMBIL INPUT DEFAULT
+        // ======================
+        $skor = $this->request->getPost('skor_akhir');
+        $deskripsi = $this->request->getPost('deskripsi_nilai');
+
+        // ======================
+        // TES KORAN (TI)
+        // ======================
+        if ($this->request->getPost('tempo') !== null) {
+
+            $deskripsi = json_encode([
+                'tempo' => $this->request->getPost('tempo'),
+                'akurasi' => $this->request->getPost('akurasi'),
+                'konsisten' => $this->request->getPost('konsisten'),
+                'daya_tahan' => $this->request->getPost('daya_tahan'),
+                'adaptasi' => $this->request->getPost('adaptasi'),
+                'disiplin' => $this->request->getPost('disiplin'),
+                'tekanan' => $this->request->getPost('tekanan'),
+                'emosi' => $this->request->getPost('emosi'),
+            ]);
+
+            $skor = null;
+        }
+
+        // ======================
+        // TES GAMBAR (TG)
+        // ======================
+        elseif ($this->request->getPost('tanggung_jawab') !== null) {
+
+            $deskripsi = json_encode([
+                'tanggung_jawab' => $this->request->getPost('tanggung_jawab'),
+                'kontrol_diri' => $this->request->getPost('kontrol_diri'),
+                'keseimbangan_sosial' => $this->request->getPost('keseimbangan_sosial'),
+                'ekspresi_diri' => $this->request->getPost('ekspresi_diri'),
+                'emosi' => $this->request->getPost('emosi'),
+            ]);
+
+            $skor = null;
+        }
+
+        // ======================
+        // MENTAL IDEOLOGI (MI)
+        // ======================
+        elseif ($this->request->getPost('tulis') !== null) {
+
+            $deskripsi = json_encode([
+                'nilai_tulis' => $this->request->getPost('tulis'),
+                'penguasaan_materi' => $this->request->getPost('materi'),
+                'kecakapan' => $this->request->getPost('kecakapan'),
+                'kedisiplinan' => $this->request->getPost('kedisiplinan'),
+            ]);
+
+            $skor = null;
+        }
+
+        // ======================
+        // VALIDASI NILAI
+        // ======================
         $skor = ($skor !== '' && $skor !== null) ? $skor : null;
         $deskripsi = ($deskripsi !== '' && $deskripsi !== null) ? $deskripsi : null;
 
@@ -146,15 +212,17 @@ class TryoutNilaiManual extends BaseController
                 ->with('errors', 'Isi skor atau deskripsi minimal salah satu.');
         }
 
-        // Insert data
+        // ======================
+        // INSERT DATA
+        // ======================
         $this->tryoutattemptModel->insert([
-            'tryout_id'        => $tryoutId,
-            'user_id'          => $userId,
-            'skor_akhir'       => $skor,
-            'deskripsi_nilai'  => $deskripsi,
-            'status'           => 'finished',
-            'started_at'       => date('Y-m-d H:i:s'),
-            'finished_at'      => date('Y-m-d H:i:s'),
+            'tryout_id' => $tryoutId,
+            'user_id' => $userId,
+            'skor_akhir' => $skor,
+            'deskripsi_nilai' => $deskripsi,
+            'status' => 'finished',
+            'started_at' => date('Y-m-d H:i:s'),
+            'finished_at' => date('Y-m-d H:i:s'),
         ]);
 
         return redirect()

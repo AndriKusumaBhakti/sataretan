@@ -17,16 +17,19 @@
                     <i class="fas fa-plus mr-1"></i> Tambah Nilai
                 </a>
             <?php endif; ?>
+
             <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                     data-toggle="dropdown">
                     <i class="fas fa-download mr-1"></i> Export
                 </button>
+
                 <div class="dropdown-menu dropdown-menu-right shadow-sm">
                     <a class="dropdown-item text-success"
                         href="<?= site_url("tryout/" . $kategori . "/nilai/export-excel/" . $tryoutId) ?>">
                         <i class="fas fa-file-excel mr-2"></i> Excel
                     </a>
+
                     <a class="dropdown-item text-danger"
                         href="<?= site_url("tryout/" . $kategori . "/nilai/export-pdf/" . $tryoutId) ?>">
                         <i class="fas fa-file-pdf mr-2"></i> PDF
@@ -44,12 +47,17 @@
 
     <!-- ================= STAT CARD ================= -->
     <?php if (!empty($nilai)): ?>
+
         <?php
         $selesai = array_filter($nilai, fn($n) => $n['status'] === 'finished');
         $ongoing = count($nilai) - count($selesai);
-        $rata2   = array_sum(array_column($nilai, 'skor_akhir')) / count($nilai);
+
+        $skorValid = array_filter(array_column($nilai, 'skor_akhir'));
+        $rata2 = $skorValid ? array_sum($skorValid) / count($skorValid) : 0;
         ?>
+
         <div class="row mb-4">
+
             <?php
             $stats = [
                 ['Peserta', count($nilai), 'users', 'primary'],
@@ -58,7 +66,9 @@
                 ['Rata-rata', number_format($rata2, 1), 'chart-line', 'info'],
             ];
             ?>
+
             <?php foreach ($stats as [$label, $value, $icon, $type]): ?>
+
                 <div class="col-xl-3 col-md-6 col-sm-6 mb-3">
                     <div class="stat-card stat-<?= $type ?>">
                         <div class="stat-body">
@@ -68,11 +78,15 @@
                         </div>
                     </div>
                 </div>
+
             <?php endforeach; ?>
+
         </div>
+
     <?php endif; ?>
 
     <!-- ================= CONTENT ================= -->
+
     <?php if (empty($nilai)): ?>
 
         <div class="empty-state">
@@ -85,8 +99,11 @@
 
         <div class="card shadow-sm border-0 rounded-lg">
             <div class="card-body p-0">
+
                 <div class="table-responsive">
+
                     <table class="table table-hover align-middle mb-0 responsive-table" id="nilaiTable">
+
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -98,58 +115,120 @@
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
+
                         <tbody>
+
                             <?php foreach ($nilai as $i => $n): ?>
+
                                 <?php
-                                $badge = $n['skor_akhir'] < 60 ? 'danger' : ($n['skor_akhir'] < 75 ? 'warning' : 'success');
+                                $deskripsiJson = json_decode($n['deskripsi_nilai'], true);
                                 ?>
+
                                 <tr>
+
                                     <td data-label="#"> <?= $i + 1 ?> </td>
-                                    <td data-label="Nama" class="font-weight-bold"><?= esc($n['nama']) ?></td>
-                                    <td data-label="Mulai"><?= date('d M Y H:i', strtotime($n['started_at'])) ?></td>
+
+                                    <td data-label="Nama" class="font-weight-bold">
+                                        <?= esc($n['nama']) ?>
+                                    </td>
+
+                                    <td data-label="Mulai">
+                                        <?= date('d M Y H:i', strtotime($n['started_at'])) ?>
+                                    </td>
+
                                     <td data-label="Selesai">
                                         <?= $n['finished_at']
                                             ? date('d M Y H:i', strtotime($n['finished_at']))
                                             : '-' ?>
                                     </td>
+
                                     <td data-label="Nilai" class="text-center">
-                                        <span class="badge badge-<?= $badge ?> badge-pill px-3 py-2">
-                                            <?= number_format($n['skor_akhir'], 2) ?>
-                                        </span>
+
+                                        <?php if (!empty($n['skor_akhir'])): ?>
+
+                                            <?php
+                                            $badge = $n['skor_akhir'] < 60 ? 'danger'
+                                                : ($n['skor_akhir'] < 75 ? 'warning' : 'success');
+                                            ?>
+
+                                            <span class="badge badge-<?= $badge ?> badge-pill px-3 py-2">
+                                                <?= number_format($n['skor_akhir'], 2) ?>
+                                            </span>
+
+                                        <?php elseif (is_array($deskripsiJson)): ?>
+
+                                            <div class="text-left small">
+
+                                                <?php foreach ($deskripsiJson as $k => $v): ?>
+
+                                                    <div>
+                                                        <strong><?= ucwords(str_replace('_', ' ', $k)) ?>:</strong>
+                                                        <?= esc($v) ?>
+                                                    </div>
+
+                                                <?php endforeach ?>
+
+                                            </div>
+
+                                        <?php else: ?>
+
+                                            <?= esc($n['deskripsi_nilai']) ?>
+
+                                        <?php endif; ?>
+
                                     </td>
+
                                     <td data-label="Status" class="text-center">
+
                                         <span class="badge badge-soft-<?= $n['status'] === 'finished' ? 'success' : 'warning' ?>">
                                             <?= ucfirst($n['status']) ?>
                                         </span>
+
                                     </td>
+
                                     <td data-label="Aksi" class="text-center">
+
                                         <div class="dropdown">
+
                                             <button class="btn btn-sm btn-light border dropdown-toggle"
                                                 data-toggle="dropdown">
                                                 Aksi
                                             </button>
+
                                             <div class="dropdown-menu dropdown-menu-right shadow-sm">
+
                                                 <a class="dropdown-item"
                                                     href="<?= site_url("tryout/" . $kategori . "/nilai/detail/" . $n['id']) ?>">
                                                     <i class="fas fa-eye mr-2 text-primary"></i> Detail
                                                 </a>
+
                                                 <a class="dropdown-item text-danger"
                                                     href="<?= site_url("tryout/" . $kategori . "/nilai/reset/" . $n['id']) ?>"
                                                     onclick="return confirm('Reset jawaban peserta ini?')">
                                                     <i class="fas fa-trash mr-2"></i> Reset
                                                 </a>
+
                                             </div>
+
                                         </div>
+
                                     </td>
+
                                 </tr>
+
                             <?php endforeach ?>
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
         </div>
 
     <?php endif; ?>
+
 </div>
 
 <!-- ================= STYLE ================= -->
@@ -245,8 +324,8 @@
         margin-bottom: 12px;
     }
 
-    /* ===== MOBILE TABLE ===== */
-    @media (max-width: 768px) {
+    @media (max-width:768px) {
+
         .responsive-table thead {
             display: none;
         }
@@ -269,12 +348,15 @@
             font-weight: 600;
             color: #6c757d;
         }
+
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
         if (window.jQuery && $('#nilaiTable').length) {
+
             $('#nilaiTable').DataTable({
                 pageLength: 10,
                 responsive: true,
@@ -282,7 +364,9 @@
                     [4, 'desc']
                 ]
             });
+
         }
+
     });
 </script>
 

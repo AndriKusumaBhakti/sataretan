@@ -38,10 +38,13 @@
                             <label class="small font-weight-bold text-muted">
                                 Pilih Peserta
                             </label>
+
                             <select name="user_id"
                                 class="form-control form-control-lg"
                                 required>
+
                                 <option value="">-- Pilih Peserta --</option>
+
                                 <?php foreach ($users as $u): ?>
                                     <option value="<?= $u['id'] ?>">
                                         <?= esc($u['name']) ?>
@@ -50,27 +53,136 @@
                                         <?php endif; ?>
                                     </option>
                                 <?php endforeach ?>
+
                             </select>
                         </div>
 
                         <!-- ================= NILAI ================= -->
                         <div class="section-title mt-5">
-                            <span>2</span> Nilai Akhir
+                            <span>2</span> Nilai
                         </div>
 
-                        <?php if ($jenisPenilaian === 'angka' || $jenisPenilaian === 'keduanya'): ?>
+
+                        <?php if (in_array('tk', $ujianTryout)): ?>
+
+                            <!-- ================= TES KORAN ================= -->
+
                             <div class="form-group">
-                                <label>Skor</label>
-                                <input type="number" name="skor_akhir" class="form-control">
+                                <label>Kecepatan Tempo</label>
+                                <input type="text" name="tempo" class="form-control">
                             </div>
+
+                            <div class="form-group">
+                                <label>Akurasi</label>
+                                <input type="text" name="akurasi" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Konsisten</label>
+                                <input type="text" name="konsisten" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Daya Tahan</label>
+                                <input type="text" name="daya_tahan" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kemampuan Adaptasi</label>
+                                <input type="text" name="adaptasi" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kedisiplinan</label>
+                                <input type="text" name="disiplin" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kemampuan Kerja Dalam Tekanan</label>
+                                <input type="text" name="tekanan" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kestabilan Emosi</label>
+                                <input type="text" name="emosi" class="form-control">
+                            </div>
+
+
+                        <?php elseif (in_array('tg', $ujianTryout)): ?>
+
+                            <!-- ================= TES GAMBAR ================= -->
+
+                            <div class="form-group">
+                                <label>Tanggung Jawab</label>
+                                <input type="text" name="tanggung_jawab" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kontrol Diri</label>
+                                <input type="text" name="kontrol_diri" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Keseimbangan Sosial</label>
+                                <input type="text" name="keseimbangan_sosial" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Ekspresi Diri</label>
+                                <input type="text" name="ekspresi_diri" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kestabilan Emosi</label>
+                                <input type="text" name="emosi" class="form-control">
+                            </div>
+
+
+                        <?php elseif (in_array('mi', $ujianTryout)): ?>
+
+                            <!-- ================= MENTAL IDEOLOGI ================= -->
+
+                            <div class="form-group">
+                                <label>Nilai Tulis</label>
+                                <input type="number" name="tulis" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Penguasaan Materi</label>
+                                <input type="number" name="materi" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kecakapan</label>
+                                <input type="text" name="kecakapan" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kedisiplinan</label>
+                                <input type="text" name="kedisiplinan" class="form-control">
+                            </div>
+
+
+                        <?php else: ?>
+
+                            <!-- ================= DEFAULT MODE ================= -->
+
+                            <?php if ($jenisPenilaian === 'angka' || $jenisPenilaian === 'keduanya'): ?>
+                                <div class="form-group">
+                                    <label>Skor</label>
+                                    <input type="number" name="skor_akhir" class="form-control">
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($jenisPenilaian === 'pernyataan' || $jenisPenilaian === 'keduanya'): ?>
+                                <div class="form-group">
+                                    <label>Deskripsi</label>
+                                    <input type="text" name="deskripsi_nilai" class="form-control">
+                                </div>
+                            <?php endif; ?>
+
                         <?php endif; ?>
 
-                        <?php if ($jenisPenilaian === 'pernyataan' || $jenisPenilaian === 'keduanya'): ?>
-                            <div class="form-group">
-                                <label>Deskripsi</label>
-                                <input type="text" name="deskripsi_nilai" class="form-control">
-                            </div>
-                        <?php endif; ?>
 
                         <div class="alert alert-info small mt-4">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -80,16 +192,19 @@
 
                         <!-- ================= BUTTON ================= -->
                         <div class="d-flex flex-column flex-md-row justify-content-end mt-5 gap-2">
+
                             <a href="<?= site_url("tryout/$kategori/nilai/$tryoutId") ?>"
                                 class="btn btn-light rounded-pill px-4">
                                 Batal
                             </a>
+
                             <button type="submit"
                                 id="btn-submit"
                                 class="btn btn-success rounded-pill px-5">
                                 <i class="fas fa-save mr-2"></i>
                                 Simpan Nilai
                             </button>
+
                         </div>
 
                     </form>
