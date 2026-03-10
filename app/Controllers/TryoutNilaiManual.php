@@ -71,7 +71,7 @@ class TryoutNilaiManual extends BaseController
         $builder = $this->db->table('tryout_cabang');
 
         if (!isSuperAdmin()) {
-            $tryoutQuery->where('company_id', companyId());
+            $builder->where('company_id', companyId());
         }
 
         $rows = $builder
