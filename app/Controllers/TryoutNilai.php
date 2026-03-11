@@ -67,7 +67,7 @@ class TryoutNilai extends BaseController
         if (!$tryout) {
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
-        
+
         $attempts = $this->tryoutattemptModel->getDaftarNilai($tryoutId);
 
         $hasOnline = false;
@@ -229,10 +229,9 @@ class TryoutNilai extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryoutQuery = $this->tryoutModel
-            ->where('id', $tryoutId);
 
-        // validasi company untuk non super admin
+        $tryoutQuery = $this->tryoutModel->where('id', $tryoutId);
+
         if (!isSuperAdmin()) {
             $tryoutQuery->where('company_id', companyId());
         }
@@ -243,24 +242,84 @@ class TryoutNilai extends BaseController
             return redirect()->back()->with('errors', ['Tryout tidak ditemukan']);
         }
 
+        /* ================= AMBIL NILAI ================= */
+
         $nilai = $this->tryoutattemptModel->getDaftarNilai($tryoutId);
 
         if (empty($nilai)) {
             return redirect()->back()->with('error', 'Data nilai kosong');
         }
 
+        /* ================= DETEKSI KEY JSON ================= */
+
+        $jsonKeys = [];
+
+        foreach ($nilai as $n) {
+
+            $json = json_decode($n['deskripsi_nilai'], true);
+
+            if (is_array($json)) {
+
+                foreach ($json as $key => $val) {
+
+                    if (!in_array($key, $jsonKeys)) {
+                        $jsonKeys[] = $key;
+                    }
+                }
+            }
+        }
+
+        /* ================= FORMAT DATA ================= */
+
+        foreach ($nilai as &$n) {
+
+            $json = json_decode($n['deskripsi_nilai'], true);
+
+            if (is_array($json)) {
+
+                foreach ($jsonKeys as $key) {
+
+                    $n['json_' . $key] = $json[$key] ?? '';
+                }
+            } else {
+
+                foreach ($jsonKeys as $key) {
+                    $n['json_' . $key] = '';
+                }
+
+                if (!empty($n['skor_akhir'])) {
+                    $n['json_nilai'] = number_format($n['skor_akhir'], 2);
+                } else {
+                    $n['json_nilai'] = $n['deskripsi_nilai'];
+                }
+            }
+        }
+
+        /* ================= VIEW ================= */
+
         $html = view('tryout/tryout/nilai-pdf', [
             'nilai' => $nilai,
-            'judul' => 'Daftar Nilai Try Out'
+            'jsonKeys' => $jsonKeys,
+            'judul' => 'Daftar Nilai Try Out',
+            'tryout' => $tryout,
+            'kategori' => $kategori
         ]);
 
-        $dompdf = new Dompdf([
-            'isRemoteEnabled' => true,
-            'defaultFont' => 'Helvetica'
-        ]);
+        /* ================= DOMPDF ================= */
+
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Helvetica');
+        $options->set('isHtml5ParserEnabled', true);
+
+        $dompdf = new \Dompdf\Dompdf($options);
 
         $dompdf->loadHtml($html);
+
         $dompdf->setPaper('A4', 'landscape');
+
+        ini_set('memory_limit', '512M');
+
         $dompdf->render();
 
         return $this->response
@@ -278,10 +337,9 @@ class TryoutNilai extends BaseController
     {
         $data = $this->baseData();
         $data['kategori'] = $kategori;
-        $tryoutQuery = $this->tryoutModel
-            ->where('id', $tryoutId);
 
-        // validasi company untuk non super admin
+        $tryoutQuery = $this->tryoutModel->where('id', $tryoutId);
+
         if (!isSuperAdmin()) {
             $tryoutQuery->where('company_id', companyId());
         }
@@ -298,33 +356,93 @@ class TryoutNilai extends BaseController
             return redirect()->back()->with('error', 'Data nilai kosong');
         }
 
+        /* ================= DETEKSI SEMUA KEY JSON ================= */
+
+        $jsonKeys = [];
+
+        foreach ($nilai as $n) {
+
+            $json = json_decode($n['deskripsi_nilai'], true);
+
+            if (is_array($json)) {
+
+                foreach ($json as $key => $val) {
+
+                    if (!in_array($key, $jsonKeys)) {
+                        $jsonKeys[] = $key;
+                    }
+                }
+            }
+        }
+
+        /* ================= HEADER ================= */
+
+        $headers = ['No', 'Nama', 'Mulai', 'Selesai'];
+
+        foreach ($jsonKeys as $k) {
+
+            $headers[] = ucwords(str_replace('_', ' ', $k));
+        }
+
+        // jika tidak ada json maka pakai kolom nilai biasa
+        if (empty($jsonKeys)) {
+            $headers[] = 'Nilai';
+        }
+
+        $headers[] = 'Status';
+
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // ===== HEADER =====
-        $headers = ['No', 'Nama', 'Mulai', 'Selesai', 'Nilai', 'Status'];
         $sheet->fromArray($headers, null, 'A1');
 
-        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')
+            ->getFont()
+            ->setBold(true);
 
-        // ===== DATA =====
+        /* ================= DATA ================= */
+
         $row = 2;
+
         foreach ($nilai as $i => $n) {
-            $sheet->fromArray([
+
+            $dataRow = [
                 $i + 1,
                 $n['nama'],
                 date('d M Y H:i', strtotime($n['started_at'])),
                 $n['finished_at']
                     ? date('d M Y H:i', strtotime($n['finished_at']))
-                    : '-',
-                $n['skor_akhir'],
-                ucfirst($n['status'])
-            ], null, 'A' . $row);
+                    : '-'
+            ];
+
+            $json = json_decode($n['deskripsi_nilai'], true);
+
+            if (is_array($json)) {
+
+                foreach ($jsonKeys as $key) {
+
+                    $dataRow[] = $json[$key] ?? '';
+                }
+            } else {
+
+                if (empty($jsonKeys)) {
+
+                    $dataRow[] = $n['skor_akhir']
+                        ? number_format($n['skor_akhir'], 2)
+                        : $n['deskripsi_nilai'];
+                }
+            }
+
+            $dataRow[] = ucfirst($n['status']);
+
+            $sheet->fromArray($dataRow, null, 'A' . $row);
+
             $row++;
         }
 
-        // ===== AUTO WIDTH =====
-        foreach (range('A', 'F') as $col) {
+        /* ================= AUTO WIDTH ================= */
+
+        foreach (range('A', $sheet->getHighestColumn()) as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
