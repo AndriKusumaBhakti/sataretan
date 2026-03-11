@@ -9,6 +9,7 @@ use App\Models\TryoutJawabanModel;
 use App\Models\TryoutAttemptModel;
 use App\Models\UserPaketModel;
 use App\Models\ParameterModel;
+use App\Models\TryoutCabangModel;
 
 class TryoutNilaiManual extends BaseController
 {
@@ -19,6 +20,7 @@ class TryoutNilaiManual extends BaseController
     protected array $menuItems = [];
     protected $userPaketModel;
     protected $parameter;
+    protected $tryoutCabangModel;
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class TryoutNilaiManual extends BaseController
         $this->tryoutattemptModel  = new TryoutAttemptModel();
         $this->userPaketModel = new UserPaketModel();
         $this->parameter = new ParameterModel();
+        $this->tryoutCabangModel = new TryoutCabangModel();
     }
 
     private function baseData(): array
@@ -65,10 +68,7 @@ class TryoutNilaiManual extends BaseController
         // ujian tryout
         $ujianTryout = json_decode($tryout['ujian'], true) ?? [];
 
-        // ======================
-        // ambil tryout_cabang
-        // ======================
-        $builder = $this->db->table('tryout_cabang');
+        $builder = $this->tryoutCabangModel;
 
         if (!isSuperAdmin()) {
             $builder->where('company_id', companyId());
@@ -76,7 +76,6 @@ class TryoutNilaiManual extends BaseController
 
         $rows = $builder
             ->where('category', $kategori)
-            ->whereIn('key', $ujianTryout)
             ->get()
             ->getResultArray();
 

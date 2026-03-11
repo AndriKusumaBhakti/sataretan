@@ -9,6 +9,7 @@ use App\Models\TryoutJawabanModel;
 use App\Models\TryoutAttemptModel;
 use App\Models\UserPaketModel;
 use App\Models\ParameterModel;
+use App\Models\TryoutCabangModel;
 
 use Dompdf\Dompdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -23,6 +24,7 @@ class TryoutNilai extends BaseController
     protected array $menuItems = [];
     protected $userPaketModel;
     protected $parameter;
+    protected $tryoutCabangModel;
 
     public function __construct()
     {
@@ -34,6 +36,7 @@ class TryoutNilai extends BaseController
         $this->tryoutattemptModel  = new TryoutAttemptModel();
         $this->userPaketModel = new UserPaketModel();
         $this->parameter = new ParameterModel();
+        $this->tryoutCabangModel = new TryoutCabangModel();
     }
 
     private function baseData(): array
@@ -212,7 +215,7 @@ class TryoutNilai extends BaseController
             $data['total'] = 0;
             $data['benar'] = 0;
             $data['salah'] = 0;
-            $data['nilai'] = $attempts['skor_akhir'];// tambahkan ini
+            $data['nilai'] = $attempts['skor_akhir']; // tambahkan ini
             $data['deskripsi'] = $attempts['deskripsi_nilai'];
             $data['detail'] = [];
         }
