@@ -62,10 +62,15 @@ class NilaiSiswa extends BaseController
         $db = \Config\Database::connect();
 
         /* ================= MASTER (AMBIL DARI tryout_cabang) ================= */
+        $queryTryoutCabang = $db->table('tryout_cabang');
 
-        $cabang = $db->table('tryout_cabang')
-            ->where('company_id', companyId())
-            ->get()
+        if (!isSuperAdmin()) {
+            $queryTryoutCabang->where('company_id', companyId());
+        } else {
+            $queryTryoutCabang->where('company_id', 1);
+        }
+
+        $cabang = $queryTryoutCabang->get()
             ->getResultArray();
 
         $akademikMaster = [];
@@ -135,6 +140,8 @@ class NilaiSiswa extends BaseController
 
         if (!isSuperAdmin()) {
             $query->where('u.company_id', companyId());
+        } else {
+            $query->where('u.company_id', 1);
         }
 
         $siswa = $query->orderBy('u.name', 'ASC')
