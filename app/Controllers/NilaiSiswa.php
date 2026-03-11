@@ -61,24 +61,73 @@ class NilaiSiswa extends BaseController
 
         $db = \Config\Database::connect();
 
-        /* ================= MASTER ================= */
-        $akademikMaster = $this->parameter->getValue('akademik');
-        $psikologMaster = $this->parameter->getValue('psikolog');
-        $mapping        = $this->parameter->getValue('filter_program');
+        /* ================= MASTER (AMBIL DARI tryout_cabang) ================= */
+
+        $cabang = $db->table('tryout_cabang')
+            ->where('company_id', companyId())
+            ->get()
+            ->getResultArray();
+
+        $akademikMaster = [];
+        $psikologMaster = [];
+
+        $mapping = [
+            'akademik' => [
+                'polri' => [],
+                'kedinasan' => [],
+                'tni' => []
+            ],
+            'psikolog' => [
+                'polri' => [],
+                'kedinasan' => [],
+                'tni' => []
+            ]
+        ];
 
         $akdPersen = [];
-        foreach ($akademikMaster as $m) {
-            $akdPersen[$m['key']] = (float)$m['persen'];
-        }
-
         $psiPersen = [];
-        foreach ($psikologMaster as $m) {
-            $psiPersen[$m['key']] = (float)$m['persen'];
+
+        foreach ($cabang as $c) {
+
+            $programs = json_decode($c['program'], true);
+
+            if ($c['category'] == 'akademik') {
+
+                $akademikMaster[] = [
+                    'key' => $c['key'],
+                    'value' => $c['value'],
+                    'persen' => $c['persen'],
+                    'mode' => $c['mode']
+                ];
+
+                $akdPersen[$c['key']] = (float)$c['persen'];
+
+                foreach ($programs as $p) {
+                    $mapping['akademik'][$p][] = $c['key'];
+                }
+            }
+
+            if ($c['category'] == 'psikolog') {
+
+                $psikologMaster[] = [
+                    'key' => $c['key'],
+                    'value' => $c['value'],
+                    'persen' => $c['persen'],
+                    'mode' => $c['mode']
+                ];
+
+                $psiPersen[$c['key']] = (float)$c['persen'];
+
+                foreach ($programs as $p) {
+                    $mapping['psikolog'][$p][] = $c['key'];
+                }
+            }
         }
 
         $finalBobot = ['akademik' => 30, 'psikolog' => 35, 'jasmani' => 35];
 
         /* ================= SISWA ================= */
+
         $query = $db->table('users u')
             ->select('u.id, u.name, up.program')
             ->join('user_paket up', 'up.user_id = u.id')
@@ -101,75 +150,91 @@ class NilaiSiswa extends BaseController
             $sheet->setTitle(strtoupper($program));
 
             /* ================= TITLE ================= */
+
             $sheet->mergeCells('A1:Z1');
             $sheet->setCellValue('A1', 'REKAP NILAI TRYOUT - ' . strtoupper($program));
             $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
             $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
 
             /* ================= STYLE ================= */
+
             $styleHeader = [
                 'font' => ['bold' => true],
                 'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
                 'borders' => ['allBorders' => ['borderStyle' => 'thin']]
             ];
 
-            $styleAkd   = ['fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E8F5E9']]];
-            $stylePsi   = ['fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'FFFDE7']]];
-            $styleFinal = ['fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'E3F2FD']]];
-
             /* ================= HEADER ================= */
+
             $sheet->setCellValue('A2', 'NO')
                 ->setCellValue('B2', 'NAMA');
+
             $sheet->mergeCells('A2:A3')
                 ->mergeCells('B2:B3');
 
             $col = 'C';
 
             /* ================= AKADEMIK ================= */
+
             $startAkd = $col;
+
             foreach ($akademikMaster as $m) {
+
                 if (!in_array($m['key'], $mapping['akademik'][$program])) continue;
 
                 $sheet->setCellValue($col . '3', $m['value']);
                 $col++;
+
                 $sheet->setCellValue($col . '3', $m['value'] . ' (' . $akdPersen[$m['key']] . '%)');
                 $col++;
             }
+
             $sheet->setCellValue($col . '3', 'NILAI AKADEMIK');
             $nilaiAkdCol = $col;
 
             $sheet->mergeCells($startAkd . '2:' . $col . '2')
                 ->setCellValue($startAkd . '2', 'AKADEMIK');
+
             $col++;
 
             /* ================= PSIKOLOG ================= */
+
             $startPsi = $col;
+
             foreach ($psikologMaster as $m) {
+
                 if (!in_array($m['key'], $mapping['psikolog'][$program])) continue;
 
                 $sheet->setCellValue($col . '3', $m['value']);
                 $col++;
+
                 $sheet->setCellValue($col . '3', $m['value'] . ' (' . $psiPersen[$m['key']] . '%)');
                 $col++;
             }
+
             $sheet->setCellValue($col . '3', 'NILAI PSIKOLOG');
             $nilaiPsiCol = $col;
 
             $sheet->mergeCells($startPsi . '2:' . $col . '2')
                 ->setCellValue($startPsi . '2', 'PSIKOLOG');
+
             $col++;
 
             /* ================= JASMANI ================= */
-            $showJasmani = ($program !== 'kedinasan'); // Kedinasan tidak pakai Jasmani
+
+            $showJasmani = ($program !== 'kedinasan');
 
             if ($showJasmani) {
+
                 $sheet->setCellValue($col . '2', 'JASMANI');
                 $sheet->mergeCells($col . '2:' . $col . '3');
+
                 $sheet->setCellValue($col . '3', 'NILAI JASMANI');
                 $nilaiJasCol = $col++;
             }
 
             /* ================= NILAI AKHIR ================= */
+
             $startFinal = $col;
 
             $sheet->setCellValue($col . '3', 'AKADEMIK');
@@ -190,28 +255,29 @@ class NilaiSiswa extends BaseController
                 ->setCellValue($startFinal . '2', 'NILAI AKHIR');
 
             /* ================= DATA ================= */
+
             $row = 4;
             $no  = 1;
 
             foreach ($siswa as $s) {
+
                 if ($s['program'] !== $program) continue;
 
                 $nilaiAkd = array_fill_keys($mapping['akademik'][$program], 0);
                 $nilaiPsi = array_fill_keys($mapping['psikolog'][$program], 0);
 
-                /* ================== Ambil Nilai Jasmani ================== */
+                /* ================= JASMANI ================= */
+
                 $nilaiJas = 0;
+
                 if ($showJasmani) {
+
                     $jasmani = $this->jasmani
-                        ->select('jasmani.*, users.name, users.email')
-                        ->join('users', 'users.id = jasmani.user_id', 'left')
-                        ->when(!isSuperAdmin(), function ($query) {
-                            $query->where('users.company_id', companyId());
-                        })
-                        ->where('jasmani.user_id', $s['id'])
+                        ->where('user_id', $s['id'])
                         ->first();
 
                     if ($jasmani) {
+
                         if ($jasmani['kategori'] === 'tni') {
                             $nilaiJas = $this->hitungTotalTni($jasmani);
                         } else {
@@ -220,7 +286,8 @@ class NilaiSiswa extends BaseController
                     }
                 }
 
-                /* ================== Ambil Nilai Tryout ================== */
+                /* ================= TRYOUT ================= */
+
                 $attempts = $db->table('tryout_attempts ta')
                     ->select('t.kategori, t.ujian, ta.skor_akhir')
                     ->join('tryout t', 't.id=ta.tryout_id')
@@ -230,47 +297,69 @@ class NilaiSiswa extends BaseController
                     ->get()->getResultArray();
 
                 foreach ($attempts as $a) {
+
                     $uj = json_decode($a['ujian'], true);
+
                     if (!isset($uj[$program])) continue;
 
                     $k = strtolower($uj[$program]);
+
                     if ($a['kategori'] === 'akademik' && isset($nilaiAkd[$k])) {
                         $nilaiAkd[$k] = $a['skor_akhir'];
                     }
+
                     if ($a['kategori'] === 'psikolog' && isset($nilaiPsi[$k])) {
                         $nilaiPsi[$k] = $a['skor_akhir'];
                     }
                 }
 
-                /* ================== Isi ke Sheet ================== */
+                /* ================= ISI SHEET ================= */
+
                 $sheet->setCellValue("A$row", $no++)
                     ->setCellValue("B$row", $s['name']);
 
                 /* Akademik */
+
                 $c = $startAkd;
                 $akdCells = [];
+
                 foreach ($nilaiAkd as $k => $v) {
+
                     $sheet->setCellValue($c . $row, $v);
                     $c++;
+
                     $sheet->setCellValue($c . $row, round($v * $akdPersen[$k] / 100, 2));
+
                     $akdCells[] = $c . $row;
                     $c++;
                 }
-                $sheet->setCellValue($nilaiAkdCol . $row, '=SUM(' . implode(',', $akdCells) . ')');
+
+                if (!empty($akdCells)) {
+                    $sheet->setCellValue($nilaiAkdCol . $row, '=SUM(' . implode(',', $akdCells) . ')');
+                } else {
+                    $sheet->setCellValue($nilaiAkdCol . $row, 0);
+                }
 
                 /* Psikolog */
+
                 $c = $startPsi;
                 $psiCells = [];
+
                 foreach ($nilaiPsi as $k => $v) {
+
                     $sheet->setCellValue($c . $row, $v);
                     $c++;
+
                     $sheet->setCellValue($c . $row, round($v * $psiPersen[$k] / 100, 2));
+
                     $psiCells[] = $c . $row;
                     $c++;
                 }
+
                 $sheet->setCellValue($nilaiPsiCol . $row, '=SUM(' . implode(',', $psiCells) . ')');
 
                 /* Final */
+
                 if ($showJasmani) {
                     $sheet->setCellValue($nilaiJasCol . $row, $nilaiJas);
                 }
@@ -279,27 +368,30 @@ class NilaiSiswa extends BaseController
                 $sheet->setCellValue($psiFinalCol . $row, "={$nilaiPsiCol}{$row}*{$finalBobot['psikolog']}/100");
 
                 if ($showJasmani) {
+
                     $sheet->setCellValue($jasFinalCol . $row, "={$nilaiJasCol}{$row}*{$finalBobot['jasmani']}/100");
-                    $sheet->setCellValue($nilaiAkhirCol . $row, "=SUM({$akdFinalCol}{$row},{$psiFinalCol}{$row},{$jasFinalCol}{$row})");
+
+                    $sheet->setCellValue(
+                        $nilaiAkhirCol . $row,
+                        "=SUM({$akdFinalCol}{$row},{$psiFinalCol}{$row},{$jasFinalCol}{$row})"
+                    );
                 } else {
-                    $sheet->setCellValue($nilaiAkhirCol . $row, "=SUM({$akdFinalCol}{$row},{$psiFinalCol}{$row})");
+
+                    $sheet->setCellValue(
+                        $nilaiAkhirCol . $row,
+                        "=SUM({$akdFinalCol}{$row},{$psiFinalCol}{$row})"
+                    );
                 }
 
                 $row++;
             }
 
             /* ================= STYLE FINAL ================= */
+
             $lastCol = $sheet->getHighestColumn();
             $lastRow = $sheet->getHighestRow();
 
             $sheet->getStyle("A2:{$lastCol}3")->applyFromArray($styleHeader);
-            $sheet->getStyle("{$startAkd}2:{$nilaiAkdCol}{$lastRow}")->applyFromArray($styleAkd);
-            $sheet->getStyle("{$startPsi}2:{$nilaiPsiCol}{$lastRow}")->applyFromArray($stylePsi);
-            $sheet->getStyle("{$startFinal}2:{$nilaiAkhirCol}{$lastRow}")->applyFromArray($styleFinal);
-
-            $sheet->getStyle("{$nilaiAkhirCol}4:{$nilaiAkhirCol}{$lastRow}")
-                ->getFont()->setBold(true);
-
             $sheet->freezePane('C4');
 
             foreach (range('A', $lastCol) as $c) {
