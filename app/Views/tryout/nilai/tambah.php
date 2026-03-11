@@ -162,6 +162,25 @@
                                 <input type="text" name="kedisiplinan" class="form-control">
                             </div>
 
+                        <?php elseif (in_array('wwcr', $ujianTryout)): ?>
+
+                            <!-- ================= WAWANCARA ================= -->
+
+                            <div class="form-group">
+                                <label>Penguasaan Materi</label>
+                                <input type="number" name="materi" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kecakapan</label>
+                                <input type="text" name="kecakapan" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Kedisiplinan</label>
+                                <input type="text" name="kedisiplinan" class="form-control">
+                            </div>
+
 
                         <?php else: ?>
 

@@ -199,6 +199,17 @@ class TryoutNilaiManual extends BaseController
             $skor = null;
         }
 
+        elseif ($this->request->getPost('materi') !== null) {
+
+            $deskripsi = json_encode([
+                'penguasaan_materi' => $this->request->getPost('materi'),
+                'kecakapan' => $this->request->getPost('kecakapan'),
+                'kedisiplinan' => $this->request->getPost('kedisiplinan'),
+            ]);
+
+            $skor = null;
+        }
+
         // ======================
         // VALIDASI NILAI
         // ======================
