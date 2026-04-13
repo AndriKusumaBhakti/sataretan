@@ -221,12 +221,12 @@
         }
     });
 
-    window.addEventListener('beforeunload', function(e) {
-        if (!submitted) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
+    // window.addEventListener('beforeunload', function(e) {
+    //     if (!submitted) {
+    //         e.preventDefault();
+    //         e.returnValue = '';
+    //     }
+    // });
 </script>
 
 <!-- ================= STYLE ================= -->
