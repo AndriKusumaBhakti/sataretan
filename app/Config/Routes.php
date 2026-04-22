@@ -58,6 +58,10 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
         $routes->get('kategori-tryout', 'KategoryTryout::index');
         $routes->post('kategori-tryout/get-by-cabang', 'KategoryTryout::getByCabang');
         $routes->post('kategori-tryout/save', 'KategoryTryout::save');
+
+        // history siswa
+        $routes->get('history-siswa', 'Parameter::siswaHistory');
+        $routes->post('update-status-inactive/(:num)', 'Parameter::updateStatusInactive/$1');
     });
 
     /* =====================

@@ -258,6 +258,11 @@ function user_menu(): array
             'url'     => null,
             'submenu' => [
                 [
+                    'title'      => 'History User',
+                    'url'        => base_url('maintenance/history-siswa'),
+                    'subsegment' => 'history-siswa'
+                ],
+                [
                     'title'      => 'Parameter',
                     'url'        => base_url('maintenance/parameter'),
                     'subsegment' => 'parameter'

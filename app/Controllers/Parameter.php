@@ -4,11 +4,19 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\ParameterModel;
+use App\Models\UserModel;
+use App\Models\UserPaketModel;
+use App\Models\PaketModel;
+use App\Models\PaketApproveHistory;
 
 class Parameter extends BaseController
 {
     protected array $menuItems = [];
     protected $parameterModel;
+    protected $userModel;
+    protected $userPaketModel;
+    protected $paketModel;
+    protected $paketApproveHistory;
 
     public function __construct()
     {
@@ -25,6 +33,10 @@ class Parameter extends BaseController
         $data = default_parser_item([]);
         $data['menuItems'] = $this->menuItems;
         $data['base_url']  = base_url('/');
+        $this->userModel = new UserModel();
+        $this->userPaketModel = new UserPaketModel();
+        $this->paketModel = new PaketModel();
+        $this->paketApproveHistory = new PaketApproveHistory();
 
         return $data;
     }
@@ -168,5 +180,39 @@ class Parameter extends BaseController
 
         return redirect()->to(site_url('/maintenance/parameter'))
             ->with('success', 'Parameter berhasil dihapus');
+    }
+
+    public function siswaHistory()
+    {
+        $data = $this->baseData();
+        $data['users'] = $this->userModel->bySiswaHistory()->findAll();
+        return view('parameter/siswa-history', $data);
+    }
+
+    public function updateStatusInactive($userId)
+    {
+        $this->baseData();
+        $userPaket = $this->userPaketModel
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$userPaket) {
+            return redirect()->back()->with(
+                'error',
+                'Data paket user tidak ditemukan'
+            );
+        }
+
+        $this->userPaketModel
+            ->where('user_id', $userId)
+            ->set([
+                'status'      => 'I',
+                'updated_at'  => date('Y-m-d H:i:s')
+            ])
+            ->update();
+        return redirect()->back()->with(
+            'success',
+            'Status user berhasil diubah menjadi Tidak Aktif'
+        );
     }
 }
