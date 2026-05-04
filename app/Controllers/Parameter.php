@@ -198,7 +198,7 @@ class Parameter extends BaseController
 
         if (!$userPaket) {
             return redirect()->back()->with(
-                'error',
+                'errors',
                 'Data paket user tidak ditemukan'
             );
         }
@@ -214,5 +214,38 @@ class Parameter extends BaseController
             'success',
             'Status user berhasil diubah menjadi Tidak Aktif'
         );
+    }
+
+    public function detail($userId)
+    {
+        $this->baseData();
+        $user = $this->userModel
+            ->where('id', $userId)
+            ->first();
+
+        if (!$user) {
+            return redirect()->back()->with(
+                'errors',
+                'Data paket user tidak ditemukan'
+            );
+        }
+
+        $userPaket = $this->userPaketModel
+            ->where('user_id', $userId)
+            ->first();
+
+        $history = $this->paketApproveHistory
+            ->where('user_id', $userId)
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
+        $data = [
+            'title'       => 'Detail History User Approve',
+            'user'        => $user,
+            'user_paket'  => $userPaket,
+            'history'     => $history,
+        ];
+
+        return view('master-data/detail', $data);
     }
 }

@@ -145,25 +145,13 @@
                                     <td class="text-center text-nowrap">
 
                                         <!-- DETAIL HISTORY -->
-                                        <a href="<?= base_url('maintenance/detail/' . $u['id']) ?>"
-                                            class="btn btn-sm btn-light border rounded-circle mr-1"
-                                            title="Detail History">
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </a>
-                                        <!-- UPDATE STATUS INACTIVE -->
-                                        <?php if (($u['paket_status'] ?? '') == 'A'): ?>
-                                            <form action="<?= base_url('maintenance/update-status-inactive/' . $u['id']) ?>"
-                                                method="post"
-                                                class="d-inline">
-                                                <?= csrf_field() ?>
-
-                                                <button type="submit"
-                                                    class="btn btn-sm btn-light border rounded-circle mr-1"
-                                                    onclick="return confirm('Ubah status user ini menjadi Tidak Aktif?')"
-                                                    title="Set Inactive">
-                                                    <i class="fas fa-user-slash text-secondary"></i>
-                                                </button>
-                                            </form>
+                                         <!-- UPDATE STATUS INACTIVE -->
+                                        <?php if (($u['paket_status'] ?? '') !== 'P'): ?>
+                                            <a href="<?= base_url('maintenance/detail/' . $u['id']) ?>"
+                                                class="btn btn-sm btn-light border rounded-circle mr-1"
+                                                title="Detail History">
+                                                <i class="fas fa-eye text-primary"></i>
+                                            </a>
                                         <?php endif; ?>
                                     </td>
 

@@ -65,6 +65,7 @@ class KategoryTryout extends BaseController
 
         $akademik  = $this->request->getPost('akademik') ?? [];
         $psikolog  = $this->request->getPost('psikolog') ?? [];
+        $skd  = $this->request->getPost('skd') ?? [];
 
         $persenAkademik    = $this->request->getPost('persen_akademik') ?? [];
         $modeAkademik      = $this->request->getPost('mode_akademik') ?? [];
@@ -75,6 +76,11 @@ class KategoryTryout extends BaseController
         $modePsikolog      = $this->request->getPost('mode_psikolog') ?? [];
         $penilaianPsikolog = $this->request->getPost('penilaian_psikolog') ?? [];
         $programPsikolog   = $this->request->getPost('program_psikolog') ?? [];
+
+        $persenskd    = $this->request->getPost('persen_skd') ?? [];
+        $modeskd      = $this->request->getPost('mode_skd') ?? [];
+        $penilaianskd = $this->request->getPost('penilaian_skd') ?? [];
+        $programskd   = $this->request->getPost('program_skd') ?? [];
 
 
         /* ================= DELETE DATA LAMA ================= */
@@ -88,6 +94,7 @@ class KategoryTryout extends BaseController
 
         $paramAkademik = $this->parameter->getValue('akademik');
         $paramPsikolog = $this->parameter->getValue('psikolog');
+        $paramskd = $this->parameter->getValue('skd');
 
         $mapAkademik = [];
         foreach ($paramAkademik as $p) {
@@ -97,6 +104,11 @@ class KategoryTryout extends BaseController
         $mapPsikolog = [];
         foreach ($paramPsikolog as $p) {
             $mapPsikolog[$p['key']] = $p['value'];
+        }
+
+        $mapskd = [];
+        foreach ($paramskd as $p) {
+            $mapskd[$p['key']] = $p['value'];
         }
 
 
@@ -156,6 +168,32 @@ class KategoryTryout extends BaseController
             ];
         }
 
+        /* ================= SIMPAN SKD ================= */
+
+        foreach ($skd as $key) {
+
+            $mode = $modeskd[$key] ?? null;
+
+            $penilaian = 'angka';
+
+            if ($mode === 'offline') {
+                $penilaian = $penilaianskd[$key] ?? 'angka';
+            }
+
+            $program = $programskd[$key] ?? [];
+
+            $insertData[] = [
+                'company_id'      => $company_id,
+                'category'        => 'skd',
+                'key'             => $key,
+                'value'           => $mapskd[$key] ?? '',
+                'mode'            => $mode,
+                'persen'          => $persenskd[$key] ?? 0,
+                'penilaian_type'  => $penilaian,
+                'program'         => !empty($program) ? json_encode($program) : null
+            ];
+        }
+
 
         /* ================= INSERT DATA ================= */
 
@@ -192,6 +230,7 @@ class KategoryTryout extends BaseController
 
         $pilihanAkademik = $this->parameter->getValue('akademik');
         $pilihanPsikolog = $this->parameter->getValue('psikolog');
+        $pilihanskd = $this->parameter->getValue('skd');
 
         /*
         ================= DATA TERSIMPAN
@@ -203,7 +242,8 @@ class KategoryTryout extends BaseController
 
         $map = [
             'akademik' => [],
-            'psikolog' => []
+            'psikolog' => [],
+            'skd' => []
         ];
 
         foreach ($selected as $row) {
@@ -258,11 +298,30 @@ class KategoryTryout extends BaseController
             ];
         }
 
+        $skd = [];
+
+        foreach ($pilihanskd as $row) {
+
+            $saved = $map['skd'][$row['key']] ?? null;
+
+            $skd[] = [
+                'key' => $row['key'],
+                'value' => $row['value'],
+                'persen' => $saved['persen'] ?? '',
+                'mode' => $saved['mode'] ?? '',
+                'penilaian_type' => $saved['penilaian_type'] ?? '',
+                'program' => $saved['program'] ?? [],
+                'checked' => $saved ? true : false
+            ];
+        }
+
         return $this->response->setJSON([
             'pilihan_akademik' => $pilihanAkademik,
             'pilihan_psikolog' => $pilihanPsikolog,
+            'pilihan_skd' => $pilihanskd,
             'akademik' => $akademik,
             'psikolog' => $psikolog,
+            'skd' => $skd,
             'csrfHash' => csrf_hash()
         ]);
     }

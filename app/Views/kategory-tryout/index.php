@@ -95,6 +95,18 @@
                         </div>
 
 
+                        <div class="mb-4">
+
+                            <h5 class="section-title">
+                                <i class="fas fa-brain mr-2 text-primary"></i>
+                                Tryout SKD
+                            </h5>
+
+                            <div class="row" id="skd-container"></div>
+
+                        </div>
+
+
 
                         <!-- ================= BUTTON ================= -->
 
@@ -179,6 +191,7 @@
 
                 document.getElementById('akademik-container').innerHTML = ''
                 document.getElementById('psikolog-container').innerHTML = ''
+                document.getElementById('skd-container').innerHTML = ''
                 return
 
             }
@@ -419,9 +432,11 @@
 
         const akademikBox = document.getElementById('akademik-container')
         const psikologBox = document.getElementById('psikolog-container')
+        const skdBox = document.getElementById('skd-container')
 
         akademikBox.innerHTML = ''
         psikologBox.innerHTML = ''
+        skdBox.innerHTML = ''
 
 
         data.pilihan_akademik.forEach(item => {
@@ -443,6 +458,19 @@
 
             psikologBox.innerHTML += templateTryout(
                 'psikolog',
+                item,
+                selected
+            )
+
+        })
+
+
+        data.pilihan_skd.forEach(item => {
+
+            const selected = data.skd.find(x => x.key === item.key) || null
+
+            skdBox.innerHTML += templateTryout(
+                'skd',
                 item,
                 selected
             )
