@@ -260,4 +260,27 @@ class Parameter extends BaseController
 
         return view('master-data/detail', $data);
     }
+
+    public function siswaHistoryDetail($userId)
+    {
+        $db = \Config\Database::connect();
+
+        $data = $db->table('h_paket_approve h')
+            ->select('
+                h.id,
+                h.user_id,
+                h.approved_by,
+                h.created_at,
+                h.expired_at,
+                h.note,
+                u.name as approved_name
+            ')
+            ->join('users u', 'u.id = h.approved_by', 'left')
+            ->where('h.user_id', $userId)
+            ->orderBy('h.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON($data);
+    }
 }

@@ -61,6 +61,7 @@ $routes->group('/', ['filter' => 'jwt'], function ($routes) {
 
         // history siswa
         $routes->get('history-siswa', 'Parameter::siswaHistory');
+        $routes->get('history-siswa-detail/(:num)', 'Parameter::siswaHistoryDetail/$1');
         $routes->post('update-status-inactive/(:num)', 'Parameter::updateStatusInactive/$1');
     });
 

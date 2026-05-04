@@ -71,11 +71,11 @@
 
         <div>
             <label>Status</label>
-            <select name="status" class="form-control">
+            <select name="status" class="form-control select-status">
                 <option value="">Semua</option>
-                <option value="A" <?= ($filter['status'] == 'A') ? 'selected' : '' ?>>Aktif</option>
-                <option value="P" <?= ($filter['status'] == 'P') ? 'selected' : '' ?>>Pending</option>
-                <option value="I" <?= ($filter['status'] == 'I') ? 'selected' : '' ?>>Tidak Aktif</option>
+                <option value="A" <?= (($filter['status'] ?? '') == 'A') ? 'selected' : '' ?>>Aktif</option>
+                <option value="P" <?= (($filter['status'] ?? '') == 'P') ? 'selected' : '' ?>>Pending</option>
+                <option value="I" <?= (($filter['status'] ?? '') == 'I') ? 'selected' : '' ?>>Tidak Aktif</option>
             </select>
         </div>
 
@@ -134,9 +134,9 @@
                                 <td><?= esc($u['name_paket'] ?? '-') ?></td>
 
                                 <td>
-                                    <?php if ($u['paket_status'] == 'A'): ?>
+                                    <?php if (($u['paket_status'] ?? '') == 'A'): ?>
                                         <span class="badge badge-success">Aktif</span>
-                                    <?php elseif ($u['paket_status'] == 'P'): ?>
+                                    <?php elseif (($u['paket_status'] ?? '') == 'P'): ?>
                                         <span class="badge badge-warning">Pending</span>
                                     <?php else: ?>
                                         <span class="badge badge-danger">Tidak Aktif</span>
@@ -144,7 +144,7 @@
                                 </td>
 
                                 <td>
-                                    <?= $u['paket_exp'] ? date('d M Y', strtotime($u['paket_exp'])) : '-' ?>
+                                    <?= !empty($u['paket_exp']) ? date('d M Y', strtotime($u['paket_exp'])) : '-' ?>
                                 </td>
 
                                 <td>
@@ -175,7 +175,9 @@
                 <h5>History Approval</h5>
                 <button class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body" id="historyContent"></div>
+            <div class="modal-body" id="historyContent">
+                <div class="text-center text-muted">Loading...</div>
+            </div>
         </div>
     </div>
 </div>
@@ -228,71 +230,88 @@
         vertical-align: middle;
         white-space: nowrap;
     }
+
+    .select-status {
+        height: 48px;
+        appearance: none;
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px;
+    }
 </style>
 
 <!-- ================= SCRIPT ================= -->
 <script>
     $(document).ready(function() {
 
-        let table = $('#userTable').DataTable({
-            pageLength: 10,
-            responsive: true,
-            ordering: true,
-            searching: true,
-            lengthChange: true,
-            columnDefs: [{
-                orderable: false,
-                targets: 7
-            }],
-            drawCallback: function(settings) {
-                var api = this.api();
-                api.column(0, {
-                    search: 'applied',
-                    order: 'applied'
-                }).nodes().each(function(cell, i) {
-                    cell.innerHTML = i + 1;
-                });
-            }
-        });
+        if ($.fn.DataTable) {
+            $('#userTable').DataTable({
+                pageLength: 10,
+                responsive: true,
+                ordering: true,
+                searching: true,
+                lengthChange: true,
+                columnDefs: [{
+                    orderable: false,
+                    targets: 7
+                }],
+                drawCallback: function(settings) {
+                    var api = this.api();
+                    api.column(0, {
+                            search: 'applied',
+                            order: 'applied'
+                        })
+                        .nodes()
+                        .each(function(cell, i) {
+                            cell.innerHTML = i + 1;
+                        });
+                }
+            });
+        }
 
-        // DETAIL HISTORY (FIX UNTUK DATATABLE)
+        // DETAIL HISTORY (AMAN UNTUK DATATABLE)
         $(document).on('click', '.btn-detail', function() {
 
             const id = $(this).data('id');
 
-            fetch("<?= base_url('maintenance/history/') ?>" + id)
+            $('#historyContent').html('<div class="text-center">Loading...</div>');
+            $('#modalHistory').modal('show');
+
+            fetch("<?= base_url('maintenance/history-siswa-detail/') ?>" + id)
                 .then(res => res.json())
                 .then(data => {
 
                     let html = '';
 
-                    if (data.length === 0) {
-                        html = '<p>Tidak ada history</p>';
+                    if (!data || data.length === 0) {
+                        html = '<p class="text-center text-muted">Tidak ada history</p>';
                     } else {
 
                         html += `<table class="table table-bordered">
-                    <tr>
-                        <th>Approved By</th>
-                        <th>Tanggal</th>
-                        <th>Expired</th>
-                        <th>Note</th>
-                    </tr>`;
+                        <tr>
+                            <th>Approved By</th>
+                            <th>Tanggal</th>
+                            <th>Expired</th>
+                            <th>Note</th>
+                        </tr>`;
 
                         data.forEach(d => {
                             html += `
-                        <tr>
-                            <td>${d.approved_name ?? '-'}</td>
-                            <td>${d.created_at ?? '-'}</td>
-                            <td>${d.expired_at ?? '-'}</td>
-                            <td>${d.note ?? '-'}</td>
-                        </tr>`;
+                            <tr>
+                                <td>${d.approved_name ?? '-'}</td>
+                                <td>${d.created_at ?? '-'}</td>
+                                <td>${d.expired_at ?? '-'}</td>
+                                <td>${d.note ?? '-'}</td>
+                            </tr>`;
                         });
 
                         html += '</table>';
                     }
 
                     $('#historyContent').html(html);
-                    $('#modalHistory').modal('show');
+                })
+                .catch(() => {
+                    $('#historyContent').html('<p class="text-danger text-center">Gagal load data</p>');
                 });
 
         });
