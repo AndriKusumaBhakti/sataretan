@@ -15,7 +15,6 @@
         </div>
     </div>
 
-
     <!-- ================= STATISTIK CARD ================= -->
     <div class="row">
 
@@ -23,9 +22,7 @@
             <div class="card stat-card stat-primary">
                 <div class="card-body">
                     <div class="stat-title">Total User</div>
-                    <div class="stat-value">
-                        <?= count($users) ?>
-                    </div>
+                    <div class="stat-value"><?= count($users) ?></div>
                     <i class="fas fa-users stat-icon"></i>
                 </div>
             </div>
@@ -69,177 +66,161 @@
 
     </div>
 
+    <!-- ================= FILTER ================= -->
+    <form method="get" class="mb-4 d-flex flex-wrap gap-2 align-items-end">
+
+        <div>
+            <label>Status</label>
+            <select name="status" class="form-control">
+                <option value="">Semua</option>
+                <option value="A" <?= ($filter['status'] == 'A') ? 'selected' : '' ?>>Aktif</option>
+                <option value="P" <?= ($filter['status'] == 'P') ? 'selected' : '' ?>>Pending</option>
+                <option value="I" <?= ($filter['status'] == 'I') ? 'selected' : '' ?>>Tidak Aktif</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Dari</label>
+            <input type="date" name="date_from" class="form-control"
+                value="<?= $filter['date_from'] ?? '' ?>">
+        </div>
+
+        <div>
+            <label>Sampai</label>
+            <input type="date" name="date_to" class="form-control"
+                value="<?= $filter['date_to'] ?? '' ?>">
+        </div>
+
+        <div>
+            <button class="btn btn-primary">Filter</button>
+            <a href="<?= base_url('maintenance/history-siswa') ?>" class="btn btn-secondary">Reset</a>
+        </div>
+
+    </form>
 
     <!-- ================= TABLE ================= -->
-    <?php if (empty($users)): ?>
-        <div class="empty-state">
-            <i class="fas fa-users empty-icon"></i>
-            <h5>Belum Ada User</h5>
-            <p class="text-muted">
-                Data user belum tersedia
-            </p>
-        </div>
-    <?php else: ?>
+    <div class="card">
+        <div class="card-body p-6">
 
-        <div class="card shadow-sm border-0 rounded-lg">
-            <div class="card-body p-0">
-                <div class="table-responsive">
+            <table class="table table-bordered mb-0" id="userTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>Program</th>
+                        <th>Paket</th>
+                        <th>Status</th>
+                        <th>Expired</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
 
-                    <table class="table table-hover align-middle mb-0" id="userTable">
-                        <thead class="thead-light">
+                <tbody>
+                    <?php if (empty($users)): ?>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                Tidak ada data
+                            </td>
+                        </tr>
+                    <?php else: ?>
+
+                        <?php foreach ($users as $i => $u): ?>
                             <tr>
-                                <th>#</th>
-                                <th>Nama</th>
-                                <th>Email</th>
-                                <th>No HP</th>
-                                <th>Program</th>
-                                <th>Paket</th>
-                                <th>Status</th>
-                                <th>Expired</th>
-                                <th class="text-center">Aksi</th>
+                                <td><?= $i + 1 ?></td>
+                                <td><?= esc($u['name']) ?></td>
+                                <td><?= esc($u['email']) ?></td>
+                                <td><?= esc($u['user_program'] ?? '-') ?></td>
+                                <td><?= esc($u['name_paket'] ?? '-') ?></td>
+
+                                <td>
+                                    <?php if ($u['paket_status'] == 'A'): ?>
+                                        <span class="badge badge-success">Aktif</span>
+                                    <?php elseif ($u['paket_status'] == 'P'): ?>
+                                        <span class="badge badge-warning">Pending</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-danger">Tidak Aktif</span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <?= $u['paket_exp'] ? date('d M Y', strtotime($u['paket_exp'])) : '-' ?>
+                                </td>
+
+                                <td>
+                                    <button
+                                        class="btn btn-sm btn-primary btn-detail"
+                                        data-id="<?= $u['id'] ?>">
+                                        Detail
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
+                        <?php endforeach; ?>
 
-                        <tbody>
-                            <?php foreach ($users as $i => $u): ?>
-                                <tr>
+                    <?php endif; ?>
+                </tbody>
 
-                                    <td><?= $i + 1 ?></td>
+            </table>
 
-                                    <td class="font-weight-bold">
-                                        <?= esc($u['name']) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= esc($u['email']) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= esc($u['phone'] ?? '-') ?>
-                                    </td>
-
-                                    <td>
-                                        <?= esc(strtoupper($u['user_program'] ?? '-')) ?>
-                                    </td>
-
-                                    <td>
-                                        <?= esc($u['name_paket'] ?? '-') ?>
-                                    </td>
-
-                                    <td>
-                                        <?php if (($u['paket_status'] ?? '') === 'A'): ?>
-                                            <span class="badge badge-soft-success">Aktif</span>
-                                        <?php elseif (($u['paket_status'] ?? '') === 'P'): ?>
-                                            <span class="badge badge-soft-warning">Pending</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-soft-danger">Tidak Aktif</span>
-                                        <?php endif; ?>
-                                    </td>
-
-                                    <td>
-                                        <?= !empty($u['paket_exp'])
-                                            ? date('d M Y', strtotime($u['paket_exp']))
-                                            : '-' ?>
-                                    </td>
-
-                                    <td class="text-center text-nowrap">
-
-                                        <!-- DETAIL HISTORY -->
-                                         <!-- UPDATE STATUS INACTIVE -->
-                                        <?php if (($u['paket_status'] ?? '') !== 'P'): ?>
-                                            <a href="<?= base_url('maintenance/detail/' . $u['id']) ?>"
-                                                class="btn btn-sm btn-light border rounded-circle mr-1"
-                                                title="Detail History">
-                                                <i class="fas fa-eye text-primary"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                    </td>
-
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-
-                    </table>
-
-                </div>
-            </div>
         </div>
-
-    <?php endif; ?>
+    </div>
 
 </div>
 
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="modalHistory">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>History Approval</h5>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="historyContent"></div>
+        </div>
+    </div>
+</div>
 
 <!-- ================= STYLE ================= -->
 <style>
-    .select-paket {
-        height: 48px;
-        appearance: none;
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        background-size: 14px;
-    }
-
     .stat-card {
         border-radius: 18px;
         color: #fff;
         position: relative;
         overflow: hidden;
-        transition: .3s;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, .15);
     }
 
     .stat-title {
         font-size: 12px;
         text-transform: uppercase;
-        opacity: .85;
     }
 
     .stat-value {
         font-size: 30px;
-        font-weight: 700;
+        font-weight: bold;
     }
 
     .stat-icon {
         position: absolute;
-        right: 18px;
-        bottom: 18px;
-        font-size: 44px;
-        opacity: .25;
+        right: 15px;
+        bottom: 15px;
+        font-size: 40px;
+        opacity: .3;
     }
 
     .stat-primary {
-        background: linear-gradient(135deg, #4e73df, #224abe);
+        background: #4e73df;
     }
 
     .stat-success {
-        background: linear-gradient(135deg, #1cc88a, #13855c);
+        background: #1cc88a;
     }
 
     .stat-warning {
-        background: linear-gradient(135deg, #f6c23e, #dda20a);
+        background: #f6c23e;
     }
 
     .stat-danger {
-        background: linear-gradient(135deg, #e74a3b, #be2617);
-    }
-
-    .empty-state {
-        background: #fff;
-        border-radius: 20px;
-        padding: 80px 20px;
-        text-align: center;
-        box-shadow: 0 14px 38px rgba(0, 0, 0, .08);
-    }
-
-    .empty-icon {
-        font-size: 60px;
-        color: #d1d3e2;
-        margin-bottom: 14px;
+        background: #e74a3b;
     }
 
     .table td,
@@ -249,16 +230,73 @@
     }
 </style>
 
-
 <!-- ================= SCRIPT ================= -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.jQuery && $('#userTable').length) {
-            $('#userTable').DataTable({
-                pageLength: 10,
-                responsive: true
-            });
-        }
+    $(document).ready(function() {
+
+        let table = $('#userTable').DataTable({
+            pageLength: 10,
+            responsive: true,
+            ordering: true,
+            searching: true,
+            lengthChange: true,
+            columnDefs: [{
+                orderable: false,
+                targets: 7
+            }],
+            drawCallback: function(settings) {
+                var api = this.api();
+                api.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                }).nodes().each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+            }
+        });
+
+        // DETAIL HISTORY (FIX UNTUK DATATABLE)
+        $(document).on('click', '.btn-detail', function() {
+
+            const id = $(this).data('id');
+
+            fetch("<?= base_url('maintenance/history/') ?>" + id)
+                .then(res => res.json())
+                .then(data => {
+
+                    let html = '';
+
+                    if (data.length === 0) {
+                        html = '<p>Tidak ada history</p>';
+                    } else {
+
+                        html += `<table class="table table-bordered">
+                    <tr>
+                        <th>Approved By</th>
+                        <th>Tanggal</th>
+                        <th>Expired</th>
+                        <th>Note</th>
+                    </tr>`;
+
+                        data.forEach(d => {
+                            html += `
+                        <tr>
+                            <td>${d.approved_name ?? '-'}</td>
+                            <td>${d.created_at ?? '-'}</td>
+                            <td>${d.expired_at ?? '-'}</td>
+                            <td>${d.note ?? '-'}</td>
+                        </tr>`;
+                        });
+
+                        html += '</table>';
+                    }
+
+                    $('#historyContent').html(html);
+                    $('#modalHistory').modal('show');
+                });
+
+        });
+
     });
 </script>
 

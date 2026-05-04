@@ -24,7 +24,7 @@ $sourceUrl = $isFile
 
     <!-- ===== VIEWER ===== -->
     <div class="card video-viewer-binjas border-0 shadow-sm mb-4">
-        <div class="card-body p-0">
+        <div class="card-body p-6">
 
             <?php if ($video['tipe'] === 'video'): ?>
 

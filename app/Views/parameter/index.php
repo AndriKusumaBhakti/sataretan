@@ -34,7 +34,7 @@
     <?php else: ?>
 
         <div class="card shadow-sm border-0 rounded-lg">
-            <div class="card-body p-0">
+            <div class="card-body p-6">
 
                 <div class="table-responsive">
 

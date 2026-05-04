@@ -61,7 +61,7 @@ $sourceUrl = $isFile
                     </div>
                 <?php endif; ?>
 
-                <div class="card-body p-0 materi-protect">
+                <div class="card-body p-6 materi-protect">
 
                     <?php if ($materi['tipe'] === 'video'): ?>
 

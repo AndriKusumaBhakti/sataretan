@@ -15,7 +15,7 @@
 
     <!-- ===== VIEWER ===== -->
     <div class="card materi-viewer-binjas border-0 shadow-sm mb-4">
-        <div class="card-body p-0">
+        <div class="card-body p-6">
             <iframe
                 src="<?= esc(base_url('file/uu/2026_16_01_17_32_uu_kepolsian.pdf')) ?>#toolbar=0&navpanes=0&scrollbar=0"
                 class="materi-iframe"

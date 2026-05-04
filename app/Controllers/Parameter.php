@@ -185,7 +185,19 @@ class Parameter extends BaseController
     public function siswaHistory()
     {
         $data = $this->baseData();
-        $data['users'] = $this->userModel->bySiswaHistory()->findAll();
+
+        $filter = [
+            'status'    => $this->request->getGet('status'),
+            'date_from' => $this->request->getGet('date_from'),
+            'date_to'   => $this->request->getGet('date_to'),
+        ];
+
+        // ✅ LANGSUNG AMBIL ARRAY
+        $users = $this->userModel->bySiswaHistory($filter);
+
+        $data['users']  = $users;
+        $data['filter'] = $filter;
+
         return view('parameter/siswa-history', $data);
     }
 
