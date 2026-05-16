@@ -793,6 +793,8 @@ class Tryout extends BaseController
 
             $totalSoal = count($soalList);
 
+            $skor = 0;
+            $nilai_maksimal = 0;
             $benar = 0;
             $detail = [];
             foreach ($soalList as $soal) {
@@ -808,6 +810,29 @@ class Tryout extends BaseController
                 if ($isBenar) {
                     $benar++;
                 }
+
+                $nilai_soal = 0;
+                $nilai_soal_maks = 0;
+
+                foreach (['A', 'B', 'C', 'D', 'E'] as $opsi) {
+
+                    $nilai_opsi = isset($soal['nilai_' . $opsi])
+                        ? (float) $soal['nilai_' . $opsi]
+                        : 0;
+
+                    // nilai maksimal per soal
+                    if ($nilai_opsi > $nilai_soal_maks) {
+                        $nilai_soal_maks = $nilai_opsi;
+                    }
+
+                    // nilai jawaban user
+                    if ($jawaban_user === $opsi) {
+                        $nilai_soal = $nilai_opsi;
+                    }
+                }
+
+                $skor += $nilai_soal;
+                $nilai_maksimal += $nilai_soal_maks;
 
                 $detail[] = [
                     'pertanyaan' => $soal['pertanyaan'],
@@ -829,6 +854,8 @@ class Tryout extends BaseController
 
             $salah = $totalSoal - $benar;
 
+            $data['skor_siswa'] = $skor;
+            $data['skor_maksimal'] = $nilai_maksimal;
             $data['total'] = $totalSoal;
             $data['benar'] = $benar;
             $data['salah'] = $salah;

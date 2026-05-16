@@ -21,6 +21,29 @@
     <?php if (!empty($hasOnline) && $hasOnline): ?>
 
         <!-- ================= RINGKASAN ================= -->
+        <?php if (!empty($skor_maksimal) && ($skor_maksimal > 0) && ($skor_siswa > 0)): ?>
+            <div class="row mb-4">
+
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <div class="card hasil-card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Skor Maksimal</h6>
+                            <h3 class="font-weight-bold mb-0"><?= $skor_maksimal ?></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <div class="card hasil-card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-1">Skor Siswa</h6>
+                            <h3 class="font-weight-bold text-success mb-0"><?= $skor_siswa ?></h3>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        <?php endif; ?>
         <div class="row mb-4">
             <div class="col-md-4 mb-3 mb-md-0">
                 <div class="card hasil-card text-center">
