@@ -101,67 +101,69 @@
     <!-- ================= TABLE ================= -->
     <div class="card">
         <div class="card-body p-6">
+            <div class="table-responsive">
 
-            <table class="table table-bordered mb-0" id="userTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Program</th>
-                        <th>Paket</th>
-                        <th>Status</th>
-                        <th>Expired</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <?php if (empty($users)): ?>
+                <table class="table table-hover align-middle mb-0" id="userTable">
+                    <thead class="thead-light">
                         <tr>
-                            <td colspan="8" class="text-center text-muted">
-                                Tidak ada data
-                            </td>
+                            <th>#</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Program</th>
+                            <th>Paket</th>
+                            <th>Status</th>
+                            <th>Expired</th>
+                            <th>Aksi</th>
                         </tr>
-                    <?php else: ?>
+                    </thead>
 
-                        <?php foreach ($users as $i => $u): ?>
+                    <tbody>
+                        <?php if (empty($users)): ?>
                             <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><?= esc($u['name']) ?></td>
-                                <td><?= esc($u['email']) ?></td>
-                                <td><?= esc($u['user_program'] ?? '-') ?></td>
-                                <td><?= esc($u['name_paket'] ?? '-') ?></td>
-
-                                <td>
-                                    <?php if (($u['paket_status'] ?? '') == 'A'): ?>
-                                        <span class="badge badge-success">Aktif</span>
-                                    <?php elseif (($u['paket_status'] ?? '') == 'P'): ?>
-                                        <span class="badge badge-warning">Pending</span>
-                                    <?php else: ?>
-                                        <span class="badge badge-danger">Tidak Aktif</span>
-                                    <?php endif; ?>
-                                </td>
-
-                                <td>
-                                    <?= !empty($u['paket_exp']) ? date('d M Y', strtotime($u['paket_exp'])) : '-' ?>
-                                </td>
-
-                                <td>
-                                    <button
-                                        class="btn btn-sm btn-primary btn-detail"
-                                        data-id="<?= $u['id'] ?>">
-                                        Detail
-                                    </button>
+                                <td colspan="8" class="text-center text-muted">
+                                    Tidak ada data
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
 
-                    <?php endif; ?>
-                </tbody>
+                            <?php foreach ($users as $i => $u): ?>
+                                <tr>
+                                    <td><?= $i + 1 ?></td>
+                                    <td><?= esc($u['name']) ?></td>
+                                    <td><?= esc($u['email']) ?></td>
+                                    <td><?= esc($u['user_program'] ?? '-') ?></td>
+                                    <td><?= esc($u['name_paket'] ?? '-') ?></td>
 
-            </table>
+                                    <td>
+                                        <?php if (($u['paket_status'] ?? '') == 'A'): ?>
+                                            <span class="badge badge-success">Aktif</span>
+                                        <?php elseif (($u['paket_status'] ?? '') == 'P'): ?>
+                                            <span class="badge badge-warning">Pending</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-danger">Tidak Aktif</span>
+                                        <?php endif; ?>
+                                    </td>
 
+                                    <td>
+                                        <?= !empty($u['paket_exp']) ? date('d M Y', strtotime($u['paket_exp'])) : '-' ?>
+                                    </td>
+
+                                    <td>
+                                        <button
+                                            class="btn btn-sm btn-primary btn-detail"
+                                            data-id="<?= $u['id'] ?>">
+                                            Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+
+                        <?php endif; ?>
+                    </tbody>
+
+                </table>
+
+            </div>
         </div>
     </div>
 
@@ -287,7 +289,7 @@
                         html = '<p class="text-center text-muted">Tidak ada history</p>';
                     } else {
 
-                        html += `<table class="table table-bordered">
+                        html += `<div class="table-responsive"><table class="table table-bordered">
                         <tr>
                             <th>Approved By</th>
                             <th>Tanggal</th>
@@ -305,7 +307,7 @@
                             </tr>`;
                         });
 
-                        html += '</table>';
+                        html += '</table></div>';
                     }
 
                     $('#historyContent').html(html);
